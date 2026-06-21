@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>פלטת קודים CSS - אוסף עיצובים לשימוש</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 1.2em;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .category-section {
+            margin-bottom: 50px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .category-title {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #fff;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            padding-bottom: 10px;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.1);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .card:hover {
+            transform: translateY(-5px) scale(1.02);
+            background: rgba(255,255,255,0.15);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .card h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.3em;
+            color: #fff;
+        }
+
+        .card p {
+            margin: 0;
+            opacity: 0.8;
+            font-size: 0.95em;
+        }
+
+        .stats {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 30px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 170, 255, 0.9);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .back-button:hover {
+            background: rgba(0, 136, 204, 1);
+            transform: scale(1.05);
+        }
+
+        .category-icon {
+            font-size: 1.5em;
+            margin-left: 10px;
+        }
+
+        .navigation {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-title {
+            text-align: center;
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .nav-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .nav-button {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-button:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .nav-button .icon {
+            font-size: 1.2em;
+        }
+
+        @media (max-width: 768px) {
+            .gallery {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            .category-section {
+                padding: 20px;
+            }
+            .nav-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .nav-button {
+                width: 80%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-button">← חזרה לעמוד הראשי</a>
+    
+    <div class="container">
+        <h1>🎨 פלטת קודים CSS</h1>
+        <p class="subtitle">אוסף מסודר של עיצובים CSS מתקדמים - מוכן לשימוש ולהתאמה</p>
+
+        <!-- תפריט ניווט לקטגוריות -->
+        <div class="navigation">
+            <h3 class="nav-title">🧭 ניווט מהיר לקטגוריות</h3>
+            <div class="nav-buttons">
+                <a href="#animations" class="nav-button">
+                    <span class="icon">✨</span>
+                    <span>אנימציות ואפקטים</span>
+                </a>
+                <a href="#automotive" class="nav-button">
+                    <span class="icon">🚗</span>
+                    <span>רכב וסימולטורים</span>
+                </a>
+                <a href="#safety" class="nav-button">
+                    <span class="icon">🚨</span>
+                    <span>בטיחות וחירום</span>
+                </a>
+                <a href="#games" class="nav-button">
+                    <span class="icon">🎮</span>
+                    <span>משחקים ואינטראקציה</span>
+                </a>
+                <a href="#finance" class="nav-button">
+                    <span class="icon">💳</span>
+                    <span>פיננסים וכרטיסים</span>
+                </a>
+                <a href="#culture" class="nav-button">
+                    <span class="icon">🕐</span>
+                    <span>זמן ותרבות</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- קטגוריה: אנימציות ואפקטים -->
+        <div id="animations" class="category-section">
+            <h2 class="category-title">
+                <span class="category-icon">✨</span>
+                אנימציות ואפקטים
+            </h2>
+            <div class="gallery">
+                <div class="card" onclick="window.open('projects/animated_404_page.html')">
+                    <h3>דף 404 מונפש</h3>
+                    <p>דף שגיאה עם אנימציות מתקדמות ואפקטים ויזואליים</p>
+                </div>
+                <div class="card" onclick="window.open('projects/turning_page_animation.html')">
+                    <h3>הפיכת עמוד בסיסי</h3>
+                    <p>אנימציה תלת-מימדית של הפיכת עמוד</p>
+                </div>
+                <div class="card" onclick="window.open('projects/turning_page_animation (1).html')">
+                    <h3>הפיכת עמוד משופר</h3>
+                    <p>גרסה משופרת עם אפקטים נוספים</p>
+                </div>
+                <div class="card" onclick="window.open('projects/turning_page_animation (2).html')">
+                    <h3>הפיכת עמוד מתקדם</h3>
+                    <p>גרסה מתקדמת עם פיזיקה מציאותית</p>
+                </div>
+                <div class="card" onclick="window.open('projects/turning_page_animation (3).html')">
+                    <h3>הפיכת עמוד מיוחד</h3>
+                    <p>גרסה מיוחדת עם תאורה דינמית</p>
+                </div>
+                <div class="card" onclick="window.open('projects/turning_page_animation (4).html')">
+                    <h3>הפיכת עמוד אולטימטיבי</h3>
+                    <p>הגרסה הסופית עם כל התכונות</p>
+                </div>
+                <div class="card" onclick="window.open('projects/theme_toggle.html')">
+                    <h3>מחליף נושא</h3>
+                    <p>מחליף יום/לילה עם מעברים חלקים</p>
+                </div>
+                <div class="card" onclick="window.open('projects/חדשים/3d_loader_animation.html')">
+                    <h3>אנימציית טעינה תלת-מימדית</h3>
+                    <p>אנימציית טעינה מתקדמת עם אפקטי 3D</p>
+                </div>
+                <div class="card" onclick="window.open('projects/חדשים/3d_loader_animation (1).html')">
+                    <h3>אנימציית טעינה תלת-מימדית v2</h3>
+                    <p>גרסה משופרת עם אפקטי אור</p>
+                </div>
+                <div class="card" onclick="window.open('projects/חדשים/3d_loader_animation (2).html')">
+                    <h3>אנימציית טעינה תלת-מימדית v3</h3>
+                    <p>הגרסה המתקדמת ביותר עם פיזיקה</p>
+                </div>
+                <div class="card" onclick="window.open('projects/חדשים/advanced_radar_animation.html')">
+                    <h3>רדאר מתקדם</h3>
+                    <p>אנימציית רדאר עם אפקטי סריקה</p>
+                </div>
+                <div class="card" onclick="window.open('projects/חדשים/growing_flowers.html')">
+                    <h3>פרחים צומחים בסיסי</h3>
+                    <p>אנימציית פרחים שצומחים באופן טבעי</p>
+                </div>
+                <div class="card" onclick="window.open('projects/חדשים/growing_flowers (1).html')">
+                    <h3>פרחים צומחים משופר</h3>
+                    <p>גרסה משופרת עם עלי כותרת</p>
+                </div>
+                <div class="card" onclick="window.open('projects/חדשים/growing_flowers (2).html')">
+                    <h3>פרחים צומחים מתקדם</h3>
+                    <p>גרסה מתקדמת עם צבעים דינמיים</p>
+                </div>
+                <div class="card" onclick="window.open('projects/חדשים/cute_interactive_lamp.html')">
+                    <h3>מנורה אינטראקטיבית</h3>
+                    <p>מנורה חמודה עם אפקטי תאורה</p>
+                </div>
+                <div class="card" onclick="window.open('projects/חדשים/cute_interactive_lamp (1).html')">
+                    <h3>מנורה אינטראקטיבית משופרת</h3>
+                    <p>גרסה משופרת עם יותר אינטראקציות</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- קטגוריה: רכב וסימולטורים -->
+        <div id="automotive" class="category-section">
+            <h2 class="category-title">
+                <span class="category-icon">🚗</span>
+                רכב וסימולטורים
+            </h2>
+            <div class="gallery">
+                <div class="card" onclick="window.open('projects/car_speedometer.html')">
+                    <h3>מד מהירות רכב</h3>
+                    <p>מד מהירות דיגיטלי עם מחוגים אנלוגיים</p>
+                </div>
+                <div class="card" onclick="window.open('projects/engine_button.html')">
+                    <h3>כפתור הנעה</h3>
+                    <p>כפתור מנוע אינטראקטיבי עם אפקטי קול וחזותיים</p>
+                </div>
+                <div class="card" onclick="window.open('projects/modern_3d_ignition.html')">
+                    <h3>הצתה תלת-מימדית</h3>
+                    <p>מערכת הצתה מודרנית עם עיצוב תלת-מימדי</p>
+                </div>
+                <div class="card" onclick="window.open('projects/modern_3d_ignition (1).html')">
+                    <h3>הצתה משופרת</h3>
+                    <p>גרסה משופרת עם תאורה ואפקטים</p>
+                </div>
+                <div class="card" onclick="window.open('projects/steering_wheel_system.html')">
+                    <h3>מערכת הגה בסיסית</h3>
+                    <p>סימולטור הגה עם פקדים</p>
+                </div>
+                <div class="card" onclick="window.open('projects/steering_wheel_system (1).html')">
+                    <h3>מערכת הגה משופרת</h3>
+                    <p>גרסה משופרת עם חיישנים</p>
+                </div>
+                <div class="card" onclick="window.open('projects/steering_wheel_system (2).html')">
+                    <h3>מערכת הגה מתקדמת</h3>
+                    <p>גרסה מתקדמת עם בקרת יציבות</p>
+                </div>
+                <div class="card" onclick="window.open('projects/traffic_light (1).html')">
+                    <h3>רמזור חכם</h3>
+                    <p>רמזור אינטראקטיבי עם טיימרים</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- קטגוריה: כפתורי חירום ובטיחות -->
+        <div id="safety" class="category-section">
+            <h2 class="category-title">
+                <span class="category-icon">🚨</span>
+                בטיחות וחירום
+            </h2>
+            <div class="gallery">
+                <div class="card" onclick="window.open('projects/hazard_lights_button.html')">
+                    <h3>אורות חירום בסיסי</h3>
+                    <p>כפתור חירום מונפש עם הבהובים</p>
+                </div>
+                <div class="card" onclick="window.open('projects/hazard_lights_button (1).html')">
+                    <h3>אורות חירום משופר</h3>
+                    <p>גרסה משופרת עם צלילים</p>
+                </div>
+                <div class="card" onclick="window.open('projects/hazard_lights_button (2).html')">
+                    <h3>אורות חירום מתקדם</h3>
+                    <p>גרסה מתקדמת עם דפוסי הבהוב</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- קטגוריה: משחקים ואינטראקציה -->
+        <div id="games" class="category-section">
+            <h2 class="category-title">
+                <span class="category-icon">🎮</span>
+                משחקים ואינטראקציה
+            </h2>
+            <div class="gallery">
+                <div class="card" onclick="window.open('projects/matching_game_presentation.html')">
+                    <h3>משחק התאמות</h3>
+                    <p>משחק זיכרון אינטראקטיבי עם כרטיסים</p>
+                </div>
+                <div class="card" onclick="window.open('projects/rock_paper_scissors_game.html')">
+                    <h3>אבן נייר מספריים</h3>
+                    <p>המשחק הקלאסי עם AI חכם</p>
+                </div>
+                <div class="card" onclick="window.open('projects/חדשים/simple_game_vs_ai.html')">
+                    <h3>משחק נגד AI</h3>
+                    <p>משחק אסטרטגיה מתקדם נגד בינה מלאכותית</p>
+                </div>
+                <div class="card" onclick="window.open('projects/חדשים/simple_game_vs_ai (1).html')">
+                    <h3>משחק נגד AI משופר</h3>
+                    <p>גרסה משופרת עם רמות קושי</p>
+                </div>
+                <div class="card" onclick="window.open('projects/חדשים/asteroids_game.html')">
+                    <h3>משחק אסטרואידים</h3>
+                    <p>משחק חלל קלאסי עם גרפיקה מתקדמת</p>
+                </div>
+                <div class="card" onclick="window.open('projects/חדשים/asteroids-game.html')">
+                    <h3>אסטרואידים מתקדם</h3>
+                    <p>גרסה מתקדמת עם פיזיקה מציאותית</p>
+                </div>
+                <div class="card" onclick="window.open('projects/חדשים/אסטרואידים.html')">
+                    <h3>אסטרואידים בעברית</h3>
+                    <p>גרסה עברית עם ממשק מקומי</p>
+                </div>
+                <div class="card" onclick="window.open('projects/חדשים/monster_transformation_game.html')">
+                    <h3>משחק מפלצות</h3>
+                    <p>משחק טרנספורמציה עם מפלצות</p>
+                </div>
+                <div class="card" onclick="window.open('projects/חדשים/superhero_cans_game.html')">
+                    <h3>משחק גיבורי על</h3>
+                    <p>משחק פעולה עם גיבורי על וחפצים</p>
+                </div>
+                <div class="card" onclick="window.open('projects/חדשים/real_cleanup_superhero_app.html')">
+                    <h3>אפליקציית גיבורי על</h3>
+                    <p>אפליקציה מתקדמת לניקוי עם גיבורי על</p>
+                </div>
+                <div class="card" onclick="window.open('projects/חדשים/נינגה פרוט.html')">
+                    <h3>נינגה פרוט</h3>
+                    <p>משחק פעולה יפני עם פירות</p>
+                </div>
+                <div class="card" onclick="window.open('projects/חדשים/נינגה פרוטס.html')">
+                    <h3>נינגה פרוטס</h3>
+                    <p>גרסה משופרת עם יותר פירות</p>
+                </div>
+                <div class="card" onclick="window.open('projects/חדשים/בריקאאטו.html')">
+                    <h3>בריקאאוט</h3>
+                    <p>המשחק הקלאסי עם בלוקים ונציצות</p>
+                </div>
+                <div class="card" onclick="window.open('projects/חדשים/המשחקים של פטלס משחק הנחש.html')">
+                    <h3>משחק הנחש של פטלס</h3>
+                    <p>גרסת פטלס למשחק הנחש הקלאסי</p>
+                </div>
+                <div class="card" onclick="window.open('projects/חדשים/פטלס משחקים איקס עיגול.html')">
+                    <h3>איקס עיגול של פטלס</h3>
+                    <p>גרסת פטלס למשחק איקס עיגול</p>
+                </div>
+                <div class="card" onclick="window.open('projects/חדשים/משחק הזיכרון/פטלס משחקים משחק הזיכרון.html')">
+                    <h3>משחק הזיכרון של פטלס</h3>
+                    <p>משחק זיכרון מתקדם עם כרטיסים</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- קטגוריה: פיננסים וכרטיסים -->
+        <div id="finance" class="category-section">
+            <h2 class="category-title">
+                <span class="category-icon">💳</span>
+                פיננסים וכרטיסים
+            </h2>
+            <div class="gallery">
+                <div class="card" onclick="window.open('projects/interactive_credit_card.html')">
+                    <h3>כרטיס אשראי אינטראקטיבי</h3>
+                    <p>כרטיס תלת-מימדי עם אפקטי הטיה וחזותיים</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- קטגוריה: זמן ותרבות -->
+        <div id="culture" class="category-section">
+            <h2 class="category-title">
+                <span class="category-icon">🕐</span>
+                זמן ותרבות
+            </h2>
+            <div class="gallery">
+                <div class="card" onclick="window.open('projects/jewish_clock.html')">
+                    <h3>שעון יהודי</h3>
+                    <p>שעון עברי מתקדם עם זמנים יהודיים</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <h2>📊 סטטיסטיקות הפלטה</h2>
+            <p><strong>46 פרויקטים CSS מתקדמים</strong> | <strong>6 קטגוריות מסודרות</strong> | <strong>קוד מוכן לשימוש</strong></p>
+            <p><strong>16 אנימציות ואפקטים</strong> | <strong>23 משחקים ואינטראקציה</strong> | <strong>עיצובים מתקדמים</strong></p>
+            <p>לחץ על כל כרטיס כדי לצפות בפרויקט ולראות את הקוד</p>
+        </div>
+    </div>
+</body>
+</html> 

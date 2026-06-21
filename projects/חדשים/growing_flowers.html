@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>פרחים גדלים</title>
+    <style>
+        :root {
+            --primary-green: #2e7d32;
+            --light-green: #4caf50;
+            --petal-light: #fff59d;
+            --petal-mid: #ffeb3b;
+            --petal-dark: #ffc107;
+            --center-dark: #e65100;
+            --center-light: #ff6f00;
+            --button-start: #7986cb;
+            --button-end: #5c6bc0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rubik', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .stars {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            border-radius: 50%;
+            animation: twinkle var(--twinkle-duration, 2s) infinite ease-in-out alternate;
+        }
+
+        .star.yellow { background: #ffd700; width: 4px; height: 4px; }
+        .star.cyan { background: #00bcd4; width: 3px; height: 3px; }
+
+        @keyframes twinkle {
+            0% { opacity: 0.3; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .container {
+            text-align: center;
+            z-index: 10;
+            position: relative;
+            max-width: 600px;
+            padding: 20px;
+        }
+
+        .garden {
+            width: 100%;
+            max-width: 500px;
+            height: 400px;
+            position: relative;
+            margin: 20px auto;
+            background: radial-gradient(ellipse at bottom, #8bc34a22 0%, transparent 70%);
+        }
+
+        .flower {
+            position: absolute;
+            bottom: 50px;
+            transform-origin: bottom center;
+            will-change: transform, opacity;
+        }
+
+        .stem {
+            width: 6px;
+            background: linear-gradient(to top, var(--primary-green), var(--light-green));
+            position: relative;
+            margin: 0 auto;
+            transform-origin: bottom center;
+            transform: scaleY(0);
+            border-radius: 3px;
+            transition: transform 1.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .stem.grow { transform: scaleY(1); }
+
+        .leaf {
+            position: absolute;
+            background: linear-gradient(45deg, var(--primary-green), #66bb6a);
+            border-radius: 50% 0;
+            transform-origin: bottom center;
+            opacity: 0;
+            transition: opacity 0.6s ease-out, transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .leaf.grow {
+            opacity: 1;
+            transform: scale(1) rotate(var(--rotate));
+        }
+
+        .flower-head {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            opacity: 0;
+            transition: opacity 1s ease-out, transform 1s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .flower-head.bloom {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+        }
+
+        .petal {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(ellipse at center, var(--petal-light) 0%, var(--petal-mid) 70%, var(--petal-dark) 100%);
+            border-radius: 50%;
+            transform-origin: center center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            background: radial-gradient(circle, var(--center-light), var(--center-dark));
+            border-radius: 50%;
+            z-index: 10;
+        }
+
+        /* פרח 1 */
+        .flower1 { left: 25%; }
+        .flower1 .stem { height: 120px; }
+        .flower1 .leaf1 { width: 16px; height: 10px; left: -12px; bottom: 70px; --rotate: -40deg; }
+        .flower1 .leaf2 { width: 14px; height: 8px; right: -10px; bottom: 90px; --rotate: 35deg; }
+        .flower1 .petal:nth-child(1) { top: -8px; left: 8px; transform: rotate(0deg); }
+        .flower1 .petal:nth-child(2) { top: 4px; left: 16px; transform: rotate(60deg); }
+        .flower1 .petal:nth-child(3) { top: 16px; left: 8px; transform: rotate(120deg); }
+        .flower1 .petal:nth-child(4) { top: 16px; left: -8px; transform: rotate(180deg); }
+        .flower1 .petal:nth-child(5) { top: 4px; left: -16px; transform: rotate(240deg); }
+        .flower1 .petal:nth-child(6) { top: -8px; left: -8px; transform: rotate(300deg); }
+
+        /* פרח 2 */
+        .flower2 { left: 60%; }
+        .flower2 .stem { height: 140px; }
+        .flower2 .leaf1 { width: 18px; height: 12px; left: -14px; bottom: 80px; --rotate: -45deg; }
+        .flower2 .leaf2 { width: 16px; height: 10px; right: -12px; bottom: 100px; --rotate: 40deg; }
+        .flower2 .leaf3 { width: 12px; height: 8px; left: -8px; bottom: 120px; --rotate: -25deg; }
+        .flower2 .petal:nth-child(1) { top: -8px; left: 8px; transform: rotate(0deg); }
+        .flower2 .petal:nth-child(2) { top: 4px; left: 16px; transform: rotate(60deg); }
+        .flower2 .petal:nth-child(3) { top: 16px; left: 8px; transform: rotate(120deg); }
+        .flower2 .petal:nth-child(4) { top: 16px; left: -8px; transform: rotate(180deg); }
+        .flower2 .petal:nth-child(5) { top: 4px; left: -16px; transform: rotate(240deg); }
+        .flower2 .petal:nth-child(6) { top: -8px; left: -8px; transform: rotate(300deg); }
+
+        .ground-leaves {
+            position: absolute;
+            bottom: 0;
+            opacity: 0;
+            transition: opacity 0.8s ease-out;
+        }
+
+        .ground-leaves.grow { opacity: 1; }
+
+        .ground-leaf {
+            position: absolute;
+            background: linear-gradient(45deg, var(--primary-green), var(--light-green));
+            border-radius: 0 100% 0 100%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .ground-leaf1 { width: 30px; height: 20px; left: 40%; bottom: 20px; transform: rotate(-20deg); }
+        .ground-leaf2 { width: 40px; height: 25px; left: 70%; bottom: 10px; transform: rotate(15deg); }
+
+        .message {
+            color: #2d3748;
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 1s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .btn {
+            background: linear-gradient(45deg, var(--button-start), var(--button-end));
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(121, 134, 203, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(121, 134, 203, 0.6);
+            background: linear-gradient(45deg, #8f9aff, #6f79ff);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        @media (max-width: 600px) {
+            .garden { height: 300px; }
+            .flower1 { left: 20%; }
+            .flower2 { left: 65%; }
+            .flower1 .stem, .flower2 .stem { height: 100px; }
+            .message { font-size: 1.2rem; }
+            .btn { padding: 0.6rem 1.2rem; font-size: 0.9rem; }
+        }
+
+        /* Back button styles */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 170, 255, 0.9);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .back-btn:hover {
+            background: rgba(0, 170, 255, 1);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 170, 255, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <a href="../../gallery.html" class="back-btn">← חזרה לבית</a>
+    <div class="stars"></div>
+    <div class="container">
+        <div class="message" id="message">💖 זה בשבילך!</div>
+        <div class="garden" id="garden">
+            <div class="ground-leaves">
+                <div class="ground-leaf ground-leaf1"></div>
+                <div class="ground-leaf ground-leaf2"></div>
+            </div>
+            <div class="flower flower1">
+                <div class="stem">
+                    <div class="leaf leaf1"></div>
+                    <div class="leaf leaf2"></div>
+                </div>
+                <div class="flower-head">
+                    <div class="petal"></div>
+                    <div class="petal"></div>
+                    <div class="petal"></div>
+                    <div class="petal"></div>
+                    <div class="petal"></div>
+                    <div class="petal"></div>
+                    <div class="center"></div>
+                </div>
+            </div>
+            <div class="flower flower2">
+                <div class="stem">
+                    <div class="leaf leaf1"></div>
+                    <div class="leaf leaf2"></div>
+                    <div class="leaf leaf3"></div>
+                </div>
+                <div class="flower-head">
+                    <div class="petal"></div>
+                    <div class="petal"></div>
+                    <div class="petal"></div>
+                    <div class="petal"></div>
+                    <div class="petal"></div>
+                    <div class="petal"></div>
+                    <div class="center"></div>
+                </div>
+            </div>
+        </div>
+        <button class="btn" id="growBtn"><span>🌸</span> צמח שוב!</button>
+    </div>
+
+    <script>
+        function createStars() {
+            const starsContainer = document.querySelector('.stars');
+            const colors = ['yellow', 'cyan'];
+            
+            for (let i = 0; i < 25; i++) {
+                const star = document.createElement('div');
+                const colorClass = colors[Math.floor(Math.random() * colors.length)];
+                star.className = `star ${colorClass}`;
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.setProperty('--twinkle-duration', `${Math.random() * 3 + 2}s`);
+                star.style.animationDelay = `${Math.random() * 3}s`;
+                starsContainer.appendChild(star);
+            }
+        }
+
+        async function growFlowers() {
+            const message = document.getElementById('message');
+            const btn = document.getElementById('growBtn');
+            const groundLeaves = document.querySelector('.ground-leaves');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<span>🌱</span> הפרחים גדלים...';
+
+            const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+            await delay(300);
+            message.classList.add('show');
+
+            await delay(500);
+            groundLeaves.classList.add('grow');
+
+            for (const [index, num] of [1, 2].entries()) {
+                await delay(index * 600);
+                const flower = document.querySelector(`.flower${num}`);
+                const stem = flower.querySelector('.stem');
+                const leaves = flower.querySelectorAll('.leaf');
+                const head = flower.querySelector('.flower-head');
+
+                stem.classList.add('grow');
+                
+                await delay(1000);
+                for (const [leafIndex, leaf] of [...leaves].entries()) {
+                    await delay(leafIndex * 200);
+                    leaf.classList.add('grow');
+                }
+
+                await delay(800);
+                head.classList.add('bloom');
+            }
+
+            await delay(1000);
+            btn.innerHTML = '<span>🌸</span> צמח שוב!';
+            btn.disabled = false;
+        }
+
+        function resetAnimation() {
+            document.querySelectorAll('.grow, .bloom, .show')
+                .forEach(el => el.classList.remove('grow', 'bloom', 'show'));
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            createStars();
+            
+            // הפעלה אוטומטית בהתחלה
+            setTimeout(() => {
+                growFlowers();
+            }, 500);
+            
+            const growBtn = document.getElementById('growBtn');
+            growBtn.addEventListener('click', function() {
+                resetAnimation();
+                setTimeout(growFlowers, 200);
+            });
+        });
+    </script>
+</body>
+</html>

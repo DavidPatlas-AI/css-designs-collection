@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>פחית גיבורי-העל 🦸‍♂️</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Comic Sans MS', 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #FFE5B4, #FFCCCB, #E6E6FA);
+      color: #333;
+      text-align: center;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      color: #FF6B35;
+      text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+      margin-bottom: 20px;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-10px); }
+      60% { transform: translateY(-5px); }
+    }
+
+    .game-section {
+      background: rgba(255,255,255,0.9);
+      border-radius: 20px;
+      padding: 25px;
+      margin: 20px 0;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+      border: 3px solid #4CAF50;
+    }
+
+    .hero-selection {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin: 20px 0;
+    }
+
+    .hero-card {
+      background: linear-gradient(145deg, #ffffff, #f0f0f0);
+      border-radius: 15px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 3px solid transparent;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card:hover {
+      transform: translateY(-5px) scale(1.05);
+      border-color: #FF6B35;
+      box-shadow: 0 15px 30px rgba(255,107,53,0.3);
+    }
+
+    .hero-card.selected {
+      border-color: #4CAF50;
+      background: linear-gradient(145deg, #E8F5E8, #C8E6C9);
+    }
+
+    .hero-icon {
+      font-size: 3em;
+      margin-bottom: 10px;
+      animation: heroFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes heroFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .hero-name {
+      font-size: 1.3em;
+      font-weight: bold;
+      color: #2E7D32;
+      margin-bottom: 8px;
+    }
+
+    .hero-power {
+      font-size: 0.9em;
+      color: #666;
+    }
+
+    .mission-board {
+      background: linear-gradient(45deg, #FFE082, #FFCC02);
+      border-radius: 15px;
+      padding: 20px;
+      margin: 20px 0;
+      border: 3px dashed #FF5722;
+    }
+
+    .mission-item {
+      background: white;
+      margin: 10px 0;
+      padding: 15px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+
+    .mission-item:hover {
+      border-color: #4CAF50;
+      transform: scale(1.02);
+    }
+
+    .mission-item.completed {
+      background: #C8E6C9;
+      border-color: #4CAF50;
+    }
+
+    .mission-text {
+      font-size: 1.1em;
+      flex: 1;
+      text-align: right;
+    }
+
+    .mission-reward {
+      background: #FF6B35;
+      color: white;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-weight: bold;
+      margin-left: 10px;
+    }
+
+    .team-display {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin: 20px 0;
+    }
+
+    .team-member {
+      background: linear-gradient(145deg, #E3F2FD, #BBDEFB);
+      border-radius: 15px;
+      padding: 15px;
+      border: 3px solid #2196F3;
+      min-width: 120px;
+    }
+
+    .score-board {
+      background: linear-gradient(45deg, #4CAF50, #8BC34A);
+      color: white;
+      padding: 15px;
+      border-radius: 15px;
+      font-size: 1.3em;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+
+    .btn {
+      background: linear-gradient(45deg, #FF6B35, #FF8A65);
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 25px;
+      font-size: 1.1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin: 10px;
+      box-shadow: 0 4px 15px rgba(255,107,53,0.3);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255,107,53,0.4);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .celebration {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: linear-gradient(45deg, #FFD700, #FFA500);
+      color: #333;
+      padding: 30px 40px;
+      border-radius: 20px;
+      font-size: 1.5em;
+      font-weight: bold;
+      z-index: 1000;
+      display: none;
+      animation: celebrationPop 3s ease-out forwards;
+      border: 4px solid #FF6B35;
+      text-align: center;
+    }
+
+    @keyframes celebrationPop {
+      0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+      20% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+      80% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+    }
+
+    .floating-waste {
+      position: fixed;
+      font-size: 2em;
+      animation: floatWaste 8s linear infinite;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    @keyframes floatWaste {
+      from {
+        transform: translateX(-100px);
+        opacity: 0.8;
+      }
+      to {
+        transform: translateX(calc(100vw + 100px));
+        opacity: 0;
+      }
+    }
+
+    .instructions {
+      background: linear-gradient(45deg, #E1F5FE, #B3E5FC);
+      border-radius: 15px;
+      padding: 20px;
+      margin: 20px 0;
+      border: 3px solid #0288D1;
+    }
+
+    .step {
+      background: white;
+      margin: 10px 0;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: right;
+      border-right: 5px solid #FF6B35;
+    }
+
+    /* Back button styles */
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(0, 170, 255, 0.9);
+      color: white;
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .back-btn:hover {
+      background: rgba(0, 170, 255, 1);
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 5px 15px rgba(0, 170, 255, 0.4);
+    }
+  </style>
+</head>
+<body>
+     <a href="../../gallery.html" class="back-btn">← חזרה לבית</a>
+  <div class="container">
+    <h1>🦸‍♂️ פחית גיבורי-העל 🦸‍♀️</h1>
+    <p style="font-size: 1.2em; margin-bottom: 20px;">הצילו את העולם מהפסולת! בחרו גיבורי-על ובצעו משימות להגנת הסביבה! 🌍</p>
+
+    <div class="instructions game-section">
+      <h2>🎯 איך משחקים?</h2>
+      <div class="step">1️⃣ בחרו 3 גיבורי-על לצוות שלכם</div>
+      <div class="step">2️⃣ לחצו על משימות כדי להשלים אותן</div>
+      <div class="step">3️⃣ צברו נקודות והצילו את העולם!</div>
+      <div class="step">4️⃣ כל גיבור יכול לבצע משימות מיוחדות!</div>
+    </div>
+
+    <div class="game-section">
+      <h2>🌟 בחרו את גיבורי-העל שלכם</h2>
+      <p>בחרו 3 גיבורים לצוות (לחצו על הכרטיסים):</p>
+      <div class="hero-selection" id="heroSelection">
+        <!-- גיבורים יתווספו כאן -->
+      </div>
+    </div>
+
+    <div class="game-section">
+      <h2>👥 הצוות שלכם</h2>
+      <div class="team-display" id="teamDisplay">
+        <p>בחרו גיבורים כדי להתחיל!</p>
+      </div>
+      <button class="btn" onclick="startMissions()" id="startBtn" style="display: none;">🚀 התחילו משימות!</button>
+    </div>
+
+    <div class="game-section" id="missionSection" style="display: none;">
+      <h2>🎯 משימות להצלת העולם</h2>
+      <div class="score-board">
+        נקודות הצוות: <span id="score">0</span> 🏆
+        <br>
+        משימות הושלמו: <span id="completedMissions">0</span>/12
+      </div>
+      
+      <div class="mission-board" id="missionBoard">
+        <!-- משימות יתווספו כאן -->
+      </div>
+    </div>
+
+    <div class="celebration" id="celebration"></div>
+  </div>
+
+  <script>
+    let selectedHeroes = [];
+    let teamScore = 0;
+    let completedMissionsCount = 0;
+    let wasteAnimationInterval;
+
+    const heroes = [
+      {
+        id: 'iron-can',
+        name: 'פחית-ברזל',
+        icon: '🥫',
+        power: 'כוח-על מגנטי לאיסוף מתכות',
+        missions: ['recycling', 'metal-collection', 'magnet-power']
+      },
+      {
+        id: 'speed-can',
+        name: 'פחית-מהירות',
+        icon: '⚡',
+        power: 'מהירות אור לניקוי מהיר',
+        missions: ['fast-cleanup', 'speed-sorting', 'quick-delivery']
+      },
+      {
+        id: 'water-can',
+        name: 'פחית-מים',
+        icon: '💧',
+        power: 'שליטה במים לניקוי ימים',
+        missions: ['ocean-cleanup', 'water-purification', 'rain-power']
+      },
+      {
+        id: 'earth-can',
+        name: 'פחית-אדמה',
+        icon: '🌱',
+        power: 'כוח הצמיחה והטבע',
+        missions: ['tree-planting', 'soil-healing', 'garden-growing']
+      },
+      {
+        id: 'wind-can',
+        name: 'פחית-רוח',
+        icon: '💨',
+        power: 'שליטה ברוח לתחבורה נקה',
+        missions: ['wind-energy', 'air-cleaning', 'cloud-control']
+      },
+      {
+        id: 'fire-can',
+        name: 'פחית-אש',
+        icon: '🔥',
+        power: 'אנרגיה סולארית וחום',
+        missions: ['solar-power', 'waste-burning', 'energy-creation']
+      }
+    ];
+
+    const missions = [
+      { id: 'recycling', text: 'מיחזור 100 פחיות', reward: 50, requiredHero: 'iron-can' },
+      { id: 'metal-collection', text: 'איסוף פסולת מתכת מהעיר', reward: 40, requiredHero: 'iron-can' },
+      { id: 'magnet-power', text: 'שימוש בכוח מגנטי להפרדת פסולת', reward: 60, requiredHero: 'iron-can' },
+      
+      { id: 'fast-cleanup', text: 'ניקוי מהיר של פארק', reward: 45, requiredHero: 'speed-can' },
+      { id: 'speed-sorting', text: 'מיון פסולת במהירות הבזק', reward: 35, requiredHero: 'speed-can' },
+      { id: 'quick-delivery', text: 'משלוח מהיר של חומרים למחזור', reward: 55, requiredHero: 'speed-can' },
+      
+      { id: 'ocean-cleanup', text: 'ניקוי האוקיינוס מפלסטיק', reward: 70, requiredHero: 'water-can' },
+      { id: 'water-purification', text: 'טיהור מים מזוהמים', reward: 65, requiredHero: 'water-can' },
+      { id: 'rain-power', text: 'שימוש בכוח הגשם לניקוי', reward: 50, requiredHero: 'water-can' },
+      
+      { id: 'tree-planting', text: 'שתילת 50 עצים חדשים', reward: 60, requiredHero: 'earth-can' },
+      { id: 'soil-healing', text: 'ריפוי אדמה מזוהמת', reward: 55, requiredHero: 'earth-can' },
+      { id: 'garden-growing', text: 'גידול גן קהילתי', reward: 45, requiredHero: 'earth-can' },
+      
+      { id: 'wind-energy', text: 'יצירת אנרגיה מרוח', reward: 65, requiredHero: 'wind-can' },
+      { id: 'air-cleaning', text: 'ניקוי אוויר מזוהם', reward: 50, requiredHero: 'wind-can' },
+      { id: 'cloud-control', text: 'שליטה בעננים למניעת זיהום', reward: 70, requiredHero: 'wind-can' },
+      
+      { id: 'solar-power', text: 'רתימת אנרגיה סולארית', reward: 60, requiredHero: 'fire-can' },
+      { id: 'waste-burning', text: 'שריפה נקה של פסולת', reward: 55, requiredHero: 'fire-can' },
+      { id: 'energy-creation', text: 'יצירת אנרגיה חלופית', reward: 65, requiredHero: 'fire-can' }
+    ];
+
+    function initGame() {
+      renderHeroes();
+      startWasteAnimation();
+    }
+
+    function renderHeroes() {
+      const heroContainer = document.getElementById('heroSelection');
+      heroContainer.innerHTML = '';
+      
+      heroes.forEach(hero => {
+        const heroCard = document.createElement('div');
+        heroCard.className = 'hero-card';
+        heroCard.onclick = () => selectHero(hero);
+        
+        heroCard.innerHTML = `
+          <div class="hero-icon">${hero.icon}</div>
+          <div class="hero-name">${hero.name}</div>
+          <div class="hero-power">${hero.power}</div>
+        `;
+        
+        heroContainer.appendChild(heroCard);
+      });
+    }
+
+    function selectHero(hero) {
+      const heroCards = document.querySelectorAll('.hero-card');
+      const heroIndex = heroes.findIndex(h => h.id === hero.id);
+      
+      if (selectedHeroes.find(h => h.id === hero.id)) {
+        // בטל בחירה
+        selectedHeroes = selectedHeroes.filter(h => h.id !== hero.id);
+        heroCards[heroIndex].classList.remove('selected');
+      } else if (selectedHeroes.length < 3) {
+        // הוסף גיבור
+        selectedHeroes.push(hero);
+        heroCards[heroIndex].classList.add('selected');
+      } else {
+        showCelebration('⚠️ ניתן לבחור רק 3 גיבורים!');
+        return;
+      }
+      
+      updateTeamDisplay();
+    }
+
+    function updateTeamDisplay() {
+      const teamContainer = document.getElementById('teamDisplay');
+      const startBtn = document.getElementById('startBtn');
+      
+      if (selectedHeroes.length === 0) {
+        teamContainer.innerHTML = '<p>בחרו גיבורים כדי להתחיל!</p>';
+        startBtn.style.display = 'none';
+      } else {
+        teamContainer.innerHTML = selectedHeroes.map(hero => 
+          `<div class="team-member">
+            <div style="font-size: 2em;">${hero.icon}</div>
+            <div style="font-weight: bold;">${hero.name}</div>
+          </div>`
+        ).join('');
+        
+        if (selectedHeroes.length === 3) {
+          startBtn.style.display = 'inline-block';
+        } else {
+          startBtn.style.display = 'none';
+        }
+      }
+    }
+
+    function startMissions() {
+      document.getElementById('missionSection').style.display = 'block';
+      renderMissions();
+      showCelebration('🚀 הצוות מוכן לפעולה!<br>בואו נציל את העולם!');
+    }
+
+    function renderMissions() {
+      const missionContainer = document.getElementById('missionBoard');
+      missionContainer.innerHTML = '';
+      
+      // הצג רק משימות שהגיבורים הנבחרים יכולים לבצע
+      const availableMissions = missions.filter(mission => 
+        selectedHeroes.some(hero => hero.id === mission.requiredHero)
+      );
+      
+      availableMissions.forEach(mission => {
+        const missionItem = document.createElement('div');
+        missionItem.className = 'mission-item';
+        missionItem.onclick = () => completeMission(mission);
+        
+        const requiredHero = heroes.find(h => h.id === mission.requiredHero);
+        
+        missionItem.innerHTML = `
+          <div style="font-size: 1.5em;">${requiredHero.icon}</div>
+          <div class="mission-text">${mission.text}</div>
+          <div class="mission-reward">+${mission.reward}</div>
+        `;
+        
+        missionContainer.appendChild(missionItem);
+      });
+    }
+
+    function completeMission(mission) {
+      const missionElements = document.querySelectorAll('.mission-item');
+      const missionIndex = Array.from(missionElements).findIndex(el => 
+        el.querySelector('.mission-text').textContent === mission.text
+      );
+      
+      if (missionElements[missionIndex].classList.contains('completed')) {
+        return; // משימה כבר הושלמה
+      }
+      
+      missionElements[missionIndex].classList.add('completed');
+      teamScore += mission.reward;
+      completedMissionsCount++;
+      
+      updateScore();
+      
+      const heroName = heroes.find(h => h.id === mission.requiredHero).name;
+      showCelebration(`🎉 כל הכבוד!<br>${heroName} השלים את המשימה!<br>+${mission.reward} נקודות!`);
+      
+      if (completedMissionsCount >= 12) {
+        setTimeout(() => {
+          showCelebration('🏆 מזל טוב!<br>הצלתם את העולם!<br>אתם גיבורי-על אמיתיים! 🌍✨');
+        }, 2000);
+      }
+    }
+
+    function updateScore() {
+      document.getElementById('score').textContent = teamScore;
+      document.getElementById('completedMissions').textContent = completedMissionsCount;
+    }
+
+    function showCelebration(message) {
+      const celebration = document.getElementById('celebration');
+      celebration.innerHTML = message;
+      celebration.style.display = 'block';
+      
+      setTimeout(() => {
+        celebration.style.display = 'none';
+      }, 3000);
+    }
+
+    function startWasteAnimation() {
+      const wasteEmojis = ['🗑️', '♻️', '🥤', '🥫', '📦', '🧻', '🍃'];
+      
+      wasteAnimationInterval = setInterval(() => {
+        const waste = document.createElement('div');
+        waste.className = 'floating-waste';
+        waste.textContent = wasteEmojis[Math.floor(Math.random() * wasteEmojis.length)];
+        waste.style.top = Math.random() * 80 + 10 + '%';
+        waste.style.animationDuration = (Math.random() * 4 + 4) + 's';
+        
+        document.body.appendChild(waste);
+        
+        setTimeout(() => {
+          if (waste.parentNode) {
+            waste.parentNode.removeChild(waste);
+          }
+        }, 8000);
+      }, 2000);
+    }
+
+    // התחלת המשחק
+    window.addEventListener('load', initGame);
+  </script>
+</body>
+</html>

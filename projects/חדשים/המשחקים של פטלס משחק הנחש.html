@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐍 משחק הנחש</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+        }
+
+        /* Instructions */
+        .instructions {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 2px solid #2196f3;
+        }
+
+        .instructions h3 {
+            color: #1976d2;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .instruction-steps {
+            text-align: right;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+        }
+
+        .step-number {
+            background: #2196f3;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-left: 10px;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            color: #1565c0;
+            font-weight: 500;
+        }
+
+        /* Player Setup Modal */
+        .modal {
+            display: flex;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .modal h2 {
+            color: #667eea;
+            margin-bottom: 1.5rem;
+        }
+
+        .player-input {
+            margin-bottom: 1rem;
+        }
+
+        .player-input label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .player-input input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .player-input input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Game Info */
+        .game-info {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+            border: 2px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .score-info {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .player-name {
+            font-weight: bold;
+            color: #28a745;
+            font-size: 1.1rem;
+        }
+
+        /* Snake Canvas */
+        .snake-canvas {
+            border: 3px solid #667eea;
+            border-radius: 15px;
+            background: #1a1a1a;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            margin: 1rem auto;
+            display: block;
+        }
+
+        /* Game Status */
+        .game-status {
+            margin: 1rem 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            min-height: 30px;
+        }
+
+        .winner {
+            color: #28a745;
+        }
+
+        .error {
+            color: #dc3545;
+        }
+
+        .info {
+            color: #007bff;
+        }
+
+        /* Winner Display */
+        .winner-display {
+            margin: 1rem 0;
+            font-size: 1.5rem;
+            font-weight: bold;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .celebration-message {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #333;
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 3px solid #ffd700;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+            animation: celebrationPulse 2s ease-in-out infinite alternate;
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        @keyframes celebrationPulse {
+            from {
+                box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+                transform: scale(1);
+            }
+            to {
+                box-shadow: 0 15px 40px rgba(255, 215, 0, 0.6);
+                transform: scale(1.05);
+            }
+        }
+
+        /* Fireworks Animation */
+        .fireworks {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .firework {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            animation: fireworkExplosion 2s ease-out forwards;
+        }
+
+        @keyframes fireworkExplosion {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(20);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(40);
+                opacity: 0;
+            }
+        }
+
+        /* Controls Info */
+        .controls {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Buttons */
+        .game-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .game-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        /* Back to Home */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 170, 255, 0.9);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .back-btn:hover {
+            background: rgba(0, 170, 255, 1);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 170, 255, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .snake-canvas {
+                width: 100%;
+                max-width: 350px;
+                height: auto;
+            }
+            
+            .game-info {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Player Setup Modal -->
+    <div class="modal" id="playerSetupModal">
+        <div class="modal-content">
+            <h2>🐍 הכניסו את השם שלכם</h2>
+            <div class="player-input">
+                <label for="playerName">שם השחקן:</label>
+                <input type="text" id="playerName" placeholder="הכניסו שם..." maxlength="15">
+            </div>
+            <button class="game-btn" onclick="startGameWithName()">🚀 התחל משחק!</button>
+        </div>
+    </div>
+
+    <!-- Fireworks Container -->
+    <div class="fireworks" id="fireworksContainer"></div>
+
+    <a href="../../gallery.html" class="back-btn">← חזרה לבית</a>
+    
+    <div class="game-container">
+        <h1>🐍 משחק הנחש</h1>
+        
+        <!-- Game Instructions -->
+        <div class="instructions">
+            <h3>📖 איך משחקים?</h3>
+            <div class="instruction-steps">
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <span class="step-text">השתמשו בחצים במקלדת (↑↓←→) כדי להזיז את הנחש</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <span class="step-text">אכלו את התפוחים האדומים (🍎) כדי לגדול ולקבל נקודות</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <span class="step-text">אל תיגעו בקירות או בגוף הנחש שלכם!</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <span class="step-text">הנחש יש לו עיניים ולשון - תראו כיוון התנועה</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">5</span>
+                    <span class="step-text">המטרה: להשיג כמה שיותר נקודות ולהכות שיא! 🏆</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-info">
+            <span class="player-name" id="playerNameDisplay">שחקן</span>
+            <span class="score-info">ניקוד: <span id="snakeScore">0</span></span>
+        </div>
+        
+        <canvas class="snake-canvas" id="snakeCanvas" width="400" height="350"></canvas>
+        
+        <div class="game-status" id="snakeStatus">לחצו "התחל" כדי לשחק</div>
+        <div class="winner-display" id="snakeWinner"></div>
+        
+        <div class="controls">
+            🎮 חצים במקלדת: ↑↓←→ תנועה | רווח: הפסקה/המשכה<br>
+            🐍 הנחש: ראש עם עיניים ולשון + גוף עם קשקשים<br>
+            🍎 תפוח: עם גבעול ועלה - כל תפוח = 10 נקודות!
+        </div>
+        
+        <button class="game-btn" id="snakeBtn" onclick="toggleSnakeGame()">התחל</button>
+        <button class="game-btn" onclick="resetSnakeGame()">משחק חדש</button>
+    </div>
+
+    <script>
+        // Snake Game with Player Names and Visual Effects
+        const canvas = document.getElementById('snakeCanvas');
+        const ctx = canvas.getContext('2d');
+        const gridSize = 25;
+        const tileCount = canvas.width / gridSize;
+
+        let snake = [{ x: 10, y: 10 }];
+        let food = {};
+        let dx = 0;
+        let dy = 0;
+        let score = 0;
+        let gameRunning = false;
+        let snakeGameLoop;
+        let playerName = 'שחקן';
+        let bestScore = 0;
+
+        // Show setup modal on page load
+        window.onload = function() {
+            document.getElementById('playerSetupModal').style.display = 'flex';
+        };
+
+        function startGameWithName() {
+            const name = document.getElementById('playerName').value.trim();
+            
+            if (name === '') {
+                alert('אנא הכניסו שם!');
+                return;
+            }
+            
+            playerName = name;
+            document.getElementById('playerNameDisplay').textContent = playerName;
+            
+            // Hide modal
+            document.getElementById('playerSetupModal').style.display = 'none';
+            
+            // Initialize game
+            generateFood();
+            drawSnakeGame();
+        }
+
+        function drawSnake() {
+            snake.forEach((segment, index) => {
+                const x = segment.x * gridSize;
+                const y = segment.y * gridSize;
+                const size = gridSize - 2;
+                
+                if (index === 0) {
+                    // Draw snake head with face
+                    drawSnakeHead(x, y, size);
+                } else {
+                    // Draw snake body
+                    drawSnakeBody(x, y, size);
+                }
+            });
+        }
+
+        function drawSnakeHead(x, y, size) {
+            // Head shadow/glow
+            ctx.shadowColor = '#00ff00';
+            ctx.shadowBlur = 15;
+            
+            // Head shape (circular)
+            const gradient = ctx.createRadialGradient(
+                x + size/2, y + size/2, 0,
+                x + size/2, y + size/2, size/2
+            );
+            gradient.addColorStop(0, '#32cd32');
+            gradient.addColorStop(0.6, '#228B22');
+            gradient.addColorStop(1, '#006400');
+            
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(x + size/2, y + size/2, size/2 - 1, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Head pattern (smaller circle)
+            ctx.fillStyle = '#228B22';
+            ctx.beginPath();
+            ctx.arc(x + size/2, y + size/2, size/3, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Eyes
+            ctx.shadowBlur = 5;
+            ctx.fillStyle = '#000000';
+            ctx.beginPath();
+            ctx.arc(x + size/3, y + size/3, 3, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + (2*size)/3, y + size/3, 3, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Eye shine
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(x + size/3 + 1, y + size/3 - 1, 1.5, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + (2*size)/3 + 1, y + size/3 - 1, 1.5, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Tongue (if moving)
+            if (dx !== 0 || dy !== 0) {
+                ctx.strokeStyle = '#ff6b6b';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(x + size/2, y + (2*size)/3);
+                ctx.lineTo(x + size/2 + dx*4, y + (2*size)/3 + dy*4);
+                ctx.stroke();
+            }
+            
+            ctx.shadowBlur = 0;
+        }
+
+        function drawSnakeBody(x, y, size) {
+            // Body glow
+            ctx.shadowColor = '#00ff00';
+            ctx.shadowBlur = 10;
+            
+            // Body segment (perfect circle)
+            const gradient = ctx.createRadialGradient(
+                x + size/2, y + size/2, 0,
+                x + size/2, y + size/2, size/2
+            );
+            gradient.addColorStop(0, '#32cd32');
+            gradient.addColorStop(0.6, '#228B22');
+            gradient.addColorStop(1, '#006400');
+            
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(x + size/2, y + size/2, size/2 - 1, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Scale pattern - circular design
+            ctx.fillStyle = '#1e6b1e';
+            ctx.strokeStyle = '#0f5a0f';
+            ctx.lineWidth = 1;
+            
+            // Draw circular scale pattern
+            ctx.beginPath();
+            ctx.arc(x + size/2, y + size/2, size/4, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.stroke();
+            
+            // Add small dots around the circle for texture
+            ctx.fillStyle = '#0f5a0f';
+            for (let i = 0; i < 6; i++) {
+                const angle = (i * Math.PI * 2) / 6;
+                const dotX = x + size/2 + Math.cos(angle) * size/3;
+                const dotY = y + size/2 + Math.sin(angle) * size/3;
+                ctx.beginPath();
+                ctx.arc(dotX, dotY, 1, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+            
+            ctx.shadowBlur = 0;
+        }
+
+        function drawFood() {
+            const x = food.x * gridSize;
+            const y = food.y * gridSize;
+            const size = gridSize - 2;
+            
+            // Apple glow
+            ctx.shadowColor = '#ff4444';
+            ctx.shadowBlur = 12;
+            
+            // Apple body (red circle)
+            const appleGradient = ctx.createRadialGradient(
+                x + size/3, y + size/3, 0,
+                x + size/2, y + size/2, size/2
+            );
+            appleGradient.addColorStop(0, '#ff6b6b');
+            appleGradient.addColorStop(0.6, '#dc3545');
+            appleGradient.addColorStop(1, '#8b0000');
+            
+            ctx.fillStyle = appleGradient;
+            ctx.beginPath();
+            ctx.arc(x + size/2, y + size/2 + 2, size/2 - 1, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Apple highlight
+            ctx.fillStyle = '#ffaaaa';
+            ctx.beginPath();
+            ctx.ellipse(x + size/3, y + size/3 + 2, size/6, size/4, -Math.PI/6, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Apple stem
+            ctx.strokeStyle = '#8B4513';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(x + size/2, y + 3);
+            ctx.lineTo(x + size/2, y - 3);
+            ctx.stroke();
+            
+            // Apple leaf
+            ctx.fillStyle = '#228B22';
+            ctx.beginPath();
+            ctx.ellipse(x + size/2 + 4, y + 1, 4, 7, Math.PI/4, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Apple bottom indent
+            ctx.fillStyle = '#aa0000';
+            ctx.beginPath();
+            ctx.ellipse(x + size/2, y + size - 2, size/8, 2, 0, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            ctx.shadowBlur = 0;
+        }
+
+        function clearCanvas() {
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Add subtle grid pattern
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x <= canvas.width; x += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y <= canvas.height; y += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+        }
+
+        function generateFood() {
+            food = {
+                x: Math.floor(Math.random() * tileCount),
+                y: Math.floor(Math.random() * (canvas.height / gridSize))
+            };
+            
+            // Make sure food doesn't spawn on snake
+            if (snake.some(segment => segment.x === food.x && segment.y === food.y)) {
+                generateFood();
+            }
+        }
+
+        function updateSnake() {
+            // Don't move if no direction is set
+            if (dx === 0 && dy === 0) return;
+            
+            const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+            
+            // Check wall collision
+            if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= canvas.height / gridSize) {
+                gameOver();
+                return;
+            }
+            
+            // Check self collision
+            if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+                gameOver();
+                return;
+            }
+            
+            snake.unshift(head);
+            
+            // Check food collision
+            if (head.x === food.x && head.y === food.y) {
+                score += 10;
+                updateScore();
+                generateFood();
+            } else {
+                snake.pop();
+            }
+        }
+
+        function drawSnakeGame() {
+            clearCanvas();
+            drawSnake();
+            drawFood();
+        }
+
+        function runSnakeGame() {
+            if (gameRunning) {
+                updateSnake();
+                drawSnakeGame();
+            }
+        }
+
+        function startSnakeGame() {
+            if (gameRunning) return;
+            
+            // Reset direction if starting fresh
+            if (dx === 0 && dy === 0) {
+                dx = 1; // Start moving right
+                dy = 0;
+            }
+            
+            gameRunning = true;
+            document.getElementById('snakeStatus').textContent = `${playerName}, המשחק פועל! השתמשו בחצים! 🐍`;
+            document.getElementById('snakeStatus').className = 'game-status info';
+            document.getElementById('snakeBtn').textContent = 'הפסק';
+            
+            snakeGameLoop = setInterval(runSnakeGame, 150);
+        }
+
+        function stopSnakeGame() {
+            gameRunning = false;
+            clearInterval(snakeGameLoop);
+            document.getElementById('snakeStatus').textContent = 'המשחק הופסק';
+            document.getElementById('snakeStatus').className = 'game-status';
+            document.getElementById('snakeBtn').textContent = 'המשך';
+        }
+
+        function toggleSnakeGame() {
+            if (gameRunning) {
+                stopSnakeGame();
+            } else {
+                startSnakeGame();
+            }
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            clearInterval(snakeGameLoop);
+            
+            // Check for new best score
+            if (score > bestScore) {
+                bestScore = score;
+                
+                // Show celebration for new record
+                const winnerDisplay = document.getElementById('snakeWinner');
+                winnerDisplay.innerHTML = `🎊 שיא חדש ${playerName}! 🎊<br>🏆 ${score} נקודות! 🏆`;
+                winnerDisplay.className = 'winner-display celebration-message';
+                createFireworks();
+                
+                document.getElementById('snakeStatus').textContent = `שיא חדש! המשחק נגמר`;
+                document.getElementById('snakeStatus').className = 'game-status winner';
+            } else {
+                document.getElementById('snakeStatus').textContent = `המשחק נגמר! הניקוד: ${score} (שיא: ${bestScore})`;
+                document.getElementById('snakeStatus').className = 'game-status error';
+            }
+            
+            document.getElementById('snakeBtn').textContent = 'התחל';
+        }
+
+        function resetSnakeGame() {
+            gameRunning = false;
+            clearInterval(snakeGameLoop);
+            
+            snake = [{ x: 10, y: 10 }];
+            dx = 0;
+            dy = 0;
+            score = 0;
+            updateScore();
+            generateFood();
+            drawSnakeGame();
+            
+            document.getElementById('snakeStatus').textContent = `${playerName}, לחצו "התחל" או חץ כדי לשחק`;
+            document.getElementById('snakeStatus').className = 'game-status';
+            document.getElementById('snakeBtn').textContent = 'התחל';
+            
+            // Clear winner display and fireworks
+            document.getElementById('snakeWinner').textContent = '';
+            document.getElementById('snakeWinner').className = 'winner-display';
+            document.getElementById('fireworksContainer').innerHTML = '';
+        }
+
+        function updateScore() {
+            document.getElementById('snakeScore').textContent = score;
+        }
+
+        // Controls
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowUp':
+                    if (dy !== 1) { dx = 0; dy = -1; }
+                    // Start game if not running
+                    if (!gameRunning) startSnakeGame();
+                    break;
+                case 'ArrowDown':
+                    if (dy !== -1) { dx = 0; dy = 1; }
+                    if (!gameRunning) startSnakeGame();
+                    break;
+                case 'ArrowLeft':
+                    if (dx !== 1) { dx = -1; dy = 0; }
+                    if (!gameRunning) startSnakeGame();
+                    break;
+                case 'ArrowRight':
+                    if (dx !== -1) { dx = 1; dy = 0; }
+                    if (!gameRunning) startSnakeGame();
+                    break;
+                case ' ':
+                    e.preventDefault();
+                    toggleSnakeGame();
+                    break;
+            }
+        });
+
+        // Fireworks animation
+        function createFireworks() {
+            const container = document.getElementById('fireworksContainer');
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff'];
+            
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const firework = document.createElement('div');
+                    firework.className = 'firework';
+                    firework.style.left = Math.random() * 100 + '%';
+                    firework.style.top = Math.random() * 100 + '%';
+                    firework.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    container.appendChild(firework);
+                    
+                    // Remove firework after animation
+                    setTimeout(() => {
+                        if (firework.parentNode) {
+                            firework.parentNode.removeChild(firework);
+                        }
+                    }, 2000);
+                }, i * 100);
+            }
+        }
+    </script>
+</body>
+</html>

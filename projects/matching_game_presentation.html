@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>התואר הכי מתאים ל... 👑</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .title {
+            font-size: 3em;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 15px;
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            color: #f0f0f0;
+            margin-bottom: 20px;
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            color: #333;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            border-color: #667eea;
+        }
+
+        .card-number {
+            display: inline-block;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-description {
+            color: #666;
+            line-height: 1.6;
+            font-size: 1.1em;
+        }
+
+        .icon {
+            font-size: 1.5em;
+        }
+
+        .game-controls {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .results {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .emoji-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .falling-emoji {
+            position: absolute;
+            font-size: 2em;
+            animation: fall 3s linear infinite;
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2em;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+        }
+
+        /* Back button styles */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 170, 255, 0.9);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .back-btn:hover {
+            background: rgba(0, 170, 255, 1);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 170, 255, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <a href="../gallery.html" class="back-btn">← חזרה לגלריה</a>
+    
+    <div class="container">
+        <h1>🃏 משחק זיכרון ישראלי 🃏</h1>
+        <div class="header">
+            <h1 class="title">👑 התואר הכי מתאים ל... 👑</h1>
+            <p class="subtitle">משחק חיבור מדהים לקבוצת הבנות!</p>
+        </div>
+
+        <div class="instructions">
+            <h3>📋 איך משחקים:</h3>
+            <p>כל בת קבוצה צריכה לקבל תואר שמתאים לה הכי הרבה! תוכלו לחלק את הקלפים או לשחק במשותף - מי מכירה את מי הכי טוב? 😄</p>
+        </div>
+
+        <div class="grid" id="cardsGrid">
+            <!-- הקלפים ייווצרו כאן באופן דינמי -->
+        </div>
+
+        <div class="game-controls">
+            <button class="btn" onclick="shuffleCards()">🔀 ערבב קלפים</button>
+            <button class="btn" onclick="startGame()">🎮 התחל משחק</button>
+            <button class="btn" onclick="celebrate()">🎉 חגיגה!</button>
+        </div>
+
+        <div class="results" id="results">
+            <h2>🏆 תוצאות המשחק!</h2>
+            <p>כל הכבוד לכולן! זה היה מדהים! 🎊</p>
+        </div>
+    </div>
+
+    <div class="emoji-rain" id="emojiRain"></div>
+
+    <script>
+        const titles = [
+            {
+                number: 1,
+                title: "מלכת הממ״ד העל-החלל",
+                description: "הכי מאובזרת, כולל כרבולית, תה צמחים ופנס",
+                icon: "👑"
+            },
+            {
+                number: 2,
+                title: "מלכת הפיג'מה בכל מצב",
+                description: "מגיעה לאזעקה, לזום, ולשיעור ספורט עם פיג׳מה מטריפה",
+                icon: "🩱"
+            },
+            {
+                number: 3,
+                title: 'הכי "לא מרגישה כלום"',
+                description: "מעמידה פנים ששום דבר לא מזיז לה – עם קולקציית סטיקרים",
+                icon: "😎"
+            },
+            {
+                number: 4,
+                title: "מתעוררת רק בשביל האזעקות",
+                description: "לא שומעת שעון, אבל התראה של האזעקה? קמה כמו סיירת מטכ״ל",
+                icon: "🚨"
+            },
+            {
+                number: 5,
+                title: "הבשלנית של המלחמה",
+                description: "מנצלת את הלחץ כדי להכין עוגת שמרים ו־3 סוגי שקשוקה",
+                icon: "👩‍🍳"
+            },
+            {
+                number: 6,
+                title: "החופרת הלאומית בזמן צבע אדום",
+                description: "מתחילה סיפור על הילדות שלה כל פעם שיש אזעקה",
+                icon: "🗣️"
+            },
+            {
+                number: 7,
+                title: "מאפרת את עצמה לפני שהיא נכנסת למקלט",
+                description: "כי אם זה הסוף, לפחות שיזכרו אותי מתוקתקת",
+                icon: "💄"
+            },
+            {
+                number: 8,
+                title: "ממציאה שמועות רק כדי לראות תגובות",
+                description: "שלחו לי באינסטגרם שאיראן עצרה בגלל ריח של רוזמרין",
+                icon: "📱"
+            },
+            {
+                number: 9,
+                title: "עורכת הדין של ההיגיון",
+                description: "שואלת למה האזעקה תמיד כשיש לה מה לעשות",
+                icon: "⚖️"
+            },
+            {
+                number: 10,
+                title: "היסטוריונית אזעקות",
+                description: "יודעת תאריכים, שעות וזווית הרוח של כל טיל",
+                icon: "📚"
+            },
+            {
+                number: 11,
+                title: "ציידת הפסקות אש",
+                description: "כל בוקר שואלת 'מתי נגמר?' כאילו זה שיעור",
+                icon: "🎯"
+            },
+            {
+                number: 12,
+                title: "מתחפשת לחוסן נפשי",
+                description: "מה פתאום אני לא בלחץ (ותוך כדי אוכלת פיצה ביד רועדת)",
+                icon: "🍕"
+            },
+            {
+                number: 13,
+                title: "מאחסנת מים, טונה, ומטען וכותבת צוואה",
+                description: "בכלל לא לחוצה",
+                icon: "📦"
+            },
+            {
+                number: 14,
+                title: "מפיקה זום בממ״ד",
+                description: "פותחת שיתוף מסך, עושה הצבעות, ומעלה אנימציות בזמן אמת",
+                icon: "💻"
+            },
+            {
+                number: 15,
+                title: "המתנגדת לשיעורים בזום בשם הצדק והאמת",
+                description: "שיעור תנ״ך בזמן אזעקה זה פגיעה בזכויות אדם",
+                icon: "✊"
+            },
+            {
+                number: 16,
+                title: "המדווחת הרשמית",
+                description: "שולחת ראשונה את כל ההודעות מ'חדשות מהשטח' – עם אימוג'י מותאם",
+                icon: "📺"
+            },
+            {
+                number: 17,
+                title: "הפילוסופית של המלחמה",
+                description: "אני חושבת שהאזעקות הן מטאפורה לנפש שלנו",
+                icon: "🤔"
+            },
+            {
+                number: 18,
+                title: "המצלמת הסדרתית",
+                description: "תיעדה כל ירידה למקלט, כולל פילטרים ונרטיב",
+                icon: "📸"
+            },
+            {
+                number: 19,
+                title: 'שואלת כל הזמן "למה דווקא אצלנו?"',
+                description: "גם אם היא בתל אביב וגם אם בירושלים – תמיד זה אישי",
+                icon: "🤷‍♀️"
+            }
+        ];
+
+        function createCard(title) {
+            return `
+                <div class="card" onclick="selectCard(this)">
+                    <div class="card-number">${title.number}</div>
+                    <div class="card-title">
+                        <span class="icon">${title.icon}</span>
+                        ${title.title}
+                    </div>
+                    <div class="card-description">${title.description}</div>
+                </div>
+            `;
+        }
+
+        function renderCards() {
+            const grid = document.getElementById('cardsGrid');
+            grid.innerHTML = titles.map(createCard).join('');
+        }
+
+        function selectCard(card) {
+            // הסרת בחירה קודמת
+            document.querySelectorAll('.card').forEach(c => c.style.borderColor = 'transparent');
+            
+            // בחירת הקלף הנוכחי
+            card.style.borderColor = '#667eea';
+            card.style.background = 'linear-gradient(45deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1))';
+            
+            // אפקט חגיגי קטן
+            createMiniCelebration(card);
+        }
+
+        function createMiniCelebration(element) {
+            const rect = element.getBoundingClientRect();
+            const emojis = ['✨', '🎉', '👏', '💫'];
+            
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const emoji = document.createElement('div');
+                    emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    emoji.style.position = 'fixed';
+                    emoji.style.left = (rect.left + Math.random() * rect.width) + 'px';
+                    emoji.style.top = (rect.top + Math.random() * rect.height) + 'px';
+                    emoji.style.fontSize = '1.5em';
+                    emoji.style.pointerEvents = 'none';
+                    emoji.style.zIndex = '1000';
+                    emoji.style.transition = 'all 1s ease-out';
+                    
+                    document.body.appendChild(emoji);
+                    
+                    setTimeout(() => {
+                        emoji.style.transform = 'translateY(-50px)';
+                        emoji.style.opacity = '0';
+                    }, 100);
+                    
+                    setTimeout(() => {
+                        document.body.removeChild(emoji);
+                    }, 1100);
+                }, i * 100);
+            }
+        }
+
+        function shuffleCards() {
+            const shuffled = [...titles].sort(() => Math.random() - 0.5);
+            const grid = document.getElementById('cardsGrid');
+            grid.innerHTML = shuffled.map(createCard).join('');
+            
+            // אפקט ערבוב
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                card.style.animation = `none`;
+                setTimeout(() => {
+                    card.style.animation = `fall 0.5s ease-out ${index * 0.1}s`;
+                }, 10);
+            });
+        }
+
+        function startGame() {
+            const results = document.getElementById('results');
+            results.style.display = 'block';
+            results.scrollIntoView({ behavior: 'smooth' });
+            
+            // אפקט חגיגי
+            celebrate();
+        }
+
+        function celebrate() {
+            const emojiRain = document.getElementById('emojiRain');
+            const emojis = ['🎉', '🎊', '👑', '✨', '💫', '🌟', '🎈', '🎁'];
+            
+            // יצירת גשם אימוג'י
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const emoji = document.createElement('div');
+                    emoji.className = 'falling-emoji';
+                    emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    emoji.style.left = Math.random() * 100 + '%';
+                    emoji.style.animationDelay = Math.random() * 2 + 's';
+                    emoji.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    
+                    emojiRain.appendChild(emoji);
+                    
+                    setTimeout(() => {
+                        if (emojiRain.contains(emoji)) {
+                            emojiRain.removeChild(emoji);
+                        }
+                    }, 5000);
+                }, i * 100);
+            }
+        }
+
+        // אתחול הדף
+        document.addEventListener('DOMContentLoaded', function() {
+            renderCards();
+        });
+    </script>
+</body>
+</html>

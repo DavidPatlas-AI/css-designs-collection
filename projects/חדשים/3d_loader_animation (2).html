@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ממשק לוחמה צבאי אותנטי</title>
+    <style>
+        :root {
+            --terminal-green: #00ff41;
+            --warning-amber: #ffbf00;
+            --alert-red: #ff0000;
+            --tactical-blue: #00bfff;
+            --background-black: #000000;
+            --panel-dark: #0a0a0a;
+            --border-gray: #333333;
+            --text-dim: #888888;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: var(--background-black);
+            color: var(--terminal-green);
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* סריקת רקע */
+        .scanlines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 255, 65, 0.03) 2px,
+                rgba(0, 255, 65, 0.03) 4px
+            );
+            pointer-events: none;
+            animation: scanMove 0.1s linear infinite;
+        }
+
+        @keyframes scanMove {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(4px); }
+        }
+
+        /* פריסת המסך */
+        .hud-container {
+            display: grid;
+            grid-template-columns: 1fr 300px 1fr;
+            grid-template-rows: 60px 1fr 80px;
+            height: 100vh;
+            gap: 2px;
+            padding: 2px;
+        }
+
+        /* כותרת עליונה */
+        .header-bar {
+            grid-column: 1 / -1;
+            background: linear-gradient(90deg, var(--panel-dark), #1a1a1a, var(--panel-dark));
+            border: 1px solid var(--border-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .system-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--terminal-green);
+            text-shadow: 0 0 10px var(--terminal-green);
+            letter-spacing: 2px;
+        }
+
+        .timestamp {
+            font-size: 12px;
+            color: var(--warning-amber);
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.5; }
+        }
+
+        .classification {
+            font-size: 10px;
+            color: var(--alert-red);
+            font-weight: bold;
+            background: rgba(255, 0, 0, 0.1);
+            padding: 2px 8px;
+            border: 1px solid var(--alert-red);
+        }
+
+        /* פאנל שמאל */
+        .left-panel {
+            background: var(--panel-dark);
+            border: 1px solid var(--border-gray);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* מסך רדאר מרכזי */
+        .radar-display {
+            background: var(--background-black);
+            border: 2px solid var(--terminal-green);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .radar-screen {
+            width: 280px;
+            height: 280px;
+            border: 1px solid var(--terminal-green);
+            border-radius: 50%;
+            position: relative;
+            background: 
+                radial-gradient(circle at center, transparent 48%, var(--terminal-green) 49%, var(--terminal-green) 50%, transparent 51%),
+                radial-gradient(circle at center, transparent 73%, var(--terminal-green) 74%, var(--terminal-green) 75%, transparent 76%);
+        }
+
+        /* קווי רדאר */
+        .radar-grid::before,
+        .radar-grid::after {
+            content: '';
+            position: absolute;
+            background: var(--terminal-green);
+        }
+
+        .radar-grid::before {
+            width: 1px;
+            height: 100%;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+        }
+
+        .radar-grid::after {
+            width: 100%;
+            height: 1px;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+
+        .radar-sweep {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: conic-gradient(
+                from 0deg,
+                transparent 0deg,
+                transparent 350deg,
+                rgba(0, 255, 65, 0.8) 355deg,
+                rgba(0, 255, 65, 0.4) 360deg
+            );
+            border-radius: 50%;
+            animation: radarRotate 3s linear infinite;
+        }
+
+        @keyframes radarRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .radar-center {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: var(--terminal-green);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px var(--terminal-green);
+            animation: centerPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes centerPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.5); }
+        }
+
+        /* יעדים ברדאר */
+        .target {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--alert-red);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--alert-red);
+            animation: targetPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes targetPulse {
+            0%, 100% { 
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% { 
+                transform: scale(1.5);
+                opacity: 0.7;
+            }
+        }
+
+        /* פאנל ימין */
+        .right-panel {
+            background: var(--panel-dark);
+            border: 1px solid var(--border-gray);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* חלונות מידע */
+        .info-window {
+            border: 1px solid var(--border-gray);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .info-title {
+            font-size: 11px;
+            color: var(--warning-amber);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-content {
+            font-size: 10px;
+            line-height: 1.4;
+            color: var(--terminal-green);
+        }
+
+        /* נתוני מערכת */
+        .system-data {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+            font-size: 9px;
+        }
+
+        .data-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 2px 0;
+            border-bottom: 1px solid var(--border-gray);
+        }
+
+        .data-label {
+            color: var(--text-dim);
+        }
+
+        .data-value {
+            color: var(--terminal-green);
+            font-weight: bold;
+        }
+
+        .data-value.warning { color: var(--warning-amber); }
+        .data-value.critical { color: var(--alert-red); }
+
+        /* פס תחתון */
+        .bottom-bar {
+            grid-column: 1 / -1;
+            background: var(--panel-dark);
+            border: 1px solid var(--border-gray);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 30px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+        }
+
+        .status-light {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: statusBlink 1s ease-in-out infinite;
+        }
+
+        .status-light.active { background: var(--terminal-green); }
+        .status-light.warning { background: var(--warning-amber); }
+        .status-light.critical { background: var(--alert-red); }
+
+        /* קונסולת פקודות */
+        .command-line {
+            background: var(--background-black);
+            border: 1px solid var(--terminal-green);
+            padding: 8px;
+            font-size: 10px;
+            color: var(--terminal-green);
+            min-height: 100px;
+            overflow-y: auto;
+        }
+
+        .command-prompt {
+            color: var(--warning-amber);
+        }
+
+        .command-output {
+            margin: 2px 0;
+            color: var(--terminal-green);
+        }
+
+        .command-error {
+            color: var(--alert-red);
+        }
+
+        /* כפתורי פקודה */
+        .command-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .cmd-btn {
+            background: var(--background-black);
+            border: 1px solid var(--terminal-green);
+            color: var(--terminal-green);
+            padding: 5px;
+            font-size: 9px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .cmd-btn:hover {
+            background: var(--terminal-green);
+            color: var(--background-black);
+            box-shadow: 0 0 10px var(--terminal-green);
+        }
+
+        .cmd-btn:active {
+            background: var(--warning-amber);
+        }
+
+        /* תצוגה מותאמת למובייל */
+        @media (max-width: 768px) {
+            .hud-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: 50px 300px 1fr 60px;
+            }
+            
+            .left-panel, .right-panel {
+                display: none;
+            }
+            
+            .radar-display {
+                grid-column: 1;
+            }
+            
+            .radar-screen {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .system-title {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .radar-screen {
+                width: 200px;
+                height: 200px;
+            }
+            
+            .hud-container {
+                grid-template-rows: 40px 250px 1fr 50px;
+            }
+        }
+
+        /* Back button styles */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 170, 255, 0.9);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .back-btn:hover {
+            background: rgba(0, 170, 255, 1);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 170, 255, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <a href="../../gallery.html" class="back-btn">← חזרה לבית</a>
+    
+    <div class="scanlines"></div>
+    
+    <div class="hud-container">
+        <!-- כותרת עליונה -->
+        <div class="header-bar">
+            <div class="system-title">C4I TACTICAL SYSTEM v2.1</div>
+            <div class="timestamp" id="timestamp">2024-06-22 09:58:34 ZULU</div>
+            <div class="classification">CLASSIFIED</div>
+        </div>
+
+        <!-- פאנל שמאל -->
+        <div class="left-panel">
+            <div class="info-window">
+                <div class="info-title">Mission Status</div>
+                <div class="info-content" id="missionInfo">
+                    OP: GUARDIAN SHIELD<br>
+                    STATUS: ACTIVE<br>
+                    THREAT LEVEL: BRAVO<br>
+                    COMM: SECURE
+                </div>
+            </div>
+
+            <div class="info-window">
+                <div class="info-title">Coordinates</div>
+                <div class="info-content" id="coordinates">
+                    LAT: 31°46'48"N<br>
+                    LON: 35°14'52"E<br>
+                    ALT: 754 MSL<br>
+                    GRID: 38SMB4410
+                </div>
+            </div>
+
+            <div class="info-window">
+                <div class="info-title">Weather</div>
+                <div class="info-content">
+                    WIND: 270°/12KT<br>
+                    VIS: 10KM<br>
+                    CLOUD: SCT020<br>
+                    TEMP: 24°C
+                </div>
+            </div>
+        </div>
+
+        <!-- מסך רדאר מרכזי -->
+        <div class="radar-display">
+            <div class="radar-screen">
+                <div class="radar-grid"></div>
+                <div class="radar-sweep"></div>
+                <div class="radar-center"></div>
+                <div class="target" style="top: 30%; left: 20%;"></div>
+                <div class="target" style="top: 60%; left: 75%;"></div>
+                <div class="target" style="top: 80%; left: 40%;"></div>
+            </div>
+        </div>
+
+        <!-- פאנל ימין -->
+        <div class="right-panel">
+            <div class="info-window">
+                <div class="info-title">System Data</div>
+                <div class="system-data">
+                    <div class="data-item">
+                        <span class="data-label">PWR:</span>
+                        <span class="data-value">98%</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">SIG:</span>
+                        <span class="data-value warning">-67dBm</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">TMP:</span>
+                        <span class="data-value">72°C</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">MEM:</span>
+                        <span class="data-value critical">91%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="command-line" id="console">
+                <div class="command-prompt">SYSTEM>_ </div>
+                <div class="command-output">Radar sweep initialized...</div>
+                <div class="command-output">Target acquisition active</div>
+                <div class="command-output">Comm link established</div>
+                <div class="command-error">WARNING: Memory threshold exceeded</div>
+                <div class="command-output">System ready</div>
+            </div>
+
+            <div class="command-buttons">
+                <button class="cmd-btn" onclick="executeCommand('scan')">SCAN</button>
+                <button class="cmd-btn" onclick="executeCommand('track')">TRACK</button>
+                <button class="cmd-btn" onclick="executeCommand('iff')">IFF</button>
+                <button class="cmd-btn" onclick="executeCommand('comm')">COMM</button>
+            </div>
+        </div>
+
+        <!-- פס תחתון -->
+        <div class="bottom-bar">
+            <div class="status-indicator">
+                <div class="status-light active"></div>
+                <span>RADAR ACTIVE</span>
+            </div>
+            <div class="status-indicator">
+                <div class="status-light warning"></div>
+                <span>DATALINK</span>
+            </div>
+            <div class="status-indicator">
+                <div class="status-light critical"></div>
+                <span>THREAT DETECT</span>
+            </div>
+            <div class="status-indicator">
+                <div class="status-light active"></div>
+                <span>GPS LOCK</span>
+            </div>
+            <div class="status-indicator">
+                <div class="status-light active"></div>
+                <span>CRYPTO SECURE</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let targetCount = 3;
+        let commandIndex = 0;
+        
+        const commands = [
+            'Radar sweep initialized...',
+            'Target acquisition active',
+            'Comm link established',
+            'IFF interrogation complete',
+            'Datalink synchronized',
+            'Threat assessment updated',
+            'GPS coordinates verified',
+            'Crypto handshake successful'
+        ];
+        
+        function updateTimestamp() {
+            const now = new Date();
+            const timestamp = now.toISOString().replace('T', ' ').substring(0, 19) + ' ZULU';
+            document.getElementById('timestamp').textContent = timestamp;
+        }
+        
+        function updateCoordinates() {
+            const lat = (31 + Math.random() * 0.1).toFixed(5);
+            const lon = (35 + Math.random() * 0.1).toFixed(5);
+            const alt = Math.floor(750 + Math.random() * 20);
+            document.getElementById('coordinates').innerHTML = 
+                `LAT: ${lat}°N<br>LON: ${lon}°E<br>ALT: ${alt} MSL<br>GRID: 38SMB${Math.floor(Math.random() * 9999)}`;
+        }
+        
+        function executeCommand(cmd) {
+            const console = document.getElementById('console');
+            const newCommand = document.createElement('div');
+            
+            switch(cmd) {
+                case 'scan':
+                    newCommand.className = 'command-output';
+                    newCommand.textContent = 'Radar sweep: 360° sector clear';
+                    addRandomTargets();
+                    break;
+                case 'track':
+                    newCommand.className = 'command-output';
+                    newCommand.textContent = `Tracking ${targetCount} targets`;
+                    break;
+                case 'iff':
+                    newCommand.className = 'command-output';
+                    newCommand.textContent = 'IFF Mode 4: 2 FRIEND, 1 UNKNOWN';
+                    break;
+                case 'comm':
+                    newCommand.className = 'command-output';
+                    newCommand.textContent = 'COMM CHECK: All stations respond';
+                    break;
+            }
+            
+            console.appendChild(newCommand);
+            console.scrollTop = console.scrollHeight;
+            
+            // הסרת שורות ישנות
+            if (console.children.length > 10) {
+                console.removeChild(console.children[1]);
+            }
+        }
+        
+        function addRandomTargets() {
+            const radarScreen = document.querySelector('.radar-screen');
+            
+            // הסרת יעדים קיימים
+            document.querySelectorAll('.target').forEach(target => target.remove());
+            
+            // הוספת יעדים חדשים
+            targetCount = Math.floor(Math.random() * 5) + 1;
+            for (let i = 0; i < targetCount; i++) {
+                const target = document.createElement('div');
+                target.className = 'target';
+                target.style.top = (20 + Math.random() * 60) + '%';
+                target.style.left = (20 + Math.random() * 60) + '%';
+                radarScreen.appendChild(target);
+            }
+        }
+        
+        function updateSystemData() {
+            const powerValue = document.querySelector('.data-item:nth-child(1) .data-value');
+            const signalValue = document.querySelector('.data-item:nth-child(2) .data-value');
+            const tempValue = document.querySelector('.data-item:nth-child(3) .data-value');
+            const memValue = document.querySelector('.data-item:nth-child(4) .data-value');
+            
+            powerValue.textContent = (95 + Math.random() * 5).toFixed(0) + '%';
+            signalValue.textContent = '-' + (60 + Math.random() * 20).toFixed(0) + 'dBm';
+            tempValue.textContent = (70 + Math.random() * 10).toFixed(0) + '°C';
+            memValue.textContent = (85 + Math.random() * 10).toFixed(0) + '%';
+        }
+        
+        function autoConsoleUpdate() {
+            const console = document.getElementById('console');
+            const newOutput = document.createElement('div');
+            newOutput.className = 'command-output';
+            newOutput.textContent = commands[commandIndex % commands.length];
+            
+            console.appendChild(newOutput);
+            console.scrollTop = console.scrollHeight;
+            
+            if (console.children.length > 10) {
+                console.removeChild(console.children[1]);
+            }
+            
+            commandIndex++;
+        }
+        
+        // עדכונים אוטומטיים
+        setInterval(updateTimestamp, 1000);
+        setInterval(updateCoordinates, 5000);
+        setInterval(updateSystemData, 3000);
+        setInterval(autoConsoleUpdate, 4000);
+        setInterval(addRandomTargets, 8000);
+        
+        // התחלה ראשונית
+        updateTimestamp();
+        updateSystemData();
+    </script>
+</body>
+</html>

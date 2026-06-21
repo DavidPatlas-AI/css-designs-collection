@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>משחק VS AI - פונג מתקדם</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            overflow: hidden;
+        }
+
+        .game-container {
+            position: relative;
+            width: min(90vw, 800px);
+            max-width: 800px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 3px solid #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+
+        .game-header {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #fff;
+        }
+
+        .score {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+
+        .level-info {
+            font-size: 1rem;
+            color: #ffeb3b;
+            text-align: center;
+        }
+
+        .game-canvas {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(45deg, #1565c0, #1976d2);
+            position: relative;
+            overflow: hidden;
+            cursor: none;
+        }
+
+        .player {
+            position: absolute;
+            border-radius: 50%;
+            transition: all 0.1s ease;
+            box-shadow: 0 0 15px currentColor;
+        }
+
+        .player1 {
+            width: 30px;
+            height: 30px;
+            background: #ff4444;
+            bottom: 10px;
+            left: 50px;
+            box-shadow: 0 0 15px #ff4444;
+        }
+
+        .player2 {
+            width: 25px;
+            height: 25px;
+            background: #ffffff;
+            top: 10px;
+            right: 50px;
+            box-shadow: 0 0 15px #ffffff;
+        }
+
+        .ai-player {
+            width: 35px;
+            height: 35px;
+            background: #4285f4;
+            bottom: 50%;
+            left: 20px;
+            transform: translateY(50%);
+            box-shadow: 0 0 15px #4285f4;
+            border: 2px solid #fff;
+        }
+
+        .puck {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #ffeb3b, #ffc107);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 20px #ffeb3b;
+            animation: puckGlow 1s ease-in-out infinite alternate;
+        }
+
+        @keyframes puckGlow {
+            0% { box-shadow: 0 0 20px #ffeb3b; }
+            100% { box-shadow: 0 0 30px #ffeb3b, 0 0 40px #ffc107; }
+        }
+
+        .controls {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: linear-gradient(145deg, #4285f4, #1976d2);
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(66, 133, 244, 0.3);
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(66, 133, 244, 0.5);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+        .control-btn.start {
+            background: linear-gradient(145deg, #4caf50, #388e3c);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .control-btn.pause {
+            background: linear-gradient(145deg, #ff9800, #f57c00);
+            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+        }
+
+        .control-btn.reset {
+            background: linear-gradient(145deg, #f44336, #d32f2f);
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+        }
+
+        .instructions {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #ffeb3b;
+            z-index: 100;
+        }
+
+        .instructions h3 {
+            color: #ffeb3b;
+            margin-bottom: 10px;
+        }
+
+        .instructions p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .difficulty-selector {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .difficulty-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #fff;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .difficulty-btn:hover,
+        .difficulty-btn.active {
+            background: #ffeb3b;
+            color: #000;
+            transform: scale(1.05);
+        }
+
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            border: 3px solid #ffeb3b;
+            text-align: center;
+            z-index: 200;
+            display: none;
+        }
+
+        .game-over h2 {
+            color: #ffeb3b;
+            margin-bottom: 15px;
+            font-size: 2rem;
+        }
+
+        .goal-effect {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 235, 59, 0.3), transparent);
+            pointer-events: none;
+            opacity: 0;
+            animation: goalFlash 0.5s ease-out;
+        }
+
+        @keyframes goalFlash {
+            0% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 0; transform: scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .game-canvas {
+                height: 300px;
+            }
+            
+            .game-header {
+                padding: 10px 15px;
+            }
+            
+            .score {
+                font-size: 1.2rem;
+            }
+            
+            .controls {
+                padding: 10px;
+                gap: 10px;
+            }
+            
+            .control-btn {
+                padding: 10px 16px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <div class="score">
+                <span style="color: #ff4444;">שחקן: <span id="playerScore">0</span></span>
+            </div>
+            <div class="level-info">
+                <div>רמה: <span id="currentLevel">1</span></div>
+                <div id="gameStatus">VS AI</div>
+            </div>
+            <div class="score">
+                <span style="color: #4285f4;">AI: <span id="aiScore">0</span></span>
+            </div>
+        </div>
+
+        <div class="game-canvas" id="gameCanvas">
+            <div class="player player1" id="player1"></div>
+            <div class="player player2" id="player2"></div>
+            <div class="player ai-player" id="aiPlayer"></div>
+            <div class="puck" id="puck"></div>
+            
+            <div class="instructions" id="instructions">
+                <h3>🎮 איך לשחק</h3>
+                <p>🖱️ הזז את העכבר כדי לשלוט בשחקן האדום</p>
+                <p>⚽ נסה להכניס את הכדור לשער של ה-AI</p>
+                <p>🛡️ מנע מה-AI להבקיע</p>
+                <p>🏆 הגע ל-5 נקודות כדי לנצח!</p>
+                
+                <div class="difficulty-selector">
+                    <div class="difficulty-btn active" onclick="setDifficulty('easy')">קל</div>
+                    <div class="difficulty-btn" onclick="setDifficulty('medium')">בינוני</div>
+                    <div class="difficulty-btn" onclick="setDifficulty('hard')">קשה</div>
+                </div>
+                
+                <button class="control-btn start" onclick="startGame()">התחל משחק!</button>
+            </div>
+
+            <div class="game-over" id="gameOver">
+                <h2 id="gameOverTitle">משחק נגמר!</h2>
+                <p id="gameOverMessage">נצחת! כל הכבוד!</p>
+                <button class="control-btn start" onclick="resetGame()">משחק חדש</button>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn start" id="startBtn" onclick="toggleGame()">התחל</button>
+            <button class="control-btn pause" onclick="pauseGame()">השהה</button>
+            <button class="control-btn reset" onclick="resetGame()">איפוס</button>
+            <button class="control-btn" onclick="showInstructions()">הוראות</button>
+        </div>
+    </div>
+
+    <script>
+        // משתנים גלובליים
+        let gameRunning = false;
+        let gameLoop;
+        let difficulty = 'easy';
+        let playerScore = 0;
+        let aiScore = 0;
+        let level = 1;
+        
+        // אלמנטים
+        const canvas = document.getElementById('gameCanvas');
+        const player1 = document.getElementById('player1');
+        const player2 = document.getElementById('player2');
+        const aiPlayer = document.getElementById('aiPlayer');
+        const puck = document.getElementById('puck');
+        const instructions = document.getElementById('instructions');
+        
+        // מיקומים ומהירויות
+        let playerPos = { x: 50, y: 370 };
+        let player2Pos = { x: 750, y: 10 };
+        let aiPos = { x: 20, y: 200 };
+        let puckPos = { x: 400, y: 200 };
+        let puckVel = { x: 0, y: 0 };
+        
+        // הגדרות קושי
+        const difficultySettings = {
+            easy: { aiSpeed: 2, puckSpeed: 3, aiReaction: 0.02 },
+            medium: { aiSpeed: 3, puckSpeed: 4, aiReaction: 0.03 },
+            hard: { aiSpeed: 4, puckSpeed: 5, aiReaction: 0.04 }
+        };
+        
+        function setDifficulty(level) {
+            difficulty = level;
+            document.querySelectorAll('.difficulty-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function startGame() {
+            instructions.style.display = 'none';
+            gameRunning = true;
+            document.getElementById('startBtn').textContent = 'עצור';
+            
+            // איפוס מיקומים
+            resetPositions();
+            
+            // התחלת כדור
+            const angle = (Math.random() - 0.5) * Math.PI / 3;
+            const speed = difficultySettings[difficulty].puckSpeed;
+            puckVel.x = Math.cos(angle) * speed * (Math.random() > 0.5 ? 1 : -1);
+            puckVel.y = Math.sin(angle) * speed;
+            
+            // התחלת לולאת משחק
+            gameLoop = setInterval(updateGame, 16);
+        }
+        
+        function resetPositions() {
+            playerPos = { x: 50, y: 370 };
+            player2Pos = { x: 750, y: 10 };
+            aiPos = { x: 20, y: 200 };
+            puckPos = { x: 400, y: 200 };
+            updatePositions();
+        }
+        
+        function updatePositions() {
+            player1.style.left = playerPos.x + 'px';
+            player1.style.bottom = (400 - playerPos.y) + 'px';
+            
+            player2.style.right = (800 - player2Pos.x) + 'px';
+            player2.style.top = player2Pos.y + 'px';
+            
+            aiPlayer.style.left = aiPos.x + 'px';
+            aiPlayer.style.top = aiPos.y + 'px';
+            
+            puck.style.left = puckPos.x + 'px';
+            puck.style.top = puckPos.y + 'px';
+        }
+        
+        function updateGame() {
+            if (!gameRunning) return;
+            
+            // תזוזת כדור
+            puckPos.x += puckVel.x;
+            puckPos.y += puckVel.y;
+            
+            // התנגשות עם קירות
+            if (puckPos.y <= 10 || puckPos.y >= 390) {
+                puckVel.y = -puckVel.y;
+                puckPos.y = Math.max(10, Math.min(390, puckPos.y));
+            }
+            
+            // בדיקת גולים
+            if (puckPos.x <= 0) {
+                // גול לשחקן
+                playerScore++;
+                document.getElementById('playerScore').textContent = playerScore;
+                showGoalEffect();
+                resetRound();
+            } else if (puckPos.x >= 780) {
+                // גול ל-AI
+                aiScore++;
+                document.getElementById('aiScore').textContent = aiScore;
+                showGoalEffect();
+                resetRound();
+            }
+            
+            // בדיקת סיום משחק
+            if (playerScore >= 5 || aiScore >= 5) {
+                endGame();
+                return;
+            }
+            
+            // AI תנועה
+            updateAI();
+            
+            // התנגשויות עם שחקנים
+            checkCollisions();
+            
+            // עדכון מיקומים
+            updatePositions();
+        }
+        
+        function updateAI() {
+            const settings = difficultySettings[difficulty];
+            const aiCenter = aiPos.y + 17.5; // מרכז ה-AI
+            const puckCenter = puckPos.y + 10; // מרכז הכדור
+            
+            // תנועה לכיוון הכדור
+            if (puckCenter > aiCenter + 5) {
+                aiPos.y += settings.aiSpeed;
+            } else if (puckCenter < aiCenter - 5) {
+                aiPos.y -= settings.aiSpeed;
+            }
+            
+            // הגבלת תנועה
+            aiPos.y = Math.max(10, Math.min(350, aiPos.y));
+            
+            // תגובה לכדור קרוב
+            if (puckPos.x < 100 && Math.abs(puckPos.y - aiCenter) < 50) {
+                if (Math.random() < settings.aiReaction) {
+                    // בעיטה חזקה
+                    const angle = Math.atan2(200 - puckPos.y, 400 - puckPos.x);
+                    puckVel.x = Math.cos(angle) * settings.puckSpeed * 1.5;
+                    puckVel.y = Math.sin(angle) * settings.puckSpeed * 1.5;
+                }
+            }
+        }
+        
+        function checkCollisions() {
+            const puckRadius = 10;
+            const playerRadius = 15;
+            
+            // התנגשות עם שחקן 1
+            const dist1 = Math.sqrt(Math.pow(puckPos.x - playerPos.x, 2) + Math.pow(puckPos.y - playerPos.y, 2));
+            if (dist1 < puckRadius + playerRadius) {
+                const angle = Math.atan2(puckPos.y - playerPos.y, puckPos.x - playerPos.x);
+                const speed = difficultySettings[difficulty].puckSpeed * 1.2;
+                puckVel.x = Math.cos(angle) * speed;
+                puckVel.y = Math.sin(angle) * speed;
+            }
+            
+            // התנגשות עם AI
+            const distAI = Math.sqrt(Math.pow(puckPos.x - (aiPos.x + 17.5), 2) + Math.pow(puckPos.y - (aiPos.y + 17.5), 2));
+            if (distAI < puckRadius + 17.5) {
+                const angle = Math.atan2(puckPos.y - (aiPos.y + 17.5), puckPos.x - (aiPos.x + 17.5));
+                const speed = difficultySettings[difficulty].puckSpeed;
+                puckVel.x = Math.cos(angle) * speed;
+                puckVel.y = Math.sin(angle) * speed;
+            }
+        }
+        
+        function showGoalEffect() {
+            const effect = document.createElement('div');
+            effect.className = 'goal-effect';
+            canvas.appendChild(effect);
+            
+            setTimeout(() => {
+                canvas.removeChild(effect);
+            }, 500);
+        }
+        
+        function resetRound() {
+            setTimeout(() => {
+                puckPos = { x: 400, y: 200 };
+                puckVel = { x: 0, y: 0 };
+                
+                // כדור חדש
+                setTimeout(() => {
+                    const angle = (Math.random() - 0.5) * Math.PI / 3;
+                    const speed = difficultySettings[difficulty].puckSpeed;
+                    puckVel.x = Math.cos(angle) * speed * (Math.random() > 0.5 ? 1 : -1);
+                    puckVel.y = Math.sin(angle) * speed;
+                }, 1000);
+            }, 500);
+        }
+        
+        function endGame() {
+            gameRunning = false;
+            clearInterval(gameLoop);
+            
+            const gameOver = document.getElementById('gameOver');
+            const title = document.getElementById('gameOverTitle');
+            const message = document.getElementById('gameOverMessage');
+            
+            if (playerScore >= 5) {
+                title.textContent = '🏆 ניצחון!';
+                message.textContent = `ניצחת את ה-AI ${playerScore}-${aiScore}! מעולה!`;
+                title.style.color = '#4caf50';
+            } else {
+                title.textContent = '😔 הפסדת...';
+                message.textContent = `ה-AI ניצח ${aiScore}-${playerScore}. נסה שוב!`;
+                title.style.color = '#f44336';
+            }
+            
+            gameOver.style.display = 'block';
+        }
+        
+        function toggleGame() {
+            if (gameRunning) {
+                pauseGame();
+            } else {
+                if (instructions.style.display !== 'none') {
+                    startGame();
+                } else {
+                    resumeGame();
+                }
+            }
+        }
+        
+        function pauseGame() {
+            gameRunning = false;
+            clearInterval(gameLoop);
+            document.getElementById('startBtn').textContent = 'המשך';
+        }
+        
+        function resumeGame() {
+            gameRunning = true;
+            gameLoop = setInterval(updateGame, 16);
+            document.getElementById('startBtn').textContent = 'עצור';
+        }
+        
+        function resetGame() {
+            gameRunning = false;
+            clearInterval(gameLoop);
+            playerScore = 0;
+            aiScore = 0;
+            level = 1;
+            
+            document.getElementById('playerScore').textContent = '0';
+            document.getElementById('aiScore').textContent = '0';
+            document.getElementById('currentLevel').textContent = '1';
+            document.getElementById('startBtn').textContent = 'התחל';
+            document.getElementById('gameOver').style.display = 'none';
+            
+            resetPositions();
+            puckVel = { x: 0, y: 0 };
+        }
+        
+        function showInstructions() {
+            instructions.style.display = 'block';
+            pauseGame();
+        }
+        
+        // בקרת עכבר
+        canvas.addEventListener('mousemove', (e) => {
+            if (!gameRunning) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            playerPos.x = Math.max(15, Math.min(765, x - 15));
+            playerPos.y = Math.max(15, Math.min(385, 400 - y - 15));
+        });
+        
+        // בקרת מגע למובייל
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (!gameRunning) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            
+            playerPos.x = Math.max(15, Math.min(765, x - 15));
+            playerPos.y = Math.max(15, Math.min(385, 400 - y - 15));
+        });
+        
+        // התחלה ראשונית
+        updatePositions();
+    </script>
+</body>
+</html>

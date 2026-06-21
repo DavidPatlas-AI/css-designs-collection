@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 אסטרואידים</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #000011, #1a1a2e, #16213e);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+            max-width: 650px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #00ff00;
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        /* Instructions */
+        .instructions {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 100, 255, 0.1));
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .instructions h3 {
+            color: #00ffff;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            text-shadow: 0 0 5px #00ffff;
+        }
+
+        .instruction-steps {
+            text-align: right;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+        }
+
+        .step-number {
+            background: #00ffff;
+            color: #000;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-left: 10px;
+            flex-shrink: 0;
+            box-shadow: 0 0 10px #00ffff;
+        }
+
+        .step-text {
+            color: #e0e0e0;
+            font-weight: 500;
+        }
+
+        /* Player Setup Modal */
+        .modal {
+            display: flex;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,255,255,0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .modal h2 {
+            color: #00ffff;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 10px #00ffff;
+        }
+
+        .player-input {
+            margin-bottom: 1rem;
+        }
+
+        .player-input label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #e0e0e0;
+        }
+
+        .player-input input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+            font-size: 1rem;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .player-input input:focus {
+            outline: none;
+            border-color: #00ffff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        /* Game Info */
+        .game-info {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: rgba(0, 255, 0, 0.1);
+            border-radius: 10px;
+            border: 2px solid rgba(0, 255, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .score-info {
+            font-weight: bold;
+            color: #00ff00;
+            font-size: 1.1rem;
+        }
+
+        .player-name {
+            font-weight: bold;
+            color: #ffff00;
+            font-size: 1.1rem;
+        }
+
+        .lives-info {
+            font-weight: bold;
+            color: #ff6666;
+            font-size: 1.1rem;
+        }
+
+        .level-info {
+            font-weight: bold;
+            color: #ffaa00;
+            font-size: 1.1rem;
+        }
+
+        /* Asteroids Canvas */
+        .asteroids-canvas {
+            border: 3px solid #00ff00;
+            border-radius: 15px;
+            background: #000011;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            margin: 1rem auto;
+            display: block;
+        }
+
+        /* Game Status */
+        .game-status {
+            margin: 1rem 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            min-height: 30px;
+        }
+
+        .winner {
+            color: #00ff00;
+        }
+
+        .error {
+            color: #ff6666;
+        }
+
+        .info {
+            color: #00ffff;
+        }
+
+        /* Winner Display */
+        .winner-display {
+            margin: 1rem 0;
+            font-size: 1.5rem;
+            font-weight: bold;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .celebration-message {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #333;
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 3px solid #ffd700;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+            animation: celebrationPulse 2s ease-in-out infinite alternate;
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        @keyframes celebrationPulse {
+            from {
+                box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+                transform: scale(1);
+            }
+            to {
+                box-shadow: 0 15px 40px rgba(255, 215, 0, 0.6);
+                transform: scale(1.05);
+            }
+        }
+
+        /* Fireworks Animation */
+        .fireworks {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .firework {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            animation: fireworkExplosion 2s ease-out forwards;
+        }
+
+        @keyframes fireworkExplosion {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(20);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(40);
+                opacity: 0;
+            }
+        }
+
+        /* Controls Info */
+        .controls {
+            background: rgba(0, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            color: #e0e0e0;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        /* Buttons */
+        .game-btn {
+            background: linear-gradient(135deg, #00ff00, #00cc00);
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+        }
+
+        .game-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 255, 0, 0.5);
+        }
+
+        /* Fullscreen Button */
+        .fullscreen-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .fullscreen-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 107, 107, 0.5);
+        }
+
+        /* Fullscreen mode adjustments */
+        .game-container.fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            max-width: none;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 0;
+        }
+
+        .asteroids-canvas.fullscreen {
+            width: 90vw;
+            height: 70vh;
+            max-width: 1200px;
+            max-height: 800px;
+        }
+
+        .fullscreen-info {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #00ffff;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            z-index: 1001;
+        }
+
+        /* Back button styles */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 170, 255, 0.9);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .back-btn:hover {
+            background: rgba(0, 170, 255, 1);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 170, 255, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .asteroids-canvas {
+                width: 100%;
+                max-width: 350px;
+                height: auto;
+            }
+            
+            .game-info {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Player Setup Modal -->
+    <div class="modal" id="playerSetupModal">
+        <div class="modal-content">
+            <h2>🚀 הכניסו את השם שלכם</h2>
+            <div class="player-input">
+                <label for="playerName">שם הטייס:</label>
+                <input type="text" id="playerName" placeholder="הכניסו שם..." maxlength="15">
+            </div>
+            <button class="game-btn" onclick="startGameWithName()">🚀 התחל משימה!</button>
+        </div>
+    </div>
+
+    <!-- Fireworks Container -->
+    <div class="fireworks" id="fireworksContainer"></div>
+
+    <a href="../../gallery.html" class="back-btn">← חזרה לבית</a>
+    
+    <div class="game-container">
+        <h1>🚀 אסטרואידים</h1>
+        
+        <!-- Game Instructions -->
+        <div class="instructions">
+            <h3>📖 איך משחקים?</h3>
+            <div class="instruction-steps">
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <span class="step-text">חץ למעלה (↑) - דחף מנועים קדימה</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <span class="step-text">חצים ימין ושמאל (←→) - סיבוב החללית</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <span class="step-text">רווח - ירי לייזר על האסטרואידים</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <span class="step-text">אסטרואידים גדולים מתפצלים לקטנים יותר</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">5</span>
+                    <span class="step-text">אל תיגעו באסטרואידים! יש לכם 3 חיים 💖</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">6</span>
+                    <span class="step-text">המטרה: להרוס את כל האסטרואידים! 🏆</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-info">
+            <span class="player-name" id="playerNameDisplay">טייס</span>
+            <span class="score-info">ניקוד: <span id="asteroidsScore">0</span></span>
+            <span class="lives-info">חיים: <span id="asteroidsLives">3</span></span>
+            <span class="level-info" style="font-weight: bold; color: #ffaa00;">רמה: <span id="currentLevel">1</span></span>
+        </div>
+        
+        <canvas class="asteroids-canvas" id="asteroidsCanvas" width="500" height="400"></canvas>
+        
+        <div class="game-status" id="asteroidsStatus">לחצו "התחל" כדי לשחק</div>
+        <div class="winner-display" id="asteroidsWinner"></div>
+        
+        <div class="controls">
+            🎮 ↑ דחף מנועים | ←→ סיבוב | רווח ירי<br>
+            🚀 לחצו על חץ כלשהו כדי להתחיל לטוס!<br>
+            🚀 החללית: משולש ירוק זוהר עם מנועים<br>
+            🪨 אסטרואידים: סלעים חומים שמתפצלים כשנורים בהם<br>
+            🌟 אסטרואיד זהב: נותן פאוור-אפים מיוחדים!<br>
+            💥 כל אסטרואיד = 10 נקודות! אסטרואידים קטנים = 20 נקודות!<br>
+            🔥 פאוור-אפים: ירי כפול (2) | ירי מהיר (R) | מגן (S) | נקודות X2 (P)<br>
+            🏆 כל רמה מביאה יותר אסטרואידים ומהירות גבוהה יותר!
+        </div>
+        
+        <button class="game-btn" id="asteroidsBtn" onclick="toggleAsteroidsGame()">התחל</button>
+        <button class="game-btn" onclick="resetAsteroidsGame()">משחק חדש</button>
+        <button class="fullscreen-btn" id="fullscreenBtn" onclick="toggleFullscreen()">️ מסך מלא</button>
+        <button class="game-btn" id="soundBtn" onclick="toggleSound()" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);">🔊 צליה</button>
+    </div>
+
+    <!-- Fullscreen info -->
+    <div class="fullscreen-info" id="fullscreenInfo" style="display: none;">
+        לחצו ESC או F11 כדי לצאת ממסך מלא
+    </div>
+
+    <script>
+        // Asteroids Game with Player Names and Visual Effects
+        const canvas = document.getElementById('asteroidsCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let asteroidsGameRunning = false;
+        let asteroidsScore = 0;
+        let asteroidsLives = 3;
+        let ship = { x: 250, y: 200, angle: 0, vx: 0, vy: 0 };
+        let asteroids = [];
+        let bullets = [];
+        let asteroidsGameLoop;
+        let playerName = 'טייס';
+        let bestScore = 0;
+        let asteroidsKeys = {};
+        
+        // New game features
+        let currentLevel = 1;
+        let powerUps = [];
+        let particles = [];
+        let activePowerUps = {
+            doubleShot: 0,
+            rapidFire: 0,
+            shield: 0,
+            doublePoints: 0
+        };
+        let lastShotTime = 0;
+        let shieldActive = false;
+
+        // Ship trail effect
+        let shipTrail = [];
+
+        // Fullscreen variables
+        let isFullscreen = false;
+        let originalCanvasWidth = 500;
+        let originalCanvasHeight = 400;
+
+        // Sound system
+        let soundEnabled = true;
+        let gameAudio = {
+            shoot: null,
+            explosion: null,
+            powerup: null,
+            engine: null,
+            levelComplete: null
+        };
+
+        // Planet backgrounds for different levels
+        let planets = [
+            { name: 'כדור הארץ', color: '#4A90E2', rings: false },
+            { name: 'מאדים', color: '#E74C3C', rings: false },
+            { name: 'שבתאי', color: '#F39C12', rings: true }
+        ];
+        let currentPlanet = 0;
+
+        // Show setup modal on page load
+        window.onload = function() {
+            document.getElementById('playerSetupModal').style.display = 'flex';
+        };
+
+        function startGameWithName() {
+            const name = document.getElementById('playerName').value.trim();
+            
+            if (name === '') {
+                alert('אנא הכניסו שם!');
+                return;
+            }
+            
+            playerName = name;
+            document.getElementById('playerNameDisplay').textContent = `טייס ${playerName}`;
+            
+            // Hide modal
+            document.getElementById('playerSetupModal').style.display = 'none';
+            
+            // Initialize game
+            initAsteroidsGame();
+            drawAsteroidsGame();
+            updateAsteroidsControls();
+        }
+
+        function initAsteroidsGame() {
+            asteroidsScore = 0;
+            asteroidsLives = 3;
+            currentLevel = 1;
+            currentPlanet = 0;
+            ship = { x: 250, y: 200, angle: 0, vx: 0, vy: 0 };
+            asteroids = [];
+            bullets = [];
+            powerUps = [];
+            particles = [];
+            activePowerUps = {
+                doubleShot: 0,
+                rapidFire: 0,
+                shield: 0,
+                doublePoints: 0
+            };
+            shieldActive = false;
+            
+            // Initialize audio context
+            initializeSounds();
+            
+            // Create initial asteroids - circular shape
+            const asteroidCount = Math.min(4 + currentLevel, 8);
+            for (let i = 0; i < asteroidCount; i++) {
+                let asteroid;
+                let attempts = 0;
+                do {
+                    asteroid = {
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        vx: (Math.random() - 0.5) * 4,
+                        vy: (Math.random() - 0.5) * 4,
+                        size: 30 + Math.random() * 20,
+                        type: 'large',
+                        special: Math.random() < 0.1 ? 'gold' : 'normal',
+                        rotation: Math.random() * Math.PI * 2
+                    };
+                    attempts++;
+                } while (
+                    Math.sqrt((asteroid.x - ship.x) ** 2 + (asteroid.y - ship.y) ** 2) < asteroid.size + 50 &&
+                    attempts < 20
+                );
+                
+                asteroids.push(asteroid);
+            }
+            
+            updateAsteroidsDisplay();
+        }
+
+        function drawAsteroidsGame() {
+            // Clear canvas with space background
+            ctx.fillStyle = '#000011';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw planet background based on current level
+            drawPlanetBackground();
+            
+            // Draw enhanced stars
+            ctx.fillStyle = 'white';
+            for (let i = 0; i < 100; i++) {
+                const x = (i * 47) % canvas.width;
+                const y = (i * 53) % canvas.height;
+                const size = Math.random() > 0.7 ? 2 : 1;
+                const brightness = 0.3 + Math.random() * 0.7;
+                ctx.globalAlpha = brightness;
+                ctx.fillRect(x, y, size, size);
+            }
+            ctx.globalAlpha = 1;
+            
+            // Draw detailed spaceship
+            drawDetailedSpaceship();
+            
+            // Draw circular asteroids
+            asteroids.forEach(asteroid => {
+                drawCircularAsteroid(asteroid);
+            });
+            
+            // Draw power-ups
+            powerUps.forEach(powerUp => {
+                ctx.save();
+                ctx.translate(powerUp.x, powerUp.y);
+                ctx.rotate(Date.now() * 0.005);
+                
+                ctx.shadowBlur = 15;
+                
+                if (powerUp.type === 'doubleShot') {
+                    ctx.fillStyle = '#ff6b6b';
+                    ctx.shadowColor = '#ff6b6b';
+                } else if (powerUp.type === 'rapidFire') {
+                    ctx.fillStyle = '#4ecdc4';
+                    ctx.shadowColor = '#4ecdc4';
+                } else if (powerUp.type === 'shield') {
+                    ctx.fillStyle = '#45b7d1';
+                    ctx.shadowColor = '#45b7d1';
+                } else if (powerUp.type === 'doublePoints') {
+                    ctx.fillStyle = '#feca57';
+                    ctx.shadowColor = '#feca57';
+                }
+                
+                ctx.beginPath();
+                ctx.arc(0, 0, 12, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Power-up symbol
+                ctx.fillStyle = '#000';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                if (powerUp.type === 'doubleShot') {
+                    ctx.fillText('2', 0, 0);
+                } else if (powerUp.type === 'rapidFire') {
+                    ctx.fillText('R', 0, 0);
+                } else if (powerUp.type === 'shield') {
+                    ctx.fillText('S', 0, 0);
+                } else if (powerUp.type === 'doublePoints') {
+                    ctx.fillText('P', 0, 0);
+                }
+                
+                ctx.restore();
+            });
+            
+            // Draw particles
+            particles.forEach(particle => {
+                ctx.fillStyle = particle.color;
+                ctx.globalAlpha = particle.life / particle.maxLife;
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.size, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            });
+            
+            // Draw bullets with enhanced trails
+            ctx.fillStyle = '#ffff00';
+            ctx.shadowColor = '#ffff00';
+            ctx.shadowBlur = 10;
+            bullets.forEach(bullet => {
+                ctx.beginPath();
+                ctx.arc(bullet.x, bullet.y, 3, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Enhanced bullet trail
+                ctx.strokeStyle = '#ffff00';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(bullet.x, bullet.y);
+                ctx.lineTo(bullet.x - bullet.vx * 5, bullet.y - bullet.vy * 5);
+                ctx.stroke();
+            });
+            
+            // Draw active power-up indicators
+            let indicatorY = 10;
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'left';
+            
+            if (activePowerUps.doubleShot > 0) {
+                ctx.fillStyle = '#ff6b6b';
+                ctx.fillText(`ירי כפול: ${Math.ceil(activePowerUps.doubleShot / 60)}s`, 10, indicatorY);
+                indicatorY += 20;
+            }
+            if (activePowerUps.rapidFire > 0) {
+                ctx.fillStyle = '#4ecdc4';
+                ctx.fillText(`ירי מהיר: ${Math.ceil(activePowerUps.rapidFire / 60)}s`, 10, indicatorY);
+                indicatorY += 20;
+            }
+            if (activePowerUps.shield > 0) {
+                ctx.fillStyle = '#45b7d1';
+                ctx.fillText(`מגן: ${Math.ceil(activePowerUps.shield / 60)}s`, 10, indicatorY);
+                indicatorY += 20;
+            }
+            if (activePowerUps.doublePoints > 0) {
+                ctx.fillStyle = '#feca57';
+                ctx.fillText(`נקודות X2: ${Math.ceil(activePowerUps.doublePoints / 60)}s`, 10, indicatorY);
+                indicatorY += 20;
+            }
+            
+            // Draw planet name
+            ctx.fillStyle = '#00ffff';
+            ctx.font = '18px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(planets[currentPlanet].name, canvas.width / 2, 30);
+            
+            ctx.shadowBlur = 0;
+        }
+
+        function updateAsteroidsGame() {
+            if (!asteroidsGameRunning) return;
+            
+            // Update power-ups and particles
+            updatePowerUps();
+            updateParticles();
+            
+            // Update ship physics
+            ship.x += ship.vx;
+            ship.y += ship.vy;
+            ship.vx *= 0.99; // friction
+            ship.vy *= 0.99;
+            
+            // Wrap ship around screen
+            if (ship.x < 0) ship.x = canvas.width;
+            if (ship.x > canvas.width) ship.x = 0;
+            if (ship.y < 0) ship.y = canvas.height;
+            if (ship.y > canvas.height) ship.y = 0;
+            
+            // Update bullets
+            bullets.forEach((bullet, bulletIndex) => {
+                bullet.x += bullet.vx;
+                bullet.y += bullet.vy;
+                bullet.life--;
+                
+                // Wrap bullets around screen
+                if (bullet.x < 0) bullet.x = canvas.width;
+                if (bullet.x > canvas.width) bullet.x = 0;
+                if (bullet.y < 0) bullet.y = canvas.height;
+                if (bullet.y > canvas.height) bullet.y = 0;
+                
+                if (bullet.life <= 0) {
+                    bullets.splice(bulletIndex, 1);
+                    return;
+                }
+                
+                // Check bullet-asteroid collision
+                asteroids.forEach((asteroid, asteroidIndex) => {
+                    const dx = bullet.x - asteroid.x;
+                    const dy = bullet.y - asteroid.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < asteroid.size) {
+                        bullets.splice(bulletIndex, 1);
+                        
+                        // Create explosion effect
+                        createExplosion(asteroid.x, asteroid.y, asteroid.special === 'gold' ? '#FFD700' : '#ff6600');
+                        
+                        // Award points
+                        let points = 0;
+                        if (asteroid.type === 'large') {
+                            points = asteroid.special === 'gold' ? 50 : 10;
+                        } else {
+                            points = asteroid.special === 'gold' ? 100 : 20;
+                        }
+                        
+                        // Apply double points power-up
+                        if (activePowerUps.doublePoints > 0) {
+                            points *= 2;
+                        }
+                        
+                        asteroidsScore += points;
+                        updateAsteroidsDisplay();
+                        
+                        // Create power-up from gold asteroids
+                        if (asteroid.special === 'gold') {
+                            createPowerUp(asteroid.x, asteroid.y);
+                        }
+                        
+                        // Create smaller asteroids
+                        if (asteroid.size > 15) {
+                            for (let i = 0; i < 2; i++) {
+                                asteroids.push({
+                                    x: asteroid.x,
+                                    y: asteroid.y,
+                                    vx: (Math.random() - 0.5) * 6,
+                                    vy: (Math.random() - 0.5) * 6,
+                                    size: asteroid.size / 2,
+                                    type: 'small',
+                                    special: asteroid.special === 'gold' && Math.random() < 0.3 ? 'gold' : 'normal'
+                                });
+                            }
+                        }
+                        
+                        asteroids.splice(asteroidIndex, 1);
+                    }
+                });
+            });
+            
+            // Update asteroids
+            asteroids.forEach(asteroid => {
+                asteroid.x += asteroid.vx;
+                asteroid.y += asteroid.vy;
+                
+                // Wrap around screen
+                if (asteroid.x < 0) asteroid.x = canvas.width;
+                if (asteroid.x > canvas.width) asteroid.x = 0;
+                if (asteroid.y < 0) asteroid.y = canvas.height;
+                if (asteroid.y > canvas.height) asteroid.y = 0;
+                
+                // Check ship collision (only if not shielded)
+                if (!shieldActive) {
+                    const dx = ship.x - asteroid.x;
+                    const dy = ship.y - asteroid.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < asteroid.size + 10) {
+                        createExplosion(ship.x, ship.y, '#ff0000');
+                        asteroidsLives--;
+                        updateAsteroidsDisplay();
+                        
+                        if (asteroidsLives <= 0) {
+                            asteroidsGameOver();
+                            return;
+                        } else {
+                            // Reset ship position to safe location
+                            let safePosition = findSafePosition();
+                            ship.x = safePosition.x;
+                            ship.y = safePosition.y;
+                            ship.vx = 0;
+                            ship.vy = 0;
+                            ship.angle = 0;
+                        }
+                    }
+                }
+            });
+            
+            // Check win condition (level complete)
+            if (asteroids.length === 0) {
+                currentLevel++;
+                updateAsteroidsDisplay();
+                
+                // Show level complete message
+                document.getElementById('asteroidsStatus').textContent = `רמה ${currentLevel - 1} הושלמה! מתחיל רמה ${currentLevel}`;
+                document.getElementById('asteroidsStatus').className = 'game-status winner';
+                
+                // Create new level asteroids - avoid ship position
+                const asteroidCount = Math.min(4 + currentLevel, 10);
+                for (let i = 0; i < asteroidCount; i++) {
+                    let asteroid;
+                    let attempts = 0;
+                    do {
+                        asteroid = {
+                            x: Math.random() * canvas.width,
+                            y: Math.random() * canvas.height,
+                            vx: (Math.random() - 0.5) * (3 + currentLevel * 0.5),
+                            vy: (Math.random() - 0.5) * (3 + currentLevel * 0.5),
+                            size: 25 + Math.random() * 15,
+                            type: 'large',
+                            special: Math.random() < (0.05 + currentLevel * 0.02) ? 'gold' : 'normal'
+                        };
+                        attempts++;
+                    } while (
+                        Math.sqrt((asteroid.x - ship.x) ** 2 + (asteroid.y - ship.y) ** 2) < asteroid.size + 80 &&
+                        attempts < 20
+                    );
+                    
+                    asteroids.push(asteroid);
+                }
+                
+                // Bonus points for clearing level
+                const levelBonus = 100 + (currentLevel * 50);
+                asteroidsScore += levelBonus;
+                updateAsteroidsDisplay();
+                
+                // Reset status message after a short delay
+                setTimeout(() => {
+                    if (asteroidsGameRunning) {
+                        document.getElementById('asteroidsStatus').textContent = `רמה ${currentLevel} - הרסו את האסטרואידים!`;
+                        document.getElementById('asteroidsStatus').className = 'game-status info';
+                    }
+                }, 2000);
+            }
+            
+            drawAsteroidsGame();
+        }
+
+        function startAsteroidsGame() {
+            if (asteroidsGameRunning) return;
+            
+            asteroidsGameRunning = true;
+            document.getElementById('asteroidsStatus').textContent = `${playerName}, הרסו את האסטרואידים! 🚀`;
+            document.getElementById('asteroidsStatus').className = 'game-status info';
+            document.getElementById('asteroidsBtn').textContent = 'עצור';
+            
+            asteroidsGameLoop = setInterval(updateAsteroidsGame, 16); // ~60 FPS
+        }
+
+        function stopAsteroidsGame() {
+            asteroidsGameRunning = false;
+            clearInterval(asteroidsGameLoop);
+            document.getElementById('asteroidsStatus').textContent = 'המשחק הופסק';
+            document.getElementById('asteroidsStatus').className = 'game-status';
+            document.getElementById('asteroidsBtn').textContent = 'המשך';
+        }
+
+        function toggleAsteroidsGame() {
+            if (asteroidsGameRunning) {
+                stopAsteroidsGame();
+            } else {
+                // Don't start automatically, wait for arrow keys
+                document.getElementById('asteroidsStatus').textContent = `${playerName}, לחצו על החצים כדי להתחיל לטוס! 🚀`;
+                document.getElementById('asteroidsStatus').className = 'game-status info';
+                document.getElementById('asteroidsBtn').textContent = 'עצור';
+            }
+        }
+
+        function asteroidsGameOver() {
+            asteroidsGameRunning = false;
+            clearInterval(asteroidsGameLoop);
+            
+            // Check for new best score
+            if (asteroidsScore > bestScore) {
+                bestScore = asteroidsScore;
+                
+                // Show celebration for new record
+                const winnerDisplay = document.getElementById('asteroidsWinner');
+                winnerDisplay.innerHTML = `🎊 שיא חדש ${playerName}! 🎊<br>🏆 ${asteroidsScore} נקודות! 🏆`;
+                winnerDisplay.className = 'winner-display celebration-message';
+                createFireworks();
+                
+                document.getElementById('asteroidsStatus').textContent = `שיא חדש! המשחק נגמר`;
+                document.getElementById('asteroidsStatus').className = 'game-status winner';
+            } else {
+                document.getElementById('asteroidsStatus').textContent = `המשחק נגמר! הניקוד: ${asteroidsScore} (שיא: ${bestScore})`;
+                document.getElementById('asteroidsStatus').className = 'game-status error';
+            }
+            
+            document.getElementById('asteroidsBtn').textContent = 'התחל';
+        }
+
+        function resetAsteroidsGame() {
+            asteroidsGameRunning = false;
+            clearInterval(asteroidsGameLoop);
+            
+            initAsteroidsGame();
+            drawAsteroidsGame();
+            
+            document.getElementById('asteroidsStatus').textContent = `${playerName}, לחצו "התחל" או חצים כדי לטוס`;
+            document.getElementById('asteroidsStatus').className = 'game-status';
+            document.getElementById('asteroidsBtn').textContent = 'התחל';
+            
+            // Clear winner display and fireworks
+            document.getElementById('asteroidsWinner').textContent = '';
+            document.getElementById('asteroidsWinner').className = 'winner-display';
+            document.getElementById('fireworksContainer').innerHTML = '';
+        }
+
+        function updateAsteroidsDisplay() {
+            document.getElementById('asteroidsScore').textContent = asteroidsScore;
+            document.getElementById('asteroidsLives').textContent = asteroidsLives;
+            document.getElementById('currentLevel').textContent = currentLevel;
+        }
+
+        // Find safe position for ship respawn
+        function findSafePosition() {
+            let attempts = 0;
+            let safePosition;
+            
+            do {
+                safePosition = {
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height
+                };
+                attempts++;
+            } while (
+                asteroids.some(asteroid => {
+                    const dx = safePosition.x - asteroid.x;
+                    const dy = safePosition.y - asteroid.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    return distance < asteroid.size + 60;
+                }) && attempts < 50
+            );
+            
+            // If no safe position found, use center
+            if (attempts >= 50) {
+                return { x: canvas.width / 2, y: canvas.height / 2 };
+            }
+            
+            return safePosition;
+        }
+
+        // Controls
+        document.addEventListener('keydown', (e) => {
+            asteroidsKeys[e.code] = true;
+            
+            // Start game when arrow keys are pressed
+            if ((e.code === 'ArrowLeft' || e.code === 'ArrowRight' || e.code === 'ArrowUp') && !asteroidsGameRunning) {
+                startAsteroidsGame();
+            }
+            
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (asteroidsGameRunning) {
+                    const currentTime = Date.now();
+                    const fireRate = activePowerUps.rapidFire > 0 ? 100 : 250; // Faster firing with rapid fire
+                    
+                    if (currentTime - lastShotTime > fireRate) {
+                        lastShotTime = currentTime;
+                        
+                        if (activePowerUps.doubleShot > 0) {
+                            // Double shot - fire two bullets
+                            bullets.push({
+                                x: ship.x + Math.cos(ship.angle - 0.1) * 20,
+                                y: ship.y + Math.sin(ship.angle - 0.1) * 20,
+                                vx: Math.cos(ship.angle - 0.1) * 10,
+                                vy: Math.sin(ship.angle - 0.1) * 10,
+                                life: 120
+                            });
+                            bullets.push({
+                                x: ship.x + Math.cos(ship.angle + 0.1) * 20,
+                                y: ship.y + Math.sin(ship.angle + 0.1) * 20,
+                                vx: Math.cos(ship.angle + 0.1) * 10,
+                                vy: Math.sin(ship.angle + 0.1) * 10,
+                                life: 120
+                            });
+                        } else {
+                            // Single shot
+                            bullets.push({
+                                x: ship.x + Math.cos(ship.angle) * 20,
+                                y: ship.y + Math.sin(ship.angle) * 20,
+                                vx: Math.cos(ship.angle) * 10,
+                                vy: Math.sin(ship.angle) * 10,
+                                life: 120
+                            });
+                        }
+                    }
+                }
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            asteroidsKeys[e.code] = false;
+        });
+
+        // Asteroids movement update
+        function updateAsteroidsControls() {
+            if (asteroidsGameRunning && ship) {
+                if (asteroidsKeys['ArrowLeft']) {
+                    ship.angle -= 0.15;
+                }
+                if (asteroidsKeys['ArrowRight']) {
+                    ship.angle += 0.15;
+                }
+                if (asteroidsKeys['ArrowUp']) {
+                    ship.vx += Math.cos(ship.angle) * 0.3;
+                    ship.vy += Math.sin(ship.angle) * 0.3;
+                }
+            }
+            requestAnimationFrame(updateAsteroidsControls);
+        }
+
+        // Fireworks animation
+        function createFireworks() {
+            const container = document.getElementById('fireworksContainer');
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff'];
+            
+            for (let i = 0; i < 25; i++) {
+                setTimeout(() => {
+                    const firework = document.createElement('div');
+                    firework.className = 'firework';
+                    firework.style.left = Math.random() * 100 + '%';
+                    firework.style.top = Math.random() * 100 + '%';
+                    firework.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    container.appendChild(firework);
+                    
+                    // Remove firework after animation
+                    setTimeout(() => {
+                        if (firework.parentNode) {
+                            firework.parentNode.removeChild(firework);
+                        }
+                    }, 2000);
+                }, i * 150);
+            }
+        }
+
+        // Create explosion particles
+        function createExplosion(x, y, color = '#ff6600') {
+            for (let i = 0; i < 10; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    size: Math.random() * 3 + 1,
+                    life: 30,
+                    maxLife: 30,
+                    color: color
+                });
+            }
+        }
+
+        // Create power-up
+        function createPowerUp(x, y) {
+            const types = ['doubleShot', 'rapidFire', 'shield', 'doublePoints'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            
+            powerUps.push({
+                x: x,
+                y: y,
+                type: type,
+                life: 600 // 10 seconds
+            });
+        }
+
+        // Update power-ups
+        function updatePowerUps() {
+            // Update power-up positions and lifetime
+            powerUps.forEach((powerUp, index) => {
+                powerUp.life--;
+                if (powerUp.life <= 0) {
+                    powerUps.splice(index, 1);
+                    return;
+                }
+                
+                // Check collision with ship
+                const dx = ship.x - powerUp.x;
+                const dy = ship.y - powerUp.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < 20) {
+                    // Activate power-up
+                    activePowerUps[powerUp.type] = 600; // 10 seconds
+                    if (powerUp.type === 'shield') {
+                        shieldActive = true;
+                    }
+                    powerUps.splice(index, 1);
+                    
+                    // Visual feedback
+                    createExplosion(powerUp.x, powerUp.y, '#00ff00');
+                }
+            });
+            
+            // Update active power-ups
+            Object.keys(activePowerUps).forEach(key => {
+                if (activePowerUps[key] > 0) {
+                    activePowerUps[key]--;
+                    if (activePowerUps[key] <= 0 && key === 'shield') {
+                        shieldActive = false;
+                    }
+                }
+            });
+        }
+
+        // Update particles
+        function updateParticles() {
+            particles.forEach((particle, index) => {
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.life--;
+                particle.vx *= 0.98;
+                particle.vy *= 0.98;
+                
+                if (particle.life <= 0) {
+                    particles.splice(index, 1);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

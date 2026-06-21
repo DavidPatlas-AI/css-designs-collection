@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>משחק נינג'ה פירות 🍉</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+      background: linear-gradient(135deg, #8B4513, #A0522D, #8B4513);
+      color: white;
+      text-align: center;
+      overflow: hidden;
+      user-select: none;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    .start-screen {
+      padding-top: 20px;
+      animation: fadeIn 1s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+      color: #FFD700;
+    }
+
+    p {
+      font-size: 1em;
+      margin-bottom: 10px;
+      color: #FFF8DC;
+    }
+
+    input, button {
+      font-size: 1.1em;
+      padding: 12px 20px;
+      margin: 8px;
+      border-radius: 25px;
+      border: none;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    input {
+      width: 280px;
+      max-width: 80vw;
+      text-align: center;
+      background: rgba(255,255,255,0.95);
+      color: #333;
+    }
+
+    button {
+      background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      min-width: 180px;
+      transition: transform 0.2s;
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    canvas {
+      display: none;
+      margin: 5px auto;
+      border: 4px solid #654321;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+      touch-action: none;
+      width: 95vw;
+      max-width: 500px;
+      height: 65vh;
+      max-height: 450px;
+      cursor: none;
+    }
+
+    #gameUI {
+      display: none;
+      padding: 5px;
+    }
+
+    #scoreBoard {
+      font-size: 1.2em;
+      margin: 3px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+      font-weight: bold;
+      color: #FFD700;
+    }
+
+    #highScore {
+      font-size: 1em;
+      margin: 2px;
+      color: #90EE90;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+    }
+
+    #levelBoard {
+      font-size: 1em;
+      color: #87CEEB;
+      margin: 3px;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+    }
+
+    #gameOver {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.95);
+      padding: 30px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+      z-index: 1000;
+      border: 2px solid #FFD700;
+    }
+
+    .fruit-emoji {
+      font-size: 1.3em;
+      margin: 8px 0;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes levelUpAnim {
+      0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+      50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+    }
+
+    @keyframes specialMessageAnim {
+      0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+      20% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+      80% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+    }
+
+    .sword-trail {
+      position: absolute;
+      pointer-events: none;
+      width: 4px;
+      height: 4px;
+      background: radial-gradient(circle, #fff, transparent);
+      border-radius: 50%;
+      z-index: 100;
+    }
+
+    /* Back button styles */
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(0, 170, 255, 0.9);
+      color: white;
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .back-btn:hover {
+      background: rgba(0, 170, 255, 1);
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 5px 15px rgba(0, 170, 255, 0.4);
+    }
+  </style>
+</head>
+<body>
+
+     <a href="../../gallery.html" class="back-btn">← חזרה לבית</a>
+
+  <div class="start-screen" id="startScreen">
+    <h1>🥷 ברוך הבא למשחק נינג'ה פירות 🗡️</h1>
+    <p>העבר עכבר מעל פירות כדי לחתוך!</p>
+    <p>🎯 משחק אינסופי - השג רמות גבוהות!</p>
+    <div class="fruit-emoji">🍎 🍌 🍇 🍊 🥭 🍓 🥝 🍑 🍉 🍍 🥥 🍒 🫐 🍈</div>
+    <div id="highScoreDisplay" style="color: #90EE90; font-size: 1.1em; margin: 10px 0;">🏆 השיא שלך: 0</div>
+    <input type="text" id="playerName" placeholder="הכנס את שמך כאן" maxlength="15">
+    <br>
+    <button onclick="startGame()">🎮 התחל משחק</button>
+  </div>
+
+  <div id="gameUI">
+    <div id="scoreBoard">ניקוד: 0</div>
+    <div id="highScore">🏆 השיא: 0</div>
+    <div id="levelBoard">רמה: 1 | נותרו: 10 🍎</div>
+  </div>
+  
+  <canvas id="gameCanvas"></canvas>
+
+  <div id="gameOver">
+    <h2>📊 סטטיסטיקות</h2>
+    <div id="finalScore"></div>
+    <br>
+    <button onclick="restartGame()">🔄 שחק שוב</button>
+    <button onclick="backToMenu()">🏠 חזור לתפריט</button>
+    <button onclick="continueGame()">▶️ המשך משחק</button>
+  </div>
+
+  <script>
+    let playerName = "";
+    let score = 0;
+    let highScore = 0;
+    let level = 1;
+    let fruitsNeeded = 10;
+    let fruitsSliced = 0;
+    let fruits = [];
+    let particles = [];
+    let juiceDrops = [];
+    let canvas, ctx;
+    let gameRunning = false;
+    let animationId;
+    let mouseX = 0, mouseY = 0;
+    let lastMouseX = 0, lastMouseY = 0;
+    let swordTrail = [];
+    let spawnRate = 0.06;
+
+    // אמוג'י פירות מורחב
+    const fruitEmojis = ['🍎', '🍌', '🍇', '🍊', '🥭', '🍓', '🥝', '🍑', '🍉', '🍍', '🥥', '🍒', '🫐', '🍈'];
+    
+    // צבעי מיץ לכל פרי
+    const juiceColors = {
+      '🍎': '#FF4444', '🍌': '#FFFF44', '🍇': '#8844FF', '🍊': '#FF8844',
+      '🥭': '#FFB844', '🍓': '#FF2244', '🥝': '#44FF44', '🍑': '#FF4488',
+      '🍉': '#FF4444', '🍍': '#FFAA44', '🥥': '#FFFFFF', '🍒': '#AA0000',
+      '🫐': '#4444AA', '🍈': '#88FF88'
+    };
+
+    // טען שיא מ-localStorage
+    function loadHighScore() {
+      const saved = localStorage.getItem('fruitNinjaHighScore');
+      highScore = saved ? parseInt(saved) : 0;
+      updateHighScoreDisplay();
+    }
+
+    // שמור שיא ב-localStorage
+    function saveHighScore() {
+      if (score > highScore) {
+        highScore = score;
+        localStorage.setItem('fruitNinjaHighScore', highScore.toString());
+        return true;
+      }
+      return false;
+    }
+
+    function updateHighScoreDisplay() {
+      const display = document.getElementById("highScoreDisplay");
+      if (display) display.textContent = `🏆 השיא שלך: ${highScore}`;
+      
+      const gameDisplay = document.getElementById("highScore");
+      if (gameDisplay) gameDisplay.textContent = `🏆 השיא: ${highScore}`;
+    }
+
+    function startGame() {
+      const nameInput = document.getElementById("playerName");
+      playerName = nameInput.value.trim();
+      
+      if (playerName === "" || playerName.length < 2) {
+        alert("אנא הכנס שם תקף (לפחות 2 תווים)");
+        return;
+      }
+
+      document.getElementById("startScreen").style.display = "none";
+      document.getElementById("gameUI").style.display = "block";
+
+      canvas = document.getElementById("gameCanvas");
+      ctx = canvas.getContext("2d");
+      canvas.style.display = "block";
+      
+      setTimeout(() => {
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+        
+        resetGame();
+        gameLoop();
+      }, 100);
+      
+      addEventListeners();
+    }
+
+    function addEventListeners() {
+      canvas.addEventListener('mousemove', handleMouseMove);
+      canvas.addEventListener('touchmove', handleTouchMove, {passive: false});
+    }
+
+    function handleMouseMove(e) {
+      const rect = canvas.getBoundingClientRect();
+      lastMouseX = mouseX;
+      lastMouseY = mouseY;
+      mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
+      mouseY = (e.clientY - rect.top) * (canvas.height / rect.height);
+      
+      // הוסף נקודה למסלול החרב
+      swordTrail.push({x: mouseX, y: mouseY, life: 20});
+      if (swordTrail.length > 8) swordTrail.shift();
+      
+      checkFruitSlice();
+    }
+
+    function handleTouchMove(e) {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      lastMouseX = mouseX;
+      lastMouseY = mouseY;
+      mouseX = (touch.clientX - rect.left) * (canvas.width / rect.width);
+      mouseY = (touch.clientY - rect.top) * (canvas.height / rect.height);
+      
+      swordTrail.push({x: mouseX, y: mouseY, life: 20});
+      if (swordTrail.length > 8) swordTrail.shift();
+      
+      checkFruitSlice();
+    }
+
+    function checkFruitSlice() {
+      if (!gameRunning) return;
+
+      for (let i = fruits.length - 1; i >= 0; i--) {
+        const fruit = fruits[i];
+        const dist = Math.sqrt((fruit.x - mouseX) ** 2 + (fruit.y - mouseY) ** 2);
+        
+        if (dist < fruit.radius + 15) {
+          if (fruit.isBomb) {
+            // פצצה רק מפחיתה נקודות, לא מסיימת משחק
+            score = Math.max(0, score - 20);
+            createExplosion(fruit.x, fruit.y);
+            updateUI();
+          } else {
+            score += 10;
+            fruitsSliced++;
+            createMegaJuiceSplash(fruit.x, fruit.y, fruit.emoji);
+            
+            // בדוק אם עברנו לרמה הבאה
+            if (fruitsSliced >= fruitsNeeded) {
+              levelUp();
+            }
+            
+            updateUI();
+          }
+          
+          fruits.splice(i, 1);
+          break;
+        }
+      }
+    }
+
+    function drawWoodenTable() {
+      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      gradient.addColorStop(0, '#D2B48C');
+      gradient.addColorStop(0.3, '#DEB887');
+      gradient.addColorStop(0.7, '#D2B48C');
+      gradient.addColorStop(1, '#CD853F');
+      
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      ctx.strokeStyle = '#A0522D';
+      ctx.lineWidth = 2;
+      ctx.globalAlpha = 0.3;
+      
+      for (let i = 0; i < 5; i++) {
+        const y = (canvas.height / 5) * i;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.quadraticCurveTo(canvas.width / 2, y + 10, canvas.width, y);
+        ctx.stroke();
+      }
+      
+      for (let i = 0; i < 8; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        ctx.beginPath();
+        ctx.ellipse(x, y, 30, 5, Math.random() * Math.PI, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      
+      ctx.globalAlpha = 1;
+    }
+
+    function createMegaJuiceSplash(x, y, emoji) {
+      const color = juiceColors[emoji] || '#FF4444';
+      
+      // חלקיקי מיץ רגילים
+      for (let i = 0; i < 20; i++) {
+        particles.push({
+          x: x,
+          y: y,
+          velocityX: (Math.random() - 0.5) * 15,
+          velocityY: (Math.random() - 0.5) * 15,
+          life: 30 + Math.random() * 20,
+          maxLife: 50,
+          color: color,
+          size: 2 + Math.random() * 4,
+          gravity: 0.1
+        });
+      }
+      
+      // טיפות מיץ גדולות שנופלות למטה
+      for (let i = 0; i < 8; i++) {
+        juiceDrops.push({
+          x: x + (Math.random() - 0.5) * 40,
+          y: y,
+          velocityX: (Math.random() - 0.5) * 5,
+          velocityY: Math.random() * 3,
+          life: 120,
+          maxLife: 120,
+          color: color,
+          size: 6 + Math.random() * 8,
+          gravity: 0.2,
+          bounce: 0.3
+        });
+      }
+    }
+
+    function levelUp() {
+      level++;
+      fruitsSliced = 0;
+      fruitsNeeded = 10 + (level * 2); // כל רמה צריך יותר פירות
+      spawnRate = Math.min(0.15, spawnRate + 0.01); // מהירות גבוהה יותר
+      
+      // הודעה מיוחדת ברמה 10
+      if (level === 10) {
+        showSpecialMessage();
+      } else {
+        showLevelUpMessage();
+      }
+    }
+
+    function showSpecialMessage() {
+      const message = document.createElement('div');
+      message.innerHTML = `
+        <div style="font-size: 1.5em; margin-bottom: 10px;">🤢 רמה 10! 🤢</div>
+        <div style="font-size: 1em;">כואב לי הבטן...</div>
+        <div style="font-size: 0.9em;">לא לאכול כזה הרבה פירות!</div>
+        <div style="font-size: 0.8em;">זה לא בריא, כל הסוכר הזה! 🍭</div>
+        <div style="font-size: 1.1em; margin-top: 10px;">אבל בואו נמשיך! 💪</div>
+      `;
+      message.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: linear-gradient(45deg, #FF69B4, #FF1493);
+        color: white;
+        padding: 25px 35px;
+        border-radius: 20px;
+        font-weight: bold;
+        z-index: 1000;
+        animation: specialMessageAnim 4s ease-out forwards;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+        border: 3px solid #FFD700;
+        text-align: center;
+        max-width: 300px;
+      `;
+      
+      document.body.appendChild(message);
+      
+      setTimeout(() => {
+        if (message.parentNode) {
+          message.parentNode.removeChild(message);
+        }
+      }, 4000);
+    }
+
+    function showLevelUpMessage() {
+      // יצירת הודעה זמנית
+      const message = document.createElement('div');
+      message.innerHTML = `🎉 רמה ${level}! 🎉`;
+      message.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: linear-gradient(45deg, #FFD700, #FFA500);
+        color: #000;
+        padding: 20px 40px;
+        border-radius: 20px;
+        font-size: 2em;
+        font-weight: bold;
+        z-index: 1000;
+        animation: levelUpAnim 2s ease-out forwards;
+        text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+        border: 3px solid #FF6B6B;
+      `;
+      
+      document.body.appendChild(message);
+      
+      // הסר הודעה אחרי 2 שניות
+      setTimeout(() => {
+        if (message.parentNode) {
+          message.parentNode.removeChild(message);
+        }
+      }, 2000);
+    }
+
+    function createExplosion(x, y) {
+      for (let i = 0; i < 25; i++) {
+        particles.push({
+          x: x,
+          y: y,
+          velocityX: (Math.random() - 0.5) * 12,
+          velocityY: (Math.random() - 0.5) * 12,
+          life: 30,
+          maxLife: 30,
+          color: '#FF4400',
+          size: 3 + Math.random() * 3,
+          gravity: 0.05
+        });
+      }
+    }
+
+    function resetGame() {
+      fruits = [];
+      particles = [];
+      juiceDrops = [];
+      swordTrail = [];
+      score = 0;
+      level = 1;
+      fruitsSliced = 0;
+      fruitsNeeded = 10;
+      spawnRate = 0.06;
+      gameRunning = true;
+      updateUI();
+    }
+
+    function spawnFruit() {
+      if (!canvas || canvas.width === 0) return;
+      
+      const isBomb = Math.random() < 0.06; // פחות פצצות
+      const fruit = {
+        x: Math.random() * (canvas.width - 80) + 40,
+        y: canvas.height + 30,
+        radius: isBomb ? 35 : (30 + Math.random() * 15),
+        velocityX: (Math.random() - 0.5) * 5,
+        velocityY: -(10 + Math.random() * 6),
+        gravity: 0.4,
+        rotation: 0,
+        rotationSpeed: (Math.random() - 0.5) * 0.3,
+        emoji: isBomb ? '💣' : fruitEmojis[Math.floor(Math.random() * fruitEmojis.length)],
+        isBomb: isBomb
+      };
+      fruits.push(fruit);
+    }
+
+    function gameLoop() {
+      if (!gameRunning) return;
+
+      drawWoodenTable();
+
+      // צייר מסלול החרב
+      if (swordTrail.length > 1) {
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        for (let i = 0; i < swordTrail.length; i++) {
+          const point = swordTrail[i];
+          point.life--;
+          const alpha = point.life / 20;
+          if (i === 0) ctx.moveTo(point.x, point.y);
+          else ctx.lineTo(point.x, point.y);
+        }
+        ctx.stroke();
+        swordTrail = swordTrail.filter(point => point.life > 0);
+      }
+
+      // עדכן וצייר טיפות מיץ
+      for (let i = juiceDrops.length - 1; i >= 0; i--) {
+        const drop = juiceDrops[i];
+        
+        drop.x += drop.velocityX;
+        drop.y += drop.velocityY;
+        drop.velocityY += drop.gravity;
+        drop.life--;
+
+        // התנגשות עם רצפה
+        if (drop.y > canvas.height - drop.size) {
+          drop.y = canvas.height - drop.size;
+          drop.velocityY *= -drop.bounce;
+          drop.velocityX *= 0.8;
+        }
+
+        const alpha = Math.max(drop.life / drop.maxLife, 0.2);
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = drop.color;
+        ctx.beginPath();
+        ctx.arc(drop.x, drop.y, drop.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        if (drop.life <= 0) {
+          juiceDrops.splice(i, 1);
+        }
+      }
+
+      // עדכן וצייר חלקיקים
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const particle = particles[i];
+        
+        particle.x += particle.velocityX;
+        particle.y += particle.velocityY;
+        particle.velocityY += particle.gravity;
+        particle.velocityX *= 0.98;
+        particle.life--;
+
+        const alpha = Math.max(particle.life / particle.maxLife, 0);
+        const radius = Math.max(particle.size * alpha, 0);
+        
+        if (radius > 0 && alpha > 0) {
+          ctx.save();
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle = particle.color;
+          ctx.beginPath();
+          ctx.arc(particle.x, particle.y, radius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        if (particle.life <= 0) {
+          particles.splice(i, 1);
+        }
+      }
+
+      // עדכן וצייר פירות
+      for (let i = fruits.length - 1; i >= 0; i--) {
+        const fruit = fruits[i];
+        
+        fruit.x += fruit.velocityX;
+        fruit.y += fruit.velocityY;
+        fruit.velocityY += fruit.gravity;
+        fruit.rotation += fruit.rotationSpeed;
+
+        // צייר צל
+        ctx.save();
+        ctx.globalAlpha = 0.3;
+        ctx.fillStyle = '#000000';
+        ctx.font = Math.max(fruit.radius * 1.5, 25) + 'px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(fruit.emoji, fruit.x + 3, fruit.y + 3);
+        ctx.restore();
+
+        // צייר פרי
+        ctx.save();
+        ctx.translate(fruit.x, fruit.y);
+        ctx.rotate(fruit.rotation);
+        ctx.font = Math.max(fruit.radius * 1.5, 25) + 'px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(fruit.emoji, 0, 0);
+        ctx.restore();
+
+        // פירות שנופלים לא מסיימים משחק, רק מפחיתים ניקוד קצת
+        if (fruit.y > canvas.height + 50) {
+          if (!fruit.isBomb) {
+            score = Math.max(0, score - 2); // הפחתה קטנה
+            updateUI();
+          }
+          fruits.splice(i, 1);
+        }
+      }
+
+      if (Math.random() < spawnRate) {
+        spawnFruit();
+      }
+
+      animationId = requestAnimationFrame(gameLoop);
+    }
+
+    function updateUI() {
+      document.getElementById("scoreBoard").textContent = `${playerName} - ניקוד: ${score}`;
+      updateHighScoreDisplay();
+      
+      const remaining = fruitsNeeded - fruitsSliced;
+      document.getElementById("levelBoard").textContent = `רמה: ${level} | נותרו: ${remaining} 🍎`;
+    }
+
+    function gameOver() {
+      // המשחק לא נגמר - זה מציג רק סטטיסטיקות
+      gameRunning = false;
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+      
+      const isNewRecord = saveHighScore();
+      const recordText = isNewRecord ? "<br>🎉 שיא חדש!" : "";
+      
+      document.getElementById("finalScore").innerHTML = 
+        `<strong>${playerName}</strong><br>ניקוד סופי: <span style="color: #FFD700; font-size: 1.5em;">${score}</span><br>הגעת לרמה: ${level}${recordText}<br>🏆 השיא: ${highScore}`;
+      document.getElementById("gameOver").style.display = "block";
+    }
+
+    function continueGame() {
+      document.getElementById("gameOver").style.display = "none";
+      gameRunning = true;
+      gameLoop();
+    }
+
+    function restartGame() {
+      document.getElementById("gameOver").style.display = "none";
+      resetGame();
+      gameLoop();
+    }
+
+    function backToMenu() {
+      gameRunning = false;
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+      
+      document.getElementById("gameOver").style.display = "none";
+      document.getElementById("gameUI").style.display = "none";
+      canvas.style.display = "none";
+      document.getElementById("startScreen").style.display = "block";
+      updateHighScoreDisplay();
+    }
+
+    // טען שיא בעת טעינת הדף
+    window.addEventListener('load', loadHighScore);
+
+    // מניעת זום במגע כפול
+    document.addEventListener('touchstart', function(e) {
+      if (e.touches.length > 1) {
+        e.preventDefault();
+      }
+    });
+
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function(e) {
+      const now = (new Date()).getTime();
+      if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, false);
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>הוקי אוויר - גרסה מושלמת</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 10px;
+            user-select: none;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 600px;
+            background: #ffffff;
+            border: 6px solid #333;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .score-board {
+            background: linear-gradient(90deg, #ff4444, #000, #4285f4);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .table {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(to bottom, #f0f8ff, #e6f3ff, #f0f8ff);
+            position: relative;
+            overflow: hidden;
+            cursor: default;
+        }
+
+        .table.playing {
+            cursor: none;
+        }
+
+        /* קווי השולחן */
+        .center-line {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 2px;
+            height: 100%;
+            background: #333;
+            transform: translateX(-50%);
+        }
+
+        .center-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 80px;
+            height: 80px;
+            border: 2px solid #333;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* שערים */
+        .goal {
+            position: absolute;
+            width: 120px;
+            height: 15px;
+            background: #000;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 8px;
+        }
+
+        .goal-top {
+            top: 0;
+        }
+
+        .goal-bottom {
+            bottom: 0;
+        }
+
+        /* מחבטים */
+        .paddle {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            color: #333;
+            cursor: grab;
+            transition: transform 0.1s ease;
+        }
+
+        .paddle:active {
+            cursor: grabbing;
+            transform: scale(1.05);
+        }
+
+        .player-paddle {
+            background: radial-gradient(circle, #ff6b6b, #ff4444);
+            box-shadow: 0 4px 10px rgba(255, 68, 68, 0.4);
+        }
+
+        .ai-paddle {
+            background: radial-gradient(circle, #4ecdc4, #4285f4);
+            box-shadow: 0 4px 10px rgba(66, 133, 244, 0.4);
+        }
+
+        /* פאק */
+        .puck {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background: radial-gradient(circle, #333, #000);
+            border-radius: 50%;
+            border: 2px solid #666;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+            transition: box-shadow 0.1s ease;
+        }
+
+        .puck.fast {
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.6), 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+
+        /* אפקט גול */
+        .goal-effect {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.7), transparent);
+            opacity: 0;
+            pointer-events: none;
+            animation: goalFlash 0.8s ease-out;
+        }
+
+        @keyframes goalFlash {
+            0% { opacity: 0; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 0; transform: scale(1); }
+        }
+
+        /* מסכי הודעות */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .message-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid #00bcd4;
+            color: white;
+            max-width: 90%;
+            backdrop-filter: blur(10px);
+        }
+
+        .message-box h2 {
+            color: #00bcd4;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .message-box p {
+            margin: 10px 0;
+            line-height: 1.4;
+        }
+
+        /* כפתורים */
+        .btn {
+            background: linear-gradient(145deg, #4285f4, #1976d2);
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            margin: 5px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn.start {
+            background: linear-gradient(145deg, #4caf50, #388e3c);
+        }
+
+        .btn.reset {
+            background: linear-gradient(145deg, #f44336, #d32f2f);
+        }
+
+        .btn.pause {
+            background: linear-gradient(145deg, #ff9800, #f57c00);
+        }
+
+        .difficulty-btns {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .diff-btn {
+            padding: 8px 15px;
+            border: 2px solid #00bcd4;
+            background: transparent;
+            color: white;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .diff-btn.active,
+        .diff-btn:hover {
+            background: #00bcd4;
+            color: #000;
+            transform: scale(1.05);
+        }
+
+        /* בקרות */
+        .controls {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* מסתיר מסכים */
+        .hide {
+            display: none !important;
+        }
+
+        /* אינדיקטור מהירות */
+        .speed-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .speed-indicator.show {
+            opacity: 1;
+        }
+
+        /* רספונסיבי */
+        @media (max-width: 768px) {
+            .table {
+                height: 300px;
+            }
+            
+            .paddle {
+                width: 40px;
+                height: 40px;
+                font-size: 10px;
+            }
+            
+            .puck {
+                width: 20px;
+                height: 20px;
+            }
+            
+            .center-circle {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .goal {
+                width: 100px;
+            }
+
+            .score-board {
+                font-size: 1rem;
+                padding: 10px;
+            }
+
+            .btn {
+                padding: 10px 16px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .table {
+                height: 250px;
+            }
+            
+            .paddle {
+                width: 35px;
+                height: 35px;
+                font-size: 9px;
+            }
+            
+            .puck {
+                width: 18px;
+                height: 18px;
+            }
+
+            .message-box {
+                padding: 20px;
+            }
+
+            .difficulty-btns {
+                gap: 5px;
+            }
+
+            .diff-btn {
+                padding: 6px 12px;
+                font-size: 11px;
+            }
+        }
+
+        /* Back button styles */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 170, 255, 0.9);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .back-btn:hover {
+            background: rgba(0, 170, 255, 1);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 170, 255, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <a href="../../gallery.html" class="back-btn">← חזרה לבית</a>
+    
+    <div class="game-container">
+        <div class="score-board">
+            <div>שחקן: <span id="playerScore">0</span></div>
+            <div>🏒 הוקי אוויר 🏒</div>
+            <div>AI: <span id="aiScore">0</span></div>
+        </div>
+
+        <div class="table" id="gameTable">
+            <!-- קווי השולחן -->
+            <div class="center-line"></div>
+            <div class="center-circle"></div>
+            
+            <!-- שערים -->
+            <div class="goal goal-top"></div>
+            <div class="goal goal-bottom"></div>
+            
+            <!-- מחבטים -->
+            <div class="paddle player-paddle" id="playerPaddle">YOU</div>
+            <div class="paddle ai-paddle" id="aiPaddle">AI</div>
+            
+            <!-- פאק -->
+            <div class="puck" id="puck"></div>
+
+            <!-- אינדיקטור מהירות -->
+            <div class="speed-indicator" id="speedIndicator">מהירות: 0</div>
+
+            <!-- מסך התחלה -->
+            <div class="overlay" id="startScreen">
+                <div class="message-box">
+                    <h2>🏒 הוקי אוויר</h2>
+                    <p>גרור את המחבט האדום כדי לשחק</p>
+                    <p>הגע ל-5 נקודות כדי לנצח!</p>
+                    <p>🖱️ עכבר או 👆 מגע למובייל</p>
+                    
+                    <div class="difficulty-btns">
+                        <button class="diff-btn active" id="easyBtn">קל</button>
+                        <button class="diff-btn" id="mediumBtn">בינוני</button>
+                        <button class="diff-btn" id="hardBtn">קשה</button>
+                    </div>
+                    
+                    <button class="btn start" id="startBtn">התחל לשחק!</button>
+                </div>
+            </div>
+
+            <!-- מסך סיום -->
+            <div class="overlay hide" id="endScreen">
+                <div class="message-box">
+                    <h2 id="endTitle">משחק נגמר!</h2>
+                    <p id="endMessage">תוצאה</p>
+                    <p id="gameStats">נתוני משחק</p>
+                    <button class="btn start" id="newGameBtn">משחק חדש</button>
+                    <button class="btn" id="backToMenuBtn">חזרה לתפריט</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn start" id="playBtn">התחל</button>
+            <button class="btn pause" id="pauseBtn">השהה</button>
+            <button class="btn reset" id="resetBtn">איפוס</button>
+        </div>
+    </div>
+
+    <script>
+        // משתנים גלובליים
+        let gameRunning = false;
+        let gameLoop = null;
+        let difficulty = 'easy';
+        let playerScore = 0;
+        let aiScore = 0;
+        let gameStartTime = 0;
+        let totalHits = 0;
+        
+        // אלמנטים
+        const gameTable = document.getElementById('gameTable');
+        const playerPaddle = document.getElementById('playerPaddle');
+        const aiPaddle = document.getElementById('aiPaddle');
+        const puck = document.getElementById('puck');
+        const startScreen = document.getElementById('startScreen');
+        const endScreen = document.getElementById('endScreen');
+        const speedIndicator = document.getElementById('speedIndicator');
+        
+        // מיקומים
+        let tableWidth = 600;
+        let tableHeight = 400;
+        let playerX = 300;
+        let playerY = 350;
+        let aiX = 300;
+        let aiY = 50;
+        let puckX = 300;
+        let puckY = 200;
+        let puckVelX = 0;
+        let puckVelY = 0;
+        let isDragging = false;
+        let puckRadius = 12.5;
+        let paddleRadius = 25;
+        
+        // הגדרות קושי
+        const settings = {
+            easy: { 
+                aiSpeed: 1.2, 
+                aiReaction: 0.4, 
+                friction: 0.97,
+                aiAccuracy: 0.3,
+                maxSpeed: 5
+            },
+            medium: { 
+                aiSpeed: 1.8, 
+                aiReaction: 0.6, 
+                friction: 0.98,
+                aiAccuracy: 0.5,
+                maxSpeed: 6
+            },
+            hard: { 
+                aiSpeed: 2.2, 
+                aiReaction: 0.8, 
+                friction: 0.985,
+                aiAccuracy: 0.7,
+                maxSpeed: 7
+            }
+        };
+        
+        // Event Listeners לכפתורים
+        document.getElementById('easyBtn').addEventListener('click', () => setDifficulty('easy'));
+        document.getElementById('mediumBtn').addEventListener('click', () => setDifficulty('medium'));
+        document.getElementById('hardBtn').addEventListener('click', () => setDifficulty('hard'));
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('newGameBtn').addEventListener('click', newGame);
+        document.getElementById('backToMenuBtn').addEventListener('click', backToMenu);
+        document.getElementById('playBtn').addEventListener('click', toggleGame);
+        document.getElementById('pauseBtn').addEventListener('click', pauseGame);
+        document.getElementById('resetBtn').addEventListener('click', resetGame);
+        
+        function setDifficulty(level) {
+            difficulty = level;
+            document.querySelectorAll('.diff-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(level === 'easy' ? 'easyBtn' : level === 'medium' ? 'mediumBtn' : 'hardBtn').classList.add('active');
+        }
+        
+        function updateTableSize() {
+            const rect = gameTable.getBoundingClientRect();
+            tableWidth = rect.width;
+            tableHeight = rect.height;
+            
+            // עדכון רדיוסים לפי גודל מסך
+            puckRadius = tableWidth < 480 ? 9 : tableWidth < 768 ? 10 : 12.5;
+            paddleRadius = tableWidth < 480 ? 17.5 : tableWidth < 768 ? 20 : 25;
+            
+            // עדכון מיקומים ראשוניים
+            playerX = tableWidth / 2;
+            playerY = tableHeight - 50;
+            aiX = tableWidth / 2;
+            aiY = 50;
+            puckX = tableWidth / 2;
+            puckY = tableHeight / 2;
+        }
+        
+        function startGame() {
+            startScreen.classList.add('hide');
+            gameRunning = true;
+            gameStartTime = Date.now();
+            totalHits = 0;
+            gameTable.classList.add('playing');
+            document.getElementById('playBtn').textContent = 'עצור';
+            
+            updateTableSize();
+            resetPuck();
+            
+            if (gameLoop) clearInterval(gameLoop);
+            gameLoop = setInterval(gameUpdate, 16);
+        }
+        
+        function resetPuck() {
+            puckX = tableWidth / 2;
+            puckY = tableHeight / 2;
+            puckVelX = 0;
+            puckVelY = 0;
+            updatePositions();
+            
+            setTimeout(() => {
+                if (gameRunning) {
+                    const angle = (Math.random() - 0.5) * Math.PI / 3;
+                    const speed = 2 + Math.random() * 2;
+                    puckVelX = Math.cos(angle) * speed;
+                    puckVelY = Math.sin(angle) * speed * (Math.random() > 0.5 ? 1 : -1);
+                }
+            }, 1000);
+        }
+        
+        function gameUpdate() {
+            if (!gameRunning) return;
+            
+            updatePuck();
+            updateAI();
+            checkCollisions();
+            checkGoals();
+            updatePositions();
+            updateSpeedIndicator();
+        }
+        
+        function updatePuck() {
+            const config = settings[difficulty];
+            
+            // תנועה
+            puckX += puckVelX;
+            puckY += puckVelY;
+            
+            // חיכוך
+            puckVelX *= config.friction;
+            puckVelY *= config.friction;
+            
+            // התנגשות עם קירות צדדיים
+            if (puckX <= puckRadius) {
+                puckX = puckRadius;
+                puckVelX = Math.abs(puckVelX) * 0.8;
+            }
+            if (puckX >= tableWidth - puckRadius) {
+                puckX = tableWidth - puckRadius;
+                puckVelX = -Math.abs(puckVelX) * 0.8;
+            }
+            
+            // התנגשות עם קירות עליון ותחתון (מחוץ לשערים)
+            const goalLeft = tableWidth / 2 - 60;
+            const goalRight = tableWidth / 2 + 60;
+            
+            if (puckY <= puckRadius && (puckX < goalLeft || puckX > goalRight)) {
+                puckY = puckRadius;
+                puckVelY = Math.abs(puckVelY) * 0.8;
+            }
+            if (puckY >= tableHeight - puckRadius && (puckX < goalLeft || puckX > goalRight)) {
+                puckY = tableHeight - puckRadius;
+                puckVelY = -Math.abs(puckVelY) * 0.8;
+            }
+            
+            // אפקט מהירות
+            const speed = Math.sqrt(puckVelX * puckVelX + puckVelY * puckVelY);
+            if (speed > 3) {
+                puck.classList.add('fast');
+            } else {
+                puck.classList.remove('fast');
+            }
+        }
+        
+        function updateAI() {
+            const config = settings[difficulty];
+            
+            let targetX = puckX;
+            let targetY = aiY;
+            
+            // AI מגיב אם הכדור בחצי העליון או מתקרב
+            if (puckY < tableHeight / 2 + 100 || puckVelY < 0) {
+                // חיזוי מיקום עתידי
+                targetX = puckX + puckVelX * 20;
+                targetY = puckY + puckVelY * 20;
+                
+                // הגבלת חיזוי
+                targetX = Math.max(paddleRadius * 2, Math.min(tableWidth - paddleRadius * 2, targetX));
+                targetY = Math.max(paddleRadius * 2, Math.min(tableHeight / 2 - 20, targetY));
+            } else {
+                // חזרה למיקום מרכזי
+                targetX = tableWidth / 2;
+                targetY = 70;
+            }
+            
+            // תנועה חלקה לכיוון היעד
+            const dx = targetX - aiX;
+            const dy = targetY - aiY;
+            
+            aiX += dx * config.aiSpeed * config.aiReaction * 0.03;
+            aiY += dy * config.aiSpeed * config.aiReaction * 0.03;
+            
+            // הגבלת מיקום סופי
+            aiX = Math.max(paddleRadius, Math.min(tableWidth - paddleRadius, aiX));
+            aiY = Math.max(paddleRadius, Math.min(tableHeight / 2 - 15, aiY));
+        }
+        
+        function checkCollisions() {
+            // התנגשות עם מחבט שחקן
+            const playerDist = Math.sqrt((puckX - playerX) ** 2 + (puckY - playerY) ** 2);
+            if (playerDist < puckRadius + paddleRadius) {
+                const angle = Math.atan2(puckY - playerY, puckX - playerX);
+                const currentSpeed = Math.sqrt(puckVelX ** 2 + puckVelY ** 2);
+                const newSpeed = Math.max(2, Math.min(settings[difficulty].maxSpeed, currentSpeed + 1.5));
+                
+                puckVelX = Math.cos(angle) * newSpeed;
+                puckVelY = Math.sin(angle) * newSpeed;
+                
+                // הזזה מחוץ למחבט
+                const distance = puckRadius + paddleRadius + 2;
+                puckX = playerX + Math.cos(angle) * distance;
+                puckY = playerY + Math.sin(angle) * distance;
+                
+                totalHits++;
+                playHitSound();
+            }
+            
+            // התנגשות עם מחבט AI
+            const aiDist = Math.sqrt((puckX - aiX) ** 2 + (puckY - aiY) ** 2);
+            if (aiDist < puckRadius + paddleRadius) {
+                let angle = Math.atan2(puckY - aiY, puckX - aiX);
+                
+                const config = settings[difficulty];
+                // AI מנסה לכוון לשער
+                if (Math.random() < config.aiAccuracy) {
+                    const goalAngle = Math.atan2(tableHeight - 30 - aiY, tableWidth / 2 - aiX);
+                    angle = angle * (1 - config.aiAccuracy) + goalAngle * config.aiAccuracy;
+                }
+                
+                const currentSpeed = Math.sqrt(puckVelX ** 2 + puckVelY ** 2);
+                const newSpeed = Math.max(2, Math.min(config.maxSpeed - 1, currentSpeed + 1));
+                
+                puckVelX = Math.cos(angle) * newSpeed;
+                puckVelY = Math.sin(angle) * newSpeed;
+                
+                // הזזה מחוץ למחבט
+                const distance = puckRadius + paddleRadius + 2;
+                puckX = aiX + Math.cos(angle) * distance;
+                puckY = aiY + Math.sin(angle) * distance;
+                
+                totalHits++;
+                playHitSound();
+            }
+        }
+        
+        function checkGoals() {
+            const goalLeft = tableWidth / 2 - 60;
+            const goalRight = tableWidth / 2 + 60;
+            
+            // גול עליון - השער של ה-AI (אם השחקן מכניס כאן הוא מבקיע)
+            if (puckY <= 8 && puckX >= goalLeft && puckX <= goalRight) {
+                playerScore++;
+                document.getElementById('playerScore').textContent = playerScore;
+                showGoalEffect();
+                playGoalSound();
+                
+                if (playerScore >= 5) {
+                    endGame(true);
+                } else {
+                    setTimeout(resetPuck, 1500);
+                }
+            }
+            
+            // גול תחתון - השער של השחקן (אם ה-AI מכניס כאן הוא מבקיע)
+            if (puckY >= tableHeight - 8 && puckX >= goalLeft && puckX <= goalRight) {
+                aiScore++;
+                document.getElementById('aiScore').textContent = aiScore;
+                showGoalEffect();
+                playGoalSound();
+                
+                if (aiScore >= 5) {
+                    endGame(false);
+                } else {
+                    setTimeout(resetPuck, 1500);
+                }
+            }
+        }
+        
+        function showGoalEffect() {
+            const effect = document.createElement('div');
+            effect.className = 'goal-effect';
+            gameTable.appendChild(effect);
+            
+            setTimeout(() => {
+                if (effect.parentNode) {
+                    effect.parentNode.removeChild(effect);
+                }
+            }, 800);
+        }
+        
+        function updateSpeedIndicator() {
+            const speed = Math.sqrt(puckVelX * puckVelX + puckVelY * puckVelY);
+            speedIndicator.textContent = `מהירות: ${speed.toFixed(1)}`;
+            
+            if (speed > 3) {
+                speedIndicator.classList.add('show');
+            } else {
+                speedIndicator.classList.remove('show');
+            }
+        }
+        
+        function updatePositions() {
+            playerPaddle.style.left = (playerX - paddleRadius) + 'px';
+            playerPaddle.style.top = (playerY - paddleRadius) + 'px';
+            
+            aiPaddle.style.left = (aiX - paddleRadius) + 'px';
+            aiPaddle.style.top = (aiY - paddleRadius) + 'px';
+            
+            puck.style.left = (puckX - puckRadius) + 'px';
+            puck.style.top = (puckY - puckRadius) + 'px';
+        }
+        
+        function endGame(playerWon) {
+            gameRunning = false;
+            if (gameLoop) {
+                clearInterval(gameLoop);
+                gameLoop = null;
+            }
+            
+            gameTable.classList.remove('playing');
+            gameTable.style.cursor = 'default';
+            
+            const title = document.getElementById('endTitle');
+            const message = document.getElementById('endMessage');
+            const stats = document.getElementById('gameStats');
+            
+            const gameDuration = Math.floor((Date.now() - gameStartTime) / 1000);
+            const minutes = Math.floor(gameDuration / 60);
+            const seconds = gameDuration % 60;
+            
+            if (playerWon) {
+                title.textContent = '🏆 ניצחת!';
+                title.style.color = '#4caf50';
+                message.textContent = `ניצחת ${playerScore}-${aiScore}! מעולה!`;
+            } else {
+                title.textContent = '😔 הפסדת';
+                title.style.color = '#f44336';
+                message.textContent = `ה-AI ניצח ${aiScore}-${playerScore}`;
+            }
+            
+            stats.textContent = `זמן משחק: ${minutes}:${seconds.toString().padStart(2, '0')} | מכות: ${totalHits} | רמה: ${difficulty}`;
+            
+            endScreen.classList.remove('hide');
+        }
+        
+        // פונקציות בקרה
+        function toggleGame() {
+            if (gameRunning) {
+                pauseGame();
+            } else if (!startScreen.classList.contains('hide')) {
+                startGame();
+            } else {
+                resumeGame();
+            }
+        }
+        
+        function pauseGame() {
+            if (!gameRunning) return;
+            
+            gameRunning = false;
+            if (gameLoop) {
+                clearInterval(gameLoop);
+                gameLoop = null;
+            }
+            gameTable.classList.remove('playing');
+            gameTable.style.cursor = 'default';
+            document.getElementById('playBtn').textContent = 'המשך';
+        }
+        
+        function resumeGame() {
+            if (gameRunning || !startScreen.classList.contains('hide')) return;
+            
+            gameRunning = true;
+            gameTable.classList.add('playing');
+            if (gameLoop) clearInterval(gameLoop);
+            gameLoop = setInterval(gameUpdate, 16);
+            document.getElementById('playBtn').textContent = 'עצור';
+        }
+        
+        function resetGame() {
+            gameRunning = false;
+            if (gameLoop) {
+                clearInterval(gameLoop);
+                gameLoop = null;
+            }
+            
+            playerScore = 0;
+            aiScore = 0;
+            totalHits = 0;
+            document.getElementById('playerScore').textContent = '0';
+            document.getElementById('aiScore').textContent = '0';
+            document.getElementById('playBtn').textContent = 'התחל';
+            
+            gameTable.classList.remove('playing');
+            gameTable.style.cursor = 'default';
+            endScreen.classList.add('hide');
+            startScreen.classList.remove('hide');
+            
+            updateTableSize();
+            updatePositions();
+        }
+        
+        function newGame() {
+            endScreen.classList.add('hide');
+            playerScore = 0;
+            aiScore = 0;
+            totalHits = 0;
+            document.getElementById('playerScore').textContent = '0';
+            document.getElementById('aiScore').textContent = '0';
+            startGame();
+        }
+        
+        function backToMenu() {
+            endScreen.classList.add('hide');
+            startScreen.classList.remove('hide');
+            resetGame();
+        }
+        
+        // פונקציות סאונד (placeholders - ניתן להוסיף קבצי אודיו אמיתיים)
+        function playHitSound() {
+            // יצירת צליל קצר עם Web Audio API
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.1);
+                
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+            } catch (e) {
+                // אם Web Audio API לא נתמך
+            }
+        }
+        
+        function playGoalSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(523, audioContext.currentTime); // C5
+                oscillator.frequency.setValueAtTime(659, audioContext.currentTime + 0.2); // E5
+                oscillator.frequency.setValueAtTime(784, audioContext.currentTime + 0.4); // G5
+                
+                gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.6);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.6);
+            } catch (e) {
+                // אם Web Audio API לא נתמך
+            }
+        }
+        
+        // בקרת עכבר
+        let mouseDownTime = 0;
+        
+        gameTable.addEventListener('mousedown', (e) => {
+            if (!gameRunning) return;
+            
+            const rect = gameTable.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            const dist = Math.sqrt((mouseX - playerX) ** 2 + (mouseY - playerY) ** 2);
+            if (dist < paddleRadius + 10) {
+                isDragging = true;
+                mouseDownTime = Date.now();
+                gameTable.style.cursor = 'grabbing';
+                playerPaddle.style.transform = 'scale(1.05)';
+            }
+        });
+        
+        gameTable.addEventListener('mousemove', (e) => {
+            if (!gameRunning || !isDragging) return;
+            
+            const rect = gameTable.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            // עדכון מיקום עם הגבלות
+            playerX = Math.max(paddleRadius, Math.min(tableWidth - paddleRadius, mouseX));
+            playerY = Math.max(tableHeight / 2 + 15, Math.min(tableHeight - paddleRadius, mouseY));
+        });
+        
+        document.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                gameTable.style.cursor = gameRunning ? 'none' : 'default';
+                playerPaddle.style.transform = 'scale(1)';
+                
+                // אפקט "זריקה" אם גררו מהר
+                const dragDuration = Date.now() - mouseDownTime;
+                if (dragDuration < 200) {
+                    // הוסף כוח נוסף לפאק אם הוא קרוב
+                    const dist = Math.sqrt((puckX - playerX) ** 2 + (puckY - playerY) ** 2);
+                    if (dist < paddleRadius + puckRadius + 5) {
+                        const angle = Math.atan2(puckY - playerY, puckX - playerX);
+                        puckVelX += Math.cos(angle) * 2;
+                        puckVelY += Math.sin(angle) * 2;
+                    }
+                }
+            }
+        });
+        
+        // בקרת מגע למובייל
+        let touchStartTime = 0;
+        
+        gameTable.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (!gameRunning) return;
+            
+            const rect = gameTable.getBoundingClientRect();
+            const touch = e.touches[0];
+            const touchX = touch.clientX - rect.left;
+            const touchY = touch.clientY - rect.top;
+            
+            const dist = Math.sqrt((touchX - playerX) ** 2 + (touchY - playerY) ** 2);
+            if (dist < paddleRadius + 15) {
+                isDragging = true;
+                touchStartTime = Date.now();
+                playerPaddle.style.transform = 'scale(1.1)';
+            }
+        });
+        
+        gameTable.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (!gameRunning || !isDragging) return;
+            
+            const rect = gameTable.getBoundingClientRect();
+            const touch = e.touches[0];
+            const touchX = touch.clientX - rect.left;
+            const touchY = touch.clientY - rect.top;
+            
+            playerX = Math.max(paddleRadius, Math.min(tableWidth - paddleRadius, touchX));
+            playerY = Math.max(tableHeight / 2 + 15, Math.min(tableHeight - paddleRadius, touchY));
+        });
+        
+        gameTable.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (isDragging) {
+                isDragging = false;
+                playerPaddle.style.transform = 'scale(1)';
+                
+                // אפקט זריקה למגע
+                const touchDuration = Date.now() - touchStartTime;
+                if (touchDuration < 300) {
+                    const dist = Math.sqrt((puckX - playerX) ** 2 + (puckY - playerY) ** 2);
+                    if (dist < paddleRadius + puckRadius + 8) {
+                        const angle = Math.atan2(puckY - playerY, puckX - playerX);
+                        puckVelX += Math.cos(angle) * 2.5;
+                        puckVelY += Math.sin(angle) * 2.5;
+                    }
+                }
+            }
+        });
+        
+        // מניעת context menu במובייל
+        gameTable.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+        
+        // מניעת גלילה במובייל
+        document.body.addEventListener('touchstart', (e) => {
+            if (e.target === gameTable || gameTable.contains(e.target)) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+        
+        document.body.addEventListener('touchend', (e) => {
+            if (e.target === gameTable || gameTable.contains(e.target)) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+        
+        document.body.addEventListener('touchmove', (e) => {
+            if (e.target === gameTable || gameTable.contains(e.target)) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+        
+        // התאמה לשינוי גודל מסך
+        window.addEventListener('resize', () => {
+            updateTableSize();
+            if (!gameRunning) {
+                updatePositions();
+            }
+        });
+        
+        // מניעת זום במובייל
+        document.addEventListener('gesturestart', (e) => {
+            e.preventDefault();
+        });
+        
+        document.addEventListener('gesturechange', (e) => {
+            e.preventDefault();
+        });
+        
+        document.addEventListener('gestureend', (e) => {
+            e.preventDefault();
+        });
+        
+        // כפתורי מקלדת נוספים
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case ' ':
+                case 'Enter':
+                    e.preventDefault();
+                    if (!gameRunning && startScreen.classList.contains('hide') && endScreen.classList.contains('hide')) {
+                        resumeGame();
+                    } else if (gameRunning) {
+                        pauseGame();
+                    }
+                    break;
+                case 'r':
+                case 'R':
+                    e.preventDefault();
+                    resetGame();
+                    break;
+                case 'Escape':
+                    e.preventDefault();
+                    if (gameRunning) {
+                        pauseGame();
+                    }
+                    break;
+            }
+        });
+        
+        // התחלה ראשונית
+        updateTableSize();
+        updatePositions();
+        
+        // הודעת ברוכים הבאים
+        console.log('🏒 הוקי אוויר - גרסה מושלמת מותחלת!');
+        console.log('🎮 בקרות: עכבר/מגע לגרירה, רווח להשהיה, R לאיפוס');
+        console.log('🎯 מטרה: הגע ל-5 נקודות לניצחון!');
+    </script>
+</body>
+</html>

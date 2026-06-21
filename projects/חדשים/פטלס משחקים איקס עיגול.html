@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 איקס עיגול - טורניר</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+        }
+
+        /* Instructions */
+        .instructions {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 2px solid #2196f3;
+        }
+
+        .instructions h3 {
+            color: #1976d2;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .instruction-steps {
+            text-align: right;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+        }
+
+        .step-number {
+            background: #2196f3;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-left: 10px;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            color: #1565c0;
+            font-weight: 500;
+        }
+
+        /* Tournament Display */
+        .tournament-info {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+            border: 2px solid #dee2e6;
+        }
+
+        .round-counter {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .score-display {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 0.5rem;
+        }
+
+        .player-score {
+            font-weight: bold;
+            padding: 0.5rem;
+            border-radius: 8px;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        /* Tic Tac Toe Board */
+        .tic-tac-toe-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            max-width: 300px;
+            margin: 0 auto 1rem;
+        }
+
+        .tic-tac-toe-cell {
+            aspect-ratio: 1;
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-size: 2.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .tic-tac-toe-cell:hover {
+            background: #e9ecef;
+            transform: scale(1.05);
+        }
+
+        .tic-tac-toe-cell.x {
+            color: #dc3545;
+            text-shadow: 0 0 10px #dc3545, 0 0 20px #dc3545, 0 0 30px #dc3545;
+            animation: glowX 2s ease-in-out infinite alternate;
+        }
+
+        .tic-tac-toe-cell.o {
+            color: #007bff;
+            text-shadow: 0 0 10px #007bff, 0 0 20px #007bff, 0 0 30px #007bff;
+            animation: glowO 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glowX {
+            from {
+                text-shadow: 0 0 10px #dc3545, 0 0 20px #dc3545, 0 0 30px #dc3545;
+            }
+            to {
+                text-shadow: 0 0 15px #dc3545, 0 0 25px #dc3545, 0 0 35px #dc3545, 0 0 45px #dc3545;
+            }
+        }
+
+        @keyframes glowO {
+            from {
+                text-shadow: 0 0 10px #007bff, 0 0 20px #007bff, 0 0 30px #007bff;
+            }
+            to {
+                text-shadow: 0 0 15px #007bff, 0 0 25px #007bff, 0 0 35px #007bff, 0 0 45px #007bff;
+            }
+        }
+
+        /* Game Status */
+        .game-status {
+            margin: 1rem 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            min-height: 30px;
+        }
+
+        .winner {
+            color: #28a745;
+        }
+
+        .error {
+            color: #dc3545;
+        }
+
+        .info {
+            color: #007bff;
+        }
+
+        /* Winner Display */
+        .winner-display {
+            margin: 1rem 0;
+            font-size: 1.5rem;
+            font-weight: bold;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tournament-winner {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #333;
+            padding: 1rem;
+            border-radius: 15px;
+            border: 3px solid #ffd700;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+            animation: trophyGlow 2s ease-in-out infinite alternate;
+        }
+
+        /* Player Setup Modal */
+        .modal {
+            display: flex;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .modal h2 {
+            color: #667eea;
+            margin-bottom: 1.5rem;
+        }
+
+        .player-input {
+            margin-bottom: 1rem;
+        }
+
+        .player-input label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .player-input input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .player-input input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .modal .game-btn {
+            margin-top: 1rem;
+        }
+
+        /* Fireworks Animation */
+        .fireworks {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .firework {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            animation: fireworkExplosion 2s ease-out forwards;
+        }
+
+        @keyframes fireworkExplosion {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(20);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(40);
+                opacity: 0;
+            }
+        }
+
+        .celebration-message {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #333;
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 3px solid #ffd700;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+            animation: celebrationPulse 2s ease-in-out infinite alternate;
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        @keyframes trophyGlow {
+            from {
+                box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+                transform: scale(1);
+            }
+            to {
+                box-shadow: 0 15px 40px rgba(255, 215, 0, 0.6);
+                transform: scale(1.05);
+            }
+        }
+
+        /* Buttons */
+        .game-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .game-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        /* Back to Home */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 170, 255, 0.9);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .back-btn:hover {
+            background: rgba(0, 170, 255, 1);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 170, 255, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .tic-tac-toe-cell {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Player Setup Modal -->
+    <div class="modal" id="playerSetupModal">
+        <div class="modal-content">
+            <h2>🎮 הכניסו את השמות שלכם</h2>
+            <div class="player-input">
+                <label for="playerXName">שם השחקן X (איקס):</label>
+                <input type="text" id="playerXName" placeholder="הכניסו שם..." maxlength="15">
+            </div>
+            <div class="player-input">
+                <label for="playerOName">שם השחקן O (עיגול):</label>
+                <input type="text" id="playerOName" placeholder="הכניסו שם..." maxlength="15">
+            </div>
+            <button class="game-btn" onclick="startTournamentWithNames()">🚀 התחל טורניר!</button>
+        </div>
+    </div>
+
+    <!-- Fireworks Container -->
+    <div class="fireworks" id="fireworksContainer"></div>
+
+    <a href="../../gallery.html" class="back-btn">← חזרה לבית</a>
+    
+    <div class="game-container">
+        <h1>🎯 איקס עיגול - טורניר</h1>
+        
+        <!-- Game Instructions -->
+        <div class="instructions">
+            <h3>📖 איך משחקים?</h3>
+            <div class="instruction-steps">
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <span class="step-text">שחקן X מתחיל ראשון</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <span class="step-text">לחצו על משבצת ריקה כדי לשים X או O</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <span class="step-text">המטרה: 3 סמלים זהים בשורה/עמודה/אלכסון</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <span class="step-text">הטורניר: 3 סיבובים - מי שמנצח יותר זוכה! 🏆</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tournament-info">
+            <div class="round-counter">סיבוב <span id="currentRound">1</span> מתוך 3</div>
+            <div class="score-display">
+                <span class="player-score"><span id="playerXDisplayName">שחקן X</span>: <span id="playerXScore">0</span></span>
+                <span class="player-score"><span id="playerODisplayName">שחקן O</span>: <span id="playerOScore">0</span></span>
+            </div>
+        </div>
+        
+        <div class="tic-tac-toe-board" id="ticTacToeBoard">
+            <div class="tic-tac-toe-cell" data-index="0"></div>
+            <div class="tic-tac-toe-cell" data-index="1"></div>
+            <div class="tic-tac-toe-cell" data-index="2"></div>
+            <div class="tic-tac-toe-cell" data-index="3"></div>
+            <div class="tic-tac-toe-cell" data-index="4"></div>
+            <div class="tic-tac-toe-cell" data-index="5"></div>
+            <div class="tic-tac-toe-cell" data-index="6"></div>
+            <div class="tic-tac-toe-cell" data-index="7"></div>
+            <div class="tic-tac-toe-cell" data-index="8"></div>
+        </div>
+        
+        <div class="game-status" id="ticTacToeStatus">שחקן X מתחיל</div>
+        <div class="winner-display" id="tournamentWinner"></div>
+        
+        <button class="game-btn" onclick="resetTicTacToe()">משחק חדש</button>
+        <button class="game-btn" onclick="resetTournament()">טורניר חדש</button>
+    </div>
+
+    <script>
+        // Tic Tac Toe Tournament Game with Player Names
+        let ticTacToeBoard = ['', '', '', '', '', '', '', '', ''];
+        let currentPlayer = 'X';
+        let gameActive = true;
+        let tournamentRound = 1;
+        let playerXWins = 0;
+        let playerOWins = 0;
+        let tournamentActive = true;
+        let playerXName = 'שחקן X';
+        let playerOName = 'שחקן O';
+
+        const winningConditions = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ];
+
+        // Show setup modal on page load
+        window.onload = function() {
+            document.getElementById('playerSetupModal').style.display = 'flex';
+        };
+
+        function startTournamentWithNames() {
+            const xName = document.getElementById('playerXName').value.trim();
+            const oName = document.getElementById('playerOName').value.trim();
+            
+            if (xName === '' || oName === '') {
+                alert('אנא הכניסו שמות לשני השחקנים!');
+                return;
+            }
+            
+            if (xName === oName) {
+                alert('השמות חייבים להיות שונים!');
+                return;
+            }
+            
+            playerXName = xName;
+            playerOName = oName;
+            
+            // Update display names
+            document.getElementById('playerXDisplayName').textContent = playerXName;
+            document.getElementById('playerODisplayName').textContent = playerOName;
+            
+            // Hide modal
+            document.getElementById('playerSetupModal').style.display = 'none';
+            
+            // Start tournament
+            resetTournament();
+            updateGameStatus();
+        }
+
+        function updateGameStatus() {
+            const currentPlayerName = currentPlayer === 'X' ? playerXName : playerOName;
+            document.getElementById('ticTacToeStatus').textContent = `תור ${currentPlayerName} (${currentPlayer})`;
+        }
+
+        // Fireworks animation
+        function createFireworks() {
+            const container = document.getElementById('fireworksContainer');
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff'];
+            
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const firework = document.createElement('div');
+                    firework.className = 'firework';
+                    firework.style.left = Math.random() * 100 + '%';
+                    firework.style.top = Math.random() * 100 + '%';
+                    firework.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    container.appendChild(firework);
+                    
+                    // Remove firework after animation
+                    setTimeout(() => {
+                        if (firework.parentNode) {
+                            firework.parentNode.removeChild(firework);
+                        }
+                    }, 2000);
+                }, i * 100);
+            }
+        }
+
+        document.getElementById('ticTacToeBoard').addEventListener('click', handleTicTacToeClick);
+
+        function handleTicTacToeClick(e) {
+            const clickedCell = e.target;
+            const clickedCellIndex = parseInt(clickedCell.getAttribute('data-index'));
+
+            if (ticTacToeBoard[clickedCellIndex] !== '' || !gameActive || !tournamentActive) return;
+
+            ticTacToeBoard[clickedCellIndex] = currentPlayer;
+            clickedCell.textContent = currentPlayer;
+            clickedCell.classList.add(currentPlayer.toLowerCase());
+
+            checkTicTacToeResult();
+        }
+
+        function checkTicTacToeResult() {
+            let roundWon = false;
+            for (let i = 0; i < winningConditions.length; i++) {
+                const winCondition = winningConditions[i];
+                let a = ticTacToeBoard[winCondition[0]];
+                let b = ticTacToeBoard[winCondition[1]];
+                let c = ticTacToeBoard[winCondition[2]];
+                if (a === '' || b === '' || c === '') continue;
+                if (a === b && b === c) {
+                    roundWon = true;
+                    break;
+                }
+            }
+
+            if (roundWon) {
+                const currentPlayerName = currentPlayer === 'X' ? playerXName : playerOName;
+                
+                if (currentPlayer === 'X') {
+                    playerXWins++;
+                } else {
+                    playerOWins++;
+                }
+                
+                updateTournamentDisplay();
+                document.getElementById('ticTacToeStatus').textContent = `${currentPlayerName} ניצח בסיבוב ${tournamentRound}! 🎉`;
+                document.getElementById('ticTacToeStatus').className = 'game-status winner';
+                gameActive = false;
+                
+                // Check if tournament is over
+                if (tournamentRound === 3) {
+                    setTimeout(checkTournamentWinner, 1500);
+                } else {
+                    setTimeout(nextRound, 2000);
+                }
+                return;
+            }
+
+            if (!ticTacToeBoard.includes('')) {
+                document.getElementById('ticTacToeStatus').textContent = `תיקו בסיבוב ${tournamentRound}! 🤝`;
+                document.getElementById('ticTacToeStatus').className = 'game-status info';
+                gameActive = false;
+                
+                if (tournamentRound === 3) {
+                    setTimeout(checkTournamentWinner, 1500);
+                } else {
+                    setTimeout(nextRound, 2000);
+                }
+                return;
+            }
+
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            updateGameStatus();
+            document.getElementById('ticTacToeStatus').className = 'game-status';
+        }
+
+        function nextRound() {
+            if (tournamentRound < 3) {
+                tournamentRound++;
+                resetBoard();
+                document.getElementById('ticTacToeStatus').textContent = `סיבוב ${tournamentRound} - ${playerXName} מתחיל`;
+                document.getElementById('ticTacToeStatus').className = 'game-status';
+                updateTournamentDisplay();
+            }
+        }
+
+        function checkTournamentWinner() {
+            tournamentActive = false;
+            const winnerDisplay = document.getElementById('tournamentWinner');
+            
+            if (playerXWins > playerOWins) {
+                winnerDisplay.innerHTML = `🎊 כל הכבוד ${playerXName}! 🎊<br>🏆 זוכה בטורניר! 🏆`;
+                winnerDisplay.className = 'winner-display celebration-message';
+                createFireworks();
+            } else if (playerOWins > playerXWins) {
+                winnerDisplay.innerHTML = `🎊 כל הכבוד ${playerOName}! 🎊<br>🏆 זוכה בטורניר! 🏆`;
+                winnerDisplay.className = 'winner-display celebration-message';
+                createFireworks();
+            } else {
+                winnerDisplay.innerHTML = `🤝 תיקו בטורניר! 🤝<br>🌟 ${playerXName} ו${playerOName} שווים! 🌟`;
+                winnerDisplay.className = 'winner-display celebration-message';
+                createFireworks();
+            }
+            
+            document.getElementById('ticTacToeStatus').textContent = 'הטורניר הסתיים!';
+            document.getElementById('ticTacToeStatus').className = 'game-status info';
+        }
+
+        function updateTournamentDisplay() {
+            document.getElementById('currentRound').textContent = tournamentRound;
+            document.getElementById('playerXScore').textContent = playerXWins;
+            document.getElementById('playerOScore').textContent = playerOWins;
+        }
+
+        function resetBoard() {
+            ticTacToeBoard = ['', '', '', '', '', '', '', '', ''];
+            currentPlayer = 'X';
+            gameActive = true;
+            document.querySelectorAll('.tic-tac-toe-cell').forEach(cell => {
+                cell.textContent = '';
+                cell.className = 'tic-tac-toe-cell';
+            });
+        }
+
+        function resetTicTacToe() {
+            if (!tournamentActive) return; // Can't reset individual game if tournament is over
+            
+            resetBoard();
+            document.getElementById('ticTacToeStatus').textContent = `סיבוב ${tournamentRound} - ${playerXName} מתחיל`;
+            document.getElementById('ticTacToeStatus').className = 'game-status';
+        }
+
+        function resetTournament() {
+            tournamentRound = 1;
+            playerXWins = 0;
+            playerOWins = 0;
+            tournamentActive = true;
+            
+            resetBoard();
+            updateTournamentDisplay();
+            
+            document.getElementById('ticTacToeStatus').textContent = `סיבוב 1 - ${playerXName} מתחיל`;
+            document.getElementById('ticTacToeStatus').className = 'game-status';
+            document.getElementById('tournamentWinner').textContent = '';
+            document.getElementById('tournamentWinner').className = 'winner-display';
+            
+            // Clear any remaining fireworks
+            document.getElementById('fireworksContainer').innerHTML = '';
+        }
+    </script>
+</body>
+</html>

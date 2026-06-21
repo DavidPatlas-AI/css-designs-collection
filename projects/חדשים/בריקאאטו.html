@@ -1,0 +1,1997 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧱 בריקאאוט</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 650px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+        }
+
+        /* Instructions */
+        .instructions {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 2px solid #2196f3;
+        }
+
+        .instructions h3 {
+            color: #1976d2;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .instruction-steps {
+            text-align: right;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+        }
+
+        .step-number {
+            background: #2196f3;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-left: 10px;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            color: #1565c0;
+            font-weight: 500;
+        }
+
+        /* Player Setup Modal */
+        .modal {
+            display: flex;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .modal h2 {
+            color: #667eea;
+            margin-bottom: 1.5rem;
+        }
+
+        .player-input {
+            margin-bottom: 1rem;
+        }
+
+        .player-input label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .player-input input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .player-input input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Game Info */
+        .game-info {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+            border: 2px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .score-info {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .player-name {
+            font-weight: bold;
+            color: #28a745;
+            font-size: 1.1rem;
+        }
+
+        .level-info {
+            font-weight: bold;
+            color: #ff6b35;
+            font-size: 1.1rem;
+        }
+
+        /* Breakout Canvas */
+        .breakout-canvas {
+            border: 3px solid #667eea;
+            border-radius: 15px;
+            background: #1a1a1a;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            margin: 1rem auto;
+            display: block;
+        }
+
+        /* Game Status */
+        .game-status {
+            margin: 1rem 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            min-height: 30px;
+        }
+
+        .winner {
+            color: #28a745;
+        }
+
+        .error {
+            color: #dc3545;
+        }
+
+        .info {
+            color: #007bff;
+        }
+
+        /* Winner Display */
+        .winner-display {
+            margin: 1rem 0;
+            font-size: 1.5rem;
+            font-weight: bold;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .celebration-message {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #333;
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 3px solid #ffd700;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+            animation: celebrationPulse 2s ease-in-out infinite alternate;
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        @keyframes celebrationPulse {
+            from {
+                box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+                transform: scale(1);
+            }
+            to {
+                box-shadow: 0 15px 40px rgba(255, 215, 0, 0.6);
+                transform: scale(1.05);
+            }
+        }
+
+        /* Fireworks Animation */
+        .fireworks {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .firework {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            animation: fireworkExplosion 2s ease-out forwards;
+        }
+
+        @keyframes fireworkExplosion {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(20);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(40);
+                opacity: 0;
+            }
+        }
+
+        /* Game Screen Overlay */
+        .game-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 15px;
+            z-index: 10;
+        }
+
+        .game-overlay h2 {
+            color: #fff;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px #667eea;
+        }
+
+        .game-overlay p {
+            color: #ccc;
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #00ff00, #00cc00);
+            color: #000;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 25px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
+            text-transform: uppercase;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 255, 0, 0.6);
+        }
+
+        /* Canvas Container */
+        .canvas-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        /* In-game UI */
+        .in-game-ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: bold;
+            z-index: 5;
+        }
+
+        .ui-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .pause-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .pause-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .controls {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Buttons */
+        .game-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .game-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        /* Back to Home */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 170, 255, 0.9);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .back-btn:hover {
+            background: rgba(0, 170, 255, 1);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 170, 255, 0.4);
+        }
+
+        /* Achievement Notifications */
+        .achievement-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #333;
+            padding: 15px 20px;
+            border-radius: 15px;
+            border: 3px solid #ffd700;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: achievementSlide 0.5s ease-out, achievementPulse 2s ease-in-out infinite alternate;
+            max-width: 300px;
+        }
+
+        .achievement-icon {
+            font-size: 24px;
+            animation: achievementRotate 2s ease-in-out infinite;
+        }
+
+        .achievement-text {
+            font-size: 14px;
+            line-height: 1.3;
+        }
+
+        @keyframes achievementSlide {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes achievementPulse {
+            from {
+                box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
+            }
+            to {
+                box-shadow: 0 15px 40px rgba(255, 215, 0, 0.7);
+            }
+        }
+
+        @keyframes achievementRotate {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+
+        /* Settings Panel */
+        .settings-panel {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #667eea;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 1000;
+            min-width: 200px;
+            display: none;
+        }
+
+        .settings-toggle {
+            position: fixed;
+            top: 20px;
+            right: 80px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 8px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 16px;
+            z-index: 1002;
+        }
+
+        .settings-toggle:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .setting-item {
+            margin-bottom: 15px;
+        }
+
+        .setting-item label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .setting-item input[type="range"] {
+            width: 100%;
+        }
+
+        .setting-item input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        /* Best Score Display */
+        .best-score {
+            position: absolute;
+            top: 50px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #ffd700;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .breakout-canvas {
+                width: 100%;
+                max-width: 350px;
+                height: auto;
+            }
+            
+            .game-info {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .achievement-notification {
+                right: 10px;
+                max-width: 250px;
+                font-size: 12px;
+            }
+            
+            .settings-toggle {
+                right: 60px;
+                padding: 6px 10px;
+                font-size: 14px;
+            }
+            
+            .settings-panel {
+                right: 10px;
+                min-width: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="../../gallery.html" class="back-btn">← חזרה לבית</a>
+    
+    <!-- Player Setup Modal -->
+    <div class="modal" id="playerSetupModal">
+        <div class="modal-content">
+            <h2>🧱 הכניסו את השם שלכם</h2>
+            <div class="player-input">
+                <label for="playerName">שם השחקן:</label>
+                <input type="text" id="playerName" placeholder="הכניסו שם..." maxlength="15">
+            </div>
+            <button class="game-btn" onclick="startGameWithName()">🚀 התחל לשבור לבנים!</button>
+        </div>
+    </div>
+
+    <!-- Fireworks Container -->
+    <div class="fireworks" id="fireworksContainer"></div>
+
+    <a href="#" class="back-btn" onclick="history.back()">← חזרה</a>
+    
+    <!-- Settings -->
+    <div class="settings-toggle" onclick="toggleSettings()">⚙️</div>
+    <div class="settings-panel" id="settingsPanel">
+        <h3 style="margin-top: 0; color: #667eea;">הגדרות</h3>
+        
+        <div class="setting-item">
+            <label for="soundToggle">
+                <input type="checkbox" id="soundToggle" checked onchange="toggleSound()">
+                קול משחק
+            </label>
+        </div>
+        
+        <div class="setting-item">
+            <label for="effectsToggle">
+                <input type="checkbox" id="effectsToggle" checked onchange="toggleEffects()">
+                אפקטים ויזואליים
+            </label>
+        </div>
+        
+        <div class="setting-item">
+            <label for="difficultySelect">רמת קושי:</label>
+            <select id="difficultySelect" onchange="changeDifficulty()" style="width: 100%; padding: 5px; border-radius: 5px;">
+                <option value="easy">קל</option>
+                <option value="normal" selected>רגיל</option>
+                <option value="hard">קשה</option>
+            </select>
+        </div>
+        
+        <div class="setting-item">
+            <label for="autoSaveToggle">
+                <input type="checkbox" id="autoSaveToggle" checked onchange="toggleAutoSave()">
+                שמירה אוטומטית
+            </label>
+        </div>
+        
+        <button class="game-btn" onclick="resetAllData()" style="width: 100%; margin-top: 10px;">
+            🗑️ איפוס נתונים
+        </button>
+    </div>
+    
+    <div class="game-container">
+        <h1>🧱 בריקאאוט</h1>
+        
+        <!-- Game Instructions -->
+        <div class="instructions">
+            <h3>📖 איך משחקים?</h3>
+            <div class="instruction-steps">
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <span class="step-text">הזיזו את החבטה עם העכבר או החצים ←→</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <span class="step-text">הכדור יקפוץ מהחבטה ומהקירות</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <span class="step-text">שברו את כל הלבנים הצבעוניים למעלה</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <span class="step-text">לבנים שונים נותנים נקודות שונות</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">5</span>
+                    <span class="step-text">אל תתנו לכדור ליפול למטה! 🏓</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">6</span>
+                    <span class="step-text">המטרה: לשבור את כל הלבנים ולעבור רמות! 🏆</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-info">
+            <span class="player-name" id="playerNameDisplay">שחקן</span>
+            <span class="score-info">ניקוד: <span id="breakoutScore">0</span></span>
+            <span class="level-info">רמה: <span id="breakoutLevel">1</span></span>
+        </div>
+        
+        <div class="canvas-container">
+            <!-- In-game UI -->
+            <div class="in-game-ui" id="inGameUI" style="display: none;">
+                <div class="ui-item">
+                    <span>🎮 <span id="inGamePlayer">שחקן</span></span>
+                </div>
+                <div class="ui-item">
+                    <span>🏆 <span id="inGameScore">0</span></span>
+                </div>
+                <div class="ui-item">
+                    <span>📊 רמה <span id="inGameLevel">1</span></span>
+                </div>
+                <div class="ui-item">
+                    <button class="pause-btn" onclick="toggleBreakoutGame()" id="inGamePauseBtn">⏸️ הפסק</button>
+                </div>
+            </div>
+            
+            <!-- Best Score Display -->
+            <div class="best-score" id="bestScoreDisplay">
+                🥇 שיא: <span id="bestScoreValue">0</span>
+            </div>
+            
+            <!-- Game Overlay (Start Screen) -->
+            <div class="game-overlay" id="gameOverlay">
+                <h2>🧱 בריקאאוט</h2>
+                <p id="overlayMessage">מוכנים לשבור לבנים?<br>הזיזו את החבטה עם העכבר או החצים!</p>
+                <button class="start-btn" onclick="startBreakoutFromOverlay()">🚀 התחל משחק</button>
+            </div>
+            
+            <canvas class="breakout-canvas" id="breakoutCanvas" width="500" height="400"></canvas>
+        </div>
+        
+        <div class="game-status" id="breakoutStatus" style="display: none;">לחצו "התחל" כדי לשחק</div>
+        <div class="winner-display" id="breakoutWinner"></div>
+        
+        <div class="controls">
+            🎮 עכבר או חצים ←→ - תנועת החבטה | 📱 מגע למובייל<br>
+            🏓 החבטה: מקל כחול זוהר בתחתית (⬌ = גדולה, 🧲 = מגנטית)<br>
+            ⚪ הכדור: כדור לבן זוהר שקופץ (🔥 = כדור אש)<br>
+            🧱 לבנים: רגילים | 🛡️ מתכת | 💥 מפוצץ | ⭐ כוח<br>
+            ⚡ כוחות: ⬌ חבטה גדולה | ●●● כדורים | 🔥 אש | 🧲 מגנט | ⏳ איטי<br>
+            ⌨️ מקשים: P=הפסקה | R=איפוס | 1-5=כוחות | ⚙️=הגדרות
+        </div>
+        
+        <button class="game-btn" id="breakoutBtn" onclick="toggleBreakoutGame()" style="display: none;">התחל</button>
+        <button class="game-btn" onclick="resetBreakoutGame()">משחק חדש</button>
+    </div>
+
+    <script>
+        // Breakout Game with Player Names and Visual Effects
+        const canvas = document.getElementById('breakoutCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let breakoutGameRunning = false;
+        let breakoutScore = 0;
+        let breakoutLevel = 1;
+        let lives = 3; // Added lives system
+        let startingLives = 3; // Track lives at level start
+        let paddle = { x: 225, y: 370, width: 80, height: 15 };
+        let ball = { x: 250, y: 300, vx: 3, vy: -3, radius: 8 };
+        let balls = [ball]; // Initialize with main ball
+        let bricks = [];
+        let powerUps = []; // Added power-ups
+        let particles = []; // Added particle effects
+        let breakoutGameLoop;
+        let playerName = 'שחקן';
+        let bestScore = 0;
+        let mouseX = 0;
+        let levelStartTime = 0; // Track level timing
+
+        // Sound system
+        let soundEnabled = true;
+        let gameAudio = {
+            bounce: null,
+            brick: null,
+            powerup: null,
+            explosion: null,
+            levelup: null,
+            gameover: null
+        };
+
+        // Achievements system
+        let achievements = {
+            brickBreaker: { unlocked: false, name: 'שובר לבנים', desc: 'שבור 50 לבנים', target: 50, current: 0 },
+            powerMaster: { unlocked: false, name: 'מלך הכוחות', desc: 'השתמש ב-10 כוחות', target: 10, current: 0 },
+            survivor: { unlocked: false, name: 'שורד', desc: 'הגע לרמה 5', target: 5, current: 0 },
+            perfectLevel: { unlocked: false, name: 'רמה מושלמת', desc: 'סיים רמה ללא איבוד חיים', target: 1, current: 0 },
+            speedster: { unlocked: false, name: 'מהיר כברק', desc: 'סיים רמה תוך 30 שניות', target: 1, current: 0 }
+        };
+
+        // Game settings
+        let gameSettings = {
+            difficulty: 'normal', // easy, normal, hard
+            soundVolume: 0.5,
+            showEffects: true,
+            autoSave: true
+        };
+
+        // Touch controls
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let isTouching = false;
+
+        // Power-up system
+        let activePowerUps = {
+            bigPaddle: 0,
+            multiBall: 0,
+            fireBall: 0,
+            magneticPaddle: 0,
+            slowMotion: 0
+        };
+
+        // Brick colors and points with special types
+        const brickColors = [
+            { color: '#ff6b6b', points: 10, type: 'normal' },  // אדום
+            { color: '#4ecdc4', points: 15, type: 'normal' },  // ירוק ים
+            { color: '#45b7d1', points: 20, type: 'normal' },  // כחול
+            { color: '#96ceb4', points: 25, type: 'normal' },  // ירוק בהיר
+            { color: '#feca57', points: 30, type: 'normal' },  // צהוב
+            { color: '#ff9ff3', points: 35, type: 'normal' },  // ורוד
+            { color: '#666666', points: 50, type: 'metal' },   // מתכת - דורש 2 פגיעות
+            { color: '#ff4757', points: 75, type: 'explosive' }, // מפוצץ
+            { color: '#5f27cd', points: 100, type: 'powerup' }   // נותן כוח
+        ];
+
+        // Power-up types
+        const powerUpTypes = [
+            { type: 'bigPaddle', color: '#00ff00', symbol: '⬌', name: 'חבטה גדולה' },
+            { type: 'multiBall', color: '#ff6b6b', symbol: '●●●', name: 'כדורים מרובים' },
+            { type: 'fireBall', color: '#ff4500', symbol: '🔥', name: 'כדור אש' },
+            { type: 'magneticPaddle', color: '#4169e1', symbol: '🧲', name: 'חבטה מגנטית' },
+            { type: 'slowMotion', color: '#9932cc', symbol: '⏳', name: 'הילוך איטי' }
+        ];
+
+        // Initialize audio system
+        function initializeSounds() {
+            // Web Audio API for better sound control
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Create simple sound effects using oscillators
+                gameAudio.bounce = createSound(audioContext, 'bounce');
+                gameAudio.brick = createSound(audioContext, 'brick');
+                gameAudio.powerup = createSound(audioContext, 'powerup');
+                gameAudio.explosion = createSound(audioContext, 'explosion');
+                gameAudio.levelup = createSound(audioContext, 'levelup');
+                gameAudio.gameover = createSound(audioContext, 'gameover');
+                
+            } catch (error) {
+                console.log('Audio not supported');
+                soundEnabled = false;
+            }
+        }
+
+        // Create simple sound using oscillator
+        function createSound(audioContext, type) {
+            return function() {
+                if (!soundEnabled) return;
+                
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                // Different frequencies for different sounds
+                switch(type) {
+                    case 'bounce':
+                        oscillator.frequency.value = 300;
+                        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                        break;
+                    case 'brick':
+                        oscillator.frequency.value = 200;
+                        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                        break;
+                    case 'powerup':
+                        oscillator.frequency.value = 500;
+                        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                        break;
+                    case 'explosion':
+                        oscillator.frequency.value = 100;
+                        gainNode.gain.setValueAtTime(0.4, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+                        break;
+                    case 'levelup':
+                        oscillator.frequency.value = 600;
+                        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                        break;
+                    case 'gameover':
+                        oscillator.frequency.value = 150;
+                        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
+                        break;
+                }
+                
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 1);
+            };
+        }
+
+        // Load game data from localStorage
+        function loadGameData() {
+            try {
+                const savedScore = localStorage.getItem('breakoutBestScore');
+                if (savedScore) {
+                    bestScore = parseInt(savedScore);
+                }
+                
+                const savedAchievements = localStorage.getItem('breakoutAchievements');
+                if (savedAchievements) {
+                    const parsedAchievements = JSON.parse(savedAchievements);
+                    Object.assign(achievements, parsedAchievements);
+                }
+                
+                const savedSettings = localStorage.getItem('breakoutSettings');
+                if (savedSettings) {
+                    const parsedSettings = JSON.parse(savedSettings);
+                    Object.assign(gameSettings, parsedSettings);
+                }
+            } catch (error) {
+                console.log('Error loading game data');
+            }
+        }
+
+        // Save game data to localStorage
+        function saveGameData() {
+            try {
+                if (gameSettings.autoSave) {
+                    localStorage.setItem('breakoutBestScore', bestScore.toString());
+                    localStorage.setItem('breakoutAchievements', JSON.stringify(achievements));
+                    localStorage.setItem('breakoutSettings', JSON.stringify(gameSettings));
+                }
+            } catch (error) {
+                console.log('Error saving game data');
+            }
+        }
+
+        // Check and unlock achievements
+        function checkAchievements() {
+            let newAchievements = [];
+            
+            // Brick Breaker achievement
+            if (!achievements.brickBreaker.unlocked && achievements.brickBreaker.current >= achievements.brickBreaker.target) {
+                achievements.brickBreaker.unlocked = true;
+                newAchievements.push(achievements.brickBreaker);
+            }
+            
+            // Power Master achievement
+            if (!achievements.powerMaster.unlocked && achievements.powerMaster.current >= achievements.powerMaster.target) {
+                achievements.powerMaster.unlocked = true;
+                newAchievements.push(achievements.powerMaster);
+            }
+            
+            // Survivor achievement
+            if (!achievements.survivor.unlocked && breakoutLevel >= achievements.survivor.target) {
+                achievements.survivor.unlocked = true;
+                achievements.survivor.current = breakoutLevel;
+                newAchievements.push(achievements.survivor);
+            }
+            
+            // Show new achievements
+            newAchievements.forEach(achievement => {
+                showAchievementNotification(achievement);
+            });
+            
+            saveGameData();
+        }
+
+        // Show achievement notification
+        function showAchievementNotification(achievement) {
+            const notification = document.createElement('div');
+            notification.className = 'achievement-notification';
+            notification.innerHTML = `
+                <div class="achievement-icon">🏆</div>
+                <div class="achievement-text">
+                    <strong>${achievement.name}</strong><br>
+                    ${achievement.desc}
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 3000);
+        }
+
+        // Show setup modal on page load
+        window.onload = function() {
+            loadGameData();
+            initializeSounds();
+            loadSettingsUI();
+            document.getElementById('playerSetupModal').style.display = 'flex';
+        };
+
+        function startGameWithName() {
+            const name = document.getElementById('playerName').value.trim();
+            
+            if (name === '') {
+                alert('אנא הכניסו שם!');
+                return;
+            }
+            
+            playerName = name;
+            document.getElementById('playerNameDisplay').textContent = playerName;
+            document.getElementById('inGamePlayer').textContent = playerName;
+            
+            // Hide modal
+            document.getElementById('playerSetupModal').style.display = 'none';
+            
+            // Initialize game
+            initBreakoutGame();
+            drawBreakoutGame();
+            updateBreakoutPaddle();
+            
+            // Show game overlay
+            document.getElementById('gameOverlay').style.display = 'flex';
+            document.getElementById('overlayMessage').textContent = `${playerName}, מוכנים לשבור לבנים?\nהזיזו את החבטה עם העכבר או החצים!`;
+        }
+
+        function startBreakoutFromOverlay() {
+            // Hide overlay and show in-game UI
+            document.getElementById('gameOverlay').style.display = 'none';
+            document.getElementById('inGameUI').style.display = 'flex';
+            
+            // Start the game
+            startBreakoutGame();
+        }
+
+        function showGameOverlay(message, showStartButton = true) {
+            document.getElementById('gameOverlay').style.display = 'flex';
+            document.getElementById('overlayMessage').innerHTML = message;
+            
+            const startBtn = document.querySelector('.start-btn');
+            if (showStartButton) {
+                startBtn.style.display = 'block';
+                startBtn.textContent = '🚀 שחק שוב';
+                startBtn.onclick = startBreakoutFromOverlay;
+            } else {
+                startBtn.style.display = 'none';
+            }
+        }
+
+        function initBreakoutGame() {
+            breakoutScore = 0;
+            breakoutLevel = 1;
+            lives = 3;
+            paddle = { x: 225, y: 370, width: 80, height: 15 };
+            ball = { x: 250, y: 300, vx: 3, vy: -3, radius: 8 };
+            balls = [ball]; // Initialize with main ball
+            bricks = [];
+            powerUps = [];
+            particles = [];
+            activePowerUps = {
+                bigPaddle: 0,
+                multiBall: 0,
+                fireBall: 0,
+                magneticPaddle: 0,
+                slowMotion: 0
+            };
+            
+            initBreakoutBricks();
+            updateBreakoutDisplay();
+        }
+
+        function initBreakoutBricks() {
+            bricks = [];
+            const brickWidth = 60;
+            const brickHeight = 20;
+            const brickPadding = 5;
+            const brickOffsetTop = 60;
+            const brickOffsetLeft = 35;
+            
+            const brickRowCount = 6;
+            const brickColumnCount = 7;
+            
+            for (let r = 0; r < brickRowCount; r++) {
+                for (let c = 0; c < brickColumnCount; c++) {
+                    // Special brick probability increases with level
+                    let brickType = brickColors[r % 6]; // Normal bricks
+                    
+                    if (Math.random() < 0.05 + (breakoutLevel * 0.02)) {
+                        // Special bricks chance
+                        const specialTypes = brickColors.slice(6); // Metal, explosive, powerup
+                        brickType = specialTypes[Math.floor(Math.random() * specialTypes.length)];
+                    }
+                    
+                    bricks.push({
+                        x: c * (brickWidth + brickPadding) + brickOffsetLeft,
+                        y: r * (brickHeight + brickPadding) + brickOffsetTop,
+                        width: brickWidth,
+                        height: brickHeight,
+                        color: brickType.color,
+                        points: brickType.points,
+                        type: brickType.type,
+                        health: brickType.type === 'metal' ? 2 : 1,
+                        maxHealth: brickType.type === 'metal' ? 2 : 1,
+                        visible: true
+                    });
+                }
+            }
+        }
+
+        function drawBreakoutGame() {
+            // Clear canvas with dark background
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw subtle grid pattern
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x <= canvas.width; x += 20) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            
+            // Draw particles first (background layer)
+            particles.forEach(particle => {
+                ctx.fillStyle = particle.color;
+                ctx.globalAlpha = particle.life / particle.maxLife;
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.size, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            });
+            
+            // Draw bricks with enhanced effects
+            bricks.forEach(brick => {
+                if (brick.visible) {
+                    // Base brick color with health indication
+                    let brickColor = brick.color;
+                    if (brick.type === 'metal' && brick.health < brick.maxHealth) {
+                        // Damaged metal brick - darker color
+                        brickColor = '#444444';
+                    }
+                    
+                    ctx.fillStyle = brickColor;
+                    ctx.shadowColor = brickColor;
+                    ctx.shadowBlur = brick.type === 'powerup' ? 15 : 8;
+                    
+                    // Special effects for different brick types
+                    if (brick.type === 'explosive') {
+                        ctx.shadowColor = '#ff4757';
+                        ctx.shadowBlur = 12;
+                    } else if (brick.type === 'powerup') {
+                        // Animated glow effect
+                        const glowIntensity = Math.sin(Date.now() * 0.01) * 0.5 + 0.5;
+                        ctx.shadowBlur = 10 + glowIntensity * 10;
+                    }
+                    
+                    // Brick with rounded corners
+                    ctx.beginPath();
+                    ctx.roundRect(brick.x, brick.y, brick.width, brick.height, 5);
+                    ctx.fill();
+                    
+                    // Brick highlight
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                    ctx.shadowBlur = 0;
+                    ctx.beginPath();
+                    ctx.roundRect(brick.x + 2, brick.y + 2, brick.width - 4, brick.height / 3, 3);
+                    ctx.fill();
+                    
+                    // Health bar for metal bricks
+                    if (brick.type === 'metal') {
+                        const healthBarWidth = brick.width - 10;
+                        const healthPercentage = brick.health / brick.maxHealth;
+                        
+                        // Background
+                        ctx.fillStyle = '#333';
+                        ctx.fillRect(brick.x + 5, brick.y + brick.height - 5, healthBarWidth, 3);
+                        
+                        // Health
+                        ctx.fillStyle = healthPercentage > 0.5 ? '#4caf50' : '#ff5722';
+                        ctx.fillRect(brick.x + 5, brick.y + brick.height - 5, healthBarWidth * healthPercentage, 3);
+                    }
+                    
+                    // Special symbols for special bricks
+                    ctx.fillStyle = '#000';
+                    ctx.font = '14px Arial';
+                    ctx.textAlign = 'center';
+                    if (brick.type === 'explosive') {
+                        ctx.fillText('💥', brick.x + brick.width/2, brick.y + brick.height/2 + 4);
+                    } else if (brick.type === 'powerup') {
+                        ctx.fillText('⭐', brick.x + brick.width/2, brick.y + brick.height/2 + 4);
+                    } else if (brick.type === 'metal') {
+                        ctx.fillText('🛡️', brick.x + brick.width/2, brick.y + brick.height/2 + 4);
+                    } else {
+                        // Regular points text
+                        ctx.font = '12px Arial';
+                        ctx.fillText(brick.points, brick.x + brick.width/2, brick.y + brick.height/2 + 4);
+                    }
+                }
+            });
+            
+            // Draw power-ups
+            powerUps.forEach(powerUp => {
+                ctx.save();
+                ctx.translate(powerUp.x, powerUp.y);
+                ctx.rotate(Date.now() * 0.005);
+                
+                const powerUpType = powerUpTypes.find(type => type.type === powerUp.type);
+                ctx.fillStyle = powerUpType.color;
+                ctx.shadowColor = powerUpType.color;
+                ctx.shadowBlur = 15;
+                
+                ctx.beginPath();
+                ctx.arc(0, 0, 12, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Power-up symbol
+                ctx.fillStyle = '#fff';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(powerUpType.symbol, 0, 0);
+                
+                ctx.restore();
+            });
+            
+            // Draw paddle with power-up effects
+            let currentPaddleWidth = paddle.width;
+            if (activePowerUps.bigPaddle > 0) {
+                currentPaddleWidth = paddle.width * 1.5;
+            }
+            
+            ctx.fillStyle = activePowerUps.magneticPaddle > 0 ? '#4169e1' : '#00aaff';
+            ctx.shadowColor = activePowerUps.magneticPaddle > 0 ? '#4169e1' : '#00aaff';
+            ctx.shadowBlur = 15;
+            
+            // Paddle with gradient
+            const paddleGradient = ctx.createLinearGradient(paddle.x, paddle.y, paddle.x, paddle.y + paddle.height);
+            if (activePowerUps.magneticPaddle > 0) {
+                paddleGradient.addColorStop(0, '#6495ed');
+                paddleGradient.addColorStop(1, '#4169e1');
+            } else {
+                paddleGradient.addColorStop(0, '#00ccff');
+                paddleGradient.addColorStop(1, '#0088cc');
+            }
+            
+            ctx.fillStyle = paddleGradient;
+            ctx.beginPath();
+            ctx.roundRect(paddle.x - (currentPaddleWidth - paddle.width) / 2, paddle.y, currentPaddleWidth, paddle.height, 8);
+            ctx.fill();
+            
+            // Paddle highlight
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.shadowBlur = 0;
+            ctx.beginPath();
+            ctx.roundRect(paddle.x - (currentPaddleWidth - paddle.width) / 2 + 2, paddle.y + 2, currentPaddleWidth - 4, paddle.height / 3, 5);
+            ctx.fill();
+            
+            // Draw all balls
+            balls.forEach((ballObj, index) => {
+                let ballColor = '#ffffff';
+                let shadowColor = '#ffffff';
+                
+                if (activePowerUps.fireBall > 0) {
+                    ballColor = '#ff4500';
+                    shadowColor = '#ff6500';
+                }
+                
+                ctx.fillStyle = ballColor;
+                ctx.shadowColor = shadowColor;
+                ctx.shadowBlur = 12;
+                
+                // Ball with gradient
+                const ballGradient = ctx.createRadialGradient(
+                    ballObj.x - ballObj.radius/3, ballObj.y - ballObj.radius/3, 0,
+                    ballObj.x, ballObj.y, ballObj.radius
+                );
+                
+                if (activePowerUps.fireBall > 0) {
+                    ballGradient.addColorStop(0, '#ffff00');
+                    ballGradient.addColorStop(0.5, '#ff4500');
+                    ballGradient.addColorStop(1, '#ff0000');
+                } else {
+                    ballGradient.addColorStop(0, '#ffffff');
+                    ballGradient.addColorStop(0.7, '#dddddd');
+                    ballGradient.addColorStop(1, '#aaaaaa');
+                }
+                
+                ctx.fillStyle = ballGradient;
+                ctx.beginPath();
+                ctx.arc(ballObj.x, ballObj.y, ballObj.radius, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Trail effect for fire ball
+                if (activePowerUps.fireBall > 0) {
+                    for (let i = 1; i <= 3; i++) {
+                        ctx.globalAlpha = 0.3 / i;
+                        ctx.beginPath();
+                        ctx.arc(ballObj.x - ballObj.vx * i * 2, ballObj.y - ballObj.vy * i * 2, ballObj.radius * (1 - i * 0.2), 0, 2 * Math.PI);
+                        ctx.fill();
+                    }
+                    ctx.globalAlpha = 1;
+                }
+            });
+            
+            // Draw active power-up indicators
+            let indicatorY = 10;
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'left';
+            ctx.shadowBlur = 0;
+            
+            Object.keys(activePowerUps).forEach(key => {
+                if (activePowerUps[key] > 0) {
+                    const powerUpType = powerUpTypes.find(type => type.type === key);
+                    if (powerUpType) {
+                        ctx.fillStyle = powerUpType.color;
+                        ctx.fillText(`${powerUpType.name}: ${Math.ceil(activePowerUps[key] / 60)}s`, 10, indicatorY);
+                        indicatorY += 20;
+                    }
+                }
+            });
+            
+            // Lives indicator
+            ctx.fillStyle = '#ff4757';
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'right';
+            ctx.fillText(`❤️ ${lives}`, canvas.width - 10, 25);
+            
+            ctx.shadowBlur = 0;
+        }
+
+        function updateBreakoutGame() {
+            if (!breakoutGameRunning) return;
+            
+            // Update power-ups and particles
+            updatePowerUps();
+            updateParticles();
+            
+            // Apply slow motion effect
+            const gameSpeed = activePowerUps.slowMotion > 0 ? 0.5 : 1;
+            
+            // Update all balls
+            balls.forEach((ballObj, ballIndex) => {
+                // Update ball position with speed modifier
+                ballObj.x += ballObj.vx * gameSpeed;
+                ballObj.y += ballObj.vy * gameSpeed;
+                
+                // Magnetic paddle effect
+                if (activePowerUps.magneticPaddle > 0) {
+                    const currentPaddleWidth = activePowerUps.bigPaddle > 0 ? paddle.width * 1.5 : paddle.width;
+                    const paddleCenter = paddle.x;
+                    const distanceFromPaddle = Math.abs(ballObj.x - paddleCenter);
+                    
+                    if (distanceFromPaddle < 100 && ballObj.y > paddle.y - 50) {
+                        const magnetForce = 0.3;
+                        if (ballObj.x < paddleCenter) {
+                            ballObj.vx += magnetForce;
+                        } else {
+                            ballObj.vx -= magnetForce;
+                        }
+                    }
+                }
+                
+                // Ball collision with walls
+                if (ballObj.x + ballObj.radius > canvas.width || ballObj.x - ballObj.radius < 0) {
+                    ballObj.vx = -ballObj.vx;
+                    createExplosion(ballObj.x, ballObj.y, '#00ffff', 5);
+                    if (gameAudio.bounce) gameAudio.bounce();
+                }
+                if (ballObj.y - ballObj.radius < 0) {
+                    ballObj.vy = -ballObj.vy;
+                    createExplosion(ballObj.x, ballObj.y, '#00ffff', 5);
+                    if (gameAudio.bounce) gameAudio.bounce();
+                }
+                
+                // Ball collision with paddle
+                const currentPaddleWidth = activePowerUps.bigPaddle > 0 ? paddle.width * 1.5 : paddle.width;
+                const paddleLeft = paddle.x - (currentPaddleWidth - paddle.width) / 2;
+                
+                if (ballObj.y + ballObj.radius > paddle.y && 
+                    ballObj.x > paddleLeft && 
+                    ballObj.x < paddleLeft + currentPaddleWidth &&
+                    ballObj.vy > 0) {
+                    
+                    // Calculate hit position on paddle (for angle)
+                    const hitPos = (ballObj.x - paddleLeft) / currentPaddleWidth;
+                    const angle = (hitPos - 0.5) * Math.PI / 3; // Max 60 degrees
+                    const speed = Math.sqrt(ballObj.vx * ballObj.vx + ballObj.vy * ballObj.vy);
+                    
+                    ballObj.vx = Math.sin(angle) * speed;
+                    ballObj.vy = -Math.abs(Math.cos(angle) * speed);
+                    
+                    createExplosion(ballObj.x, ballObj.y, '#00ff00', 8);
+                    if (gameAudio.bounce) gameAudio.bounce();
+                }
+                
+                // Ball collision with bricks
+                bricks.forEach((brick, brickIndex) => {
+                    if (brick.visible) {
+                        if (ballObj.x + ballObj.radius > brick.x &&
+                            ballObj.x - ballObj.radius < brick.x + brick.width &&
+                            ballObj.y + ballObj.radius > brick.y &&
+                            ballObj.y - ballObj.radius < brick.y + brick.height) {
+                            
+                            // Handle different brick types
+                            let brickDestroyed = false;
+                            
+                            if (brick.type === 'metal') {
+                                brick.health--;
+                                if (brick.health <= 0) {
+                                    brickDestroyed = true;
+                                }
+                            } else {
+                                brickDestroyed = true;
+                            }
+                            
+                            // Fire ball destroys bricks instantly
+                            if (activePowerUps.fireBall > 0) {
+                                brickDestroyed = true;
+                                brick.health = 0;
+                            }
+                            
+                            if (brickDestroyed) {
+                                brick.visible = false;
+                                
+                                // Update achievements
+                                achievements.brickBreaker.current++;
+                                
+                                // Explosive brick effect
+                                if (brick.type === 'explosive') {
+                                    // Destroy nearby bricks
+                                    bricks.forEach(nearbyBrick => {
+                                        if (nearbyBrick.visible) {
+                                            const distance = Math.sqrt(
+                                                (nearbyBrick.x - brick.x) ** 2 + 
+                                                (nearbyBrick.y - brick.y) ** 2
+                                            );
+                                            if (distance < 100) {
+                                                nearbyBrick.visible = false;
+                                                breakoutScore += nearbyBrick.points;
+                                                achievements.brickBreaker.current++;
+                                                createExplosion(nearbyBrick.x + nearbyBrick.width/2, nearbyBrick.y + nearbyBrick.height/2, '#ff4757', 15);
+                                            }
+                                        }
+                                    });
+                                    createExplosion(brick.x + brick.width/2, brick.y + brick.height/2, '#ff4757', 20);
+                                    if (gameAudio.explosion) gameAudio.explosion();
+                                } else if (brick.type === 'powerup') {
+                                    createPowerUp(brick.x + brick.width/2, brick.y + brick.height/2);
+                                    createExplosion(brick.x + brick.width/2, brick.y + brick.height/2, '#5f27cd', 12);
+                                    if (gameAudio.powerup) gameAudio.powerup();
+                                } else {
+                                    createExplosion(brick.x + brick.width/2, brick.y + brick.height/2, brick.color, 10);
+                                    if (gameAudio.brick) gameAudio.brick();
+                                }
+                            } else {
+                                // Brick damaged but not destroyed
+                                createExplosion(brick.x + brick.width/2, brick.y + brick.height/2, '#ffffff', 5);
+                                if (gameAudio.bounce) gameAudio.bounce();
+                            }
+                            
+                            // Only bounce if not fire ball
+                            if (activePowerUps.fireBall === 0) {
+                                ballObj.vy = -ballObj.vy;
+                            }
+                            
+                            breakoutScore += brick.points;
+                            updateBreakoutDisplay();
+                        }
+                    }
+                });
+                
+                // Check if ball fell off screen
+                if (ballObj.y > canvas.height) {
+                    balls.splice(ballIndex, 1);
+                    
+                    // If no balls left, lose a life
+                    if (balls.length === 0) {
+                        lives--;
+                        updateBreakoutDisplay();
+                        
+                        if (lives <= 0) {
+                            breakoutGameOver();
+                            return;
+                        } else {
+                            // Reset with new ball
+                            ball = { x: 250, y: 300, vx: 3, vy: -3, radius: 8 };
+                            balls = [ball];
+                            createExplosion(canvas.width/2, canvas.height - 50, '#ff4757', 15);
+                        }
+                    }
+                }
+            });
+            
+            // Check win condition (all bricks destroyed)
+            if (bricks.every(brick => !brick.visible)) {
+                nextBreakoutLevel();
+                return;
+            }
+            
+            drawBreakoutGame();
+        }
+
+        function nextBreakoutLevel() {
+            breakoutLevel++;
+            
+            // Play level up sound
+            if (gameAudio.levelup) gameAudio.levelup();
+            
+            // Bonus points for completing level
+            breakoutScore += 100 * breakoutLevel;
+            updateBreakoutDisplay();
+            
+            // Check for perfect level achievement (no lives lost)
+            if (lives === startingLives) {
+                achievements.perfectLevel.current = 1;
+            }
+            
+            // Check for speed achievement (under 30 seconds)
+            const levelTime = (Date.now() - levelStartTime) / 1000;
+            if (levelTime < 30) {
+                achievements.speedster.current = 1;
+            }
+            
+            // Check achievements
+            checkAchievements();
+            
+            // Difficulty-based ball speed
+            let speedMultiplier = 1;
+            switch(gameSettings.difficulty) {
+                case 'easy': speedMultiplier = 0.8; break;
+                case 'hard': speedMultiplier = 1.3; break;
+            }
+            
+            // Reset ball and paddle with increased speed
+            ball = { 
+                x: 250, 
+                y: 300, 
+                vx: (3 + breakoutLevel * 0.5) * speedMultiplier, 
+                vy: -(3 + breakoutLevel * 0.5) * speedMultiplier, 
+                radius: 8 
+            };
+            balls = [ball];
+            paddle.x = 225;
+            
+            // Create new bricks with more special bricks at higher levels
+            initBreakoutBricks();
+            
+            document.getElementById('breakoutStatus').textContent = `${playerName}, רמה ${breakoutLevel}! 🎉`;
+            document.getElementById('breakoutStatus').className = 'game-status winner';
+            
+            // Show level completion achievement
+            showAchievementNotification({
+                name: `רמה ${breakoutLevel} הושלמה! 🎯`,
+                desc: `בונוס: ${100 * breakoutLevel} נקודות`
+            });
+            
+            // Brief pause before continuing
+            breakoutGameRunning = false;
+            setTimeout(() => {
+                if (document.getElementById('breakoutBtn').textContent === 'עצור') {
+                    breakoutGameRunning = true;
+                    document.getElementById('breakoutStatus').textContent = `${playerName}, רמה ${breakoutLevel} - המשיכו לשבור!`;
+                    document.getElementById('breakoutStatus').className = 'game-status info';
+                }
+            }, 2500);
+        }
+
+        function startBreakoutGame() {
+            if (breakoutGameRunning) return;
+            
+            breakoutGameRunning = true;
+            levelStartTime = Date.now(); // Record level start time
+            startingLives = lives; // Record lives at start
+            
+            document.getElementById('breakoutStatus').textContent = `${playerName}, שברו את הלבנים! 🧱`;
+            document.getElementById('breakoutStatus').className = 'game-status info';
+            document.getElementById('breakoutBtn').textContent = 'עצור';
+            
+            breakoutGameLoop = setInterval(updateBreakoutGame, 16); // ~60 FPS
+        }
+
+        function stopBreakoutGame() {
+            breakoutGameRunning = false;
+            clearInterval(breakoutGameLoop);
+            document.getElementById('breakoutStatus').textContent = 'המשחק הופסק';
+            document.getElementById('breakoutStatus').className = 'game-status';
+            document.getElementById('breakoutBtn').textContent = 'המשך';
+        }
+
+        function toggleBreakoutGame() {
+            if (breakoutGameRunning) {
+                stopBreakoutGame();
+            } else {
+                startBreakoutGame();
+            }
+        }
+
+        function breakoutGameOver() {
+            breakoutGameRunning = false;
+            clearInterval(breakoutGameLoop);
+            
+            // Play game over sound
+            if (gameAudio.gameover) gameAudio.gameover();
+            
+            // Check achievements before updating score
+            checkAchievements();
+            
+            // Check for new best score
+            if (breakoutScore > bestScore) {
+                bestScore = breakoutScore;
+                document.getElementById('bestScoreValue').textContent = bestScore;
+                
+                // Show celebration for new record
+                const winnerDisplay = document.getElementById('breakoutWinner');
+                winnerDisplay.innerHTML = `🎊 שיא חדש ${playerName}! 🎊<br>🏆 ${breakoutScore} נקודות! רמה ${breakoutLevel}! 🏆`;
+                winnerDisplay.className = 'winner-display celebration-message';
+                createFireworks();
+                
+                document.getElementById('breakoutStatus').textContent = `שיא חדש! המשחק נגמר`;
+                document.getElementById('breakoutStatus').className = 'game-status winner';
+                
+                // Show new record achievement
+                showAchievementNotification({
+                    name: 'שיא חדש! 🎉',
+                    desc: `${breakoutScore} נקודות - רמה ${breakoutLevel}!`
+                });
+            } else {
+                document.getElementById('breakoutStatus').textContent = `המשחק נגמר! הניקוד: ${breakoutScore} (שיא: ${bestScore})`;
+                document.getElementById('breakoutStatus').className = 'game-status error';
+            }
+            
+            // Save game data
+            saveGameData();
+            
+            document.getElementById('breakoutBtn').textContent = 'התחל';
+            document.getElementById('gameOverlay').style.display = 'flex';
+            document.getElementById('overlayMessage').innerHTML = `${playerName}, המשחק נגמר!<br>ניקוד: ${breakoutScore} | שיא: ${bestScore}<br>רמה: ${breakoutLevel}`;
+            document.getElementById('inGameUI').style.display = 'none';
+        }
+
+        function resetBreakoutGame() {
+            breakoutGameRunning = false;
+            clearInterval(breakoutGameLoop);
+            
+            initBreakoutGame();
+            drawBreakoutGame();
+            
+            document.getElementById('breakoutStatus').textContent = `${playerName}, לחצו "התחל" כדי לשחק`;
+            document.getElementById('breakoutStatus').className = 'game-status';
+            document.getElementById('breakoutBtn').textContent = 'התחל';
+            
+            // Clear winner display and fireworks
+            document.getElementById('breakoutWinner').textContent = '';
+            document.getElementById('breakoutWinner').className = 'winner-display';
+            document.getElementById('fireworksContainer').innerHTML = '';
+        }
+
+        function updateBreakoutDisplay() {
+            document.getElementById('breakoutScore').textContent = breakoutScore;
+            document.getElementById('breakoutLevel').textContent = breakoutLevel;
+            
+            // Update in-game UI
+            document.getElementById('inGameScore').textContent = breakoutScore;
+            document.getElementById('inGameLevel').textContent = breakoutLevel;
+        }
+
+        // Mouse controls
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = e.clientX - rect.left;
+            updatePaddlePosition(mouseX);
+        });
+
+        // Touch controls for mobile
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            isTouching = true;
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            touchStartX = touch.clientX - rect.left;
+            touchStartY = touch.clientY - rect.top;
+            updatePaddlePosition(touchStartX);
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (isTouching) {
+                const rect = canvas.getBoundingClientRect();
+                const touch = e.touches[0];
+                const touchX = touch.clientX - rect.left;
+                updatePaddlePosition(touchX);
+            }
+        });
+
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            isTouching = false;
+        });
+
+        // Update paddle position with bounds checking
+        function updatePaddlePosition(x) {
+            const currentPaddleWidth = activePowerUps.bigPaddle > 0 ? paddle.width * 1.5 : paddle.width;
+            
+            paddle.x = x - paddle.width / 2;
+            
+            // Keep paddle within canvas bounds considering power-up width
+            const paddleLeft = paddle.x - (currentPaddleWidth - paddle.width) / 2;
+            const paddleRight = paddle.x + (currentPaddleWidth - paddle.width) / 2 + currentPaddleWidth;
+            
+            if (paddleLeft < 0) {
+                paddle.x = (currentPaddleWidth - paddle.width) / 2;
+            }
+            if (paddleRight > canvas.width) {
+                paddle.x = canvas.width - currentPaddleWidth + (currentPaddleWidth - paddle.width) / 2;
+            }
+        }
+
+        // Keyboard controls with enhanced functionality
+        document.addEventListener('keydown', (e) => {
+            const currentPaddleWidth = activePowerUps.bigPaddle > 0 ? paddle.width * 1.5 : paddle.width;
+            
+            if (e.key === 'ArrowLeft') {
+                paddle.x -= 25;
+                const paddleLeft = paddle.x - (currentPaddleWidth - paddle.width) / 2;
+                if (paddleLeft < 0) paddle.x = (currentPaddleWidth - paddle.width) / 2;
+            }
+            if (e.key === 'ArrowRight') {
+                paddle.x += 25;
+                const paddleRight = paddle.x + (currentPaddleWidth - paddle.width) / 2 + currentPaddleWidth;
+                if (paddleRight > canvas.width) paddle.x = canvas.width - currentPaddleWidth + (currentPaddleWidth - paddle.width) / 2;
+            }
+            
+            // Hotkeys for testing (remove in final version)
+            if (e.key === 'p' || e.key === 'P') {
+                toggleBreakoutGame();
+            }
+            if (e.key === 'r' || e.key === 'R') {
+                resetBreakoutGame();
+            }
+            
+            // Cheat codes for fun (optional)
+            if (e.key === '1') activatePowerUp('bigPaddle');
+            if (e.key === '2') activatePowerUp('multiBall');
+            if (e.key === '3') activatePowerUp('fireBall');
+            if (e.key === '4') activatePowerUp('magneticPaddle');
+            if (e.key === '5') activatePowerUp('slowMotion');
+        });
+
+        // Settings functions
+        function toggleSettings() {
+            const panel = document.getElementById('settingsPanel');
+            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function toggleSound() {
+            soundEnabled = document.getElementById('soundToggle').checked;
+            gameSettings.soundVolume = soundEnabled ? 0.5 : 0;
+            saveGameData();
+        }
+
+        function toggleEffects() {
+            gameSettings.showEffects = document.getElementById('effectsToggle').checked;
+            saveGameData();
+        }
+
+        function changeDifficulty() {
+            gameSettings.difficulty = document.getElementById('difficultySelect').value;
+            
+            // Apply difficulty settings
+            switch(gameSettings.difficulty) {
+                case 'easy':
+                    lives = 5;
+                    ball.vx = ball.vx > 0 ? 2 : -2;
+                    ball.vy = ball.vy > 0 ? 2 : -2;
+                    break;
+                case 'hard':
+                    lives = 2;
+                    ball.vx = ball.vx > 0 ? 4 : -4;
+                    ball.vy = ball.vy > 0 ? 4 : -4;
+                    break;
+                default: // normal
+                    lives = 3;
+                    ball.vx = ball.vx > 0 ? 3 : -3;
+                    ball.vy = ball.vy > 0 ? 3 : -3;
+            }
+            
+            updateBreakoutDisplay();
+            saveGameData();
+        }
+
+        function toggleAutoSave() {
+            gameSettings.autoSave = document.getElementById('autoSaveToggle').checked;
+            if (gameSettings.autoSave) {
+                saveGameData();
+            }
+        }
+
+        function resetAllData() {
+            if (confirm('האם אתם בטוחים שאתם רוצים למחוק את כל הנתונים? פעולה זו לא ניתנת לביטול!')) {
+                localStorage.removeItem('breakoutBestScore');
+                localStorage.removeItem('breakoutAchievements');
+                localStorage.removeItem('breakoutSettings');
+                
+                // Reset variables
+                bestScore = 0;
+                achievements.brickBreaker.current = 0;
+                achievements.brickBreaker.unlocked = false;
+                achievements.powerMaster.current = 0;
+                achievements.powerMaster.unlocked = false;
+                achievements.survivor.current = 0;
+                achievements.survivor.unlocked = false;
+                achievements.perfectLevel.current = 0;
+                achievements.perfectLevel.unlocked = false;
+                achievements.speedster.current = 0;
+                achievements.speedster.unlocked = false;
+                
+                // Reset game settings
+                gameSettings = {
+                    difficulty: 'normal',
+                    soundVolume: 0.5,
+                    showEffects: true,
+                    autoSave: true
+                };
+                
+                // Update UI
+                document.getElementById('bestScoreValue').textContent = bestScore;
+                document.getElementById('difficultySelect').value = 'normal';
+                document.getElementById('soundToggle').checked = true;
+                document.getElementById('effectsToggle').checked = true;
+                document.getElementById('autoSaveToggle').checked = true;
+                
+                alert('כל הנתונים נמחקו בהצלחה!');
+            }
+        }
+
+        // Load settings into UI
+        function loadSettingsUI() {
+            document.getElementById('soundToggle').checked = soundEnabled;
+            document.getElementById('effectsToggle').checked = gameSettings.showEffects;
+            document.getElementById('difficultySelect').value = gameSettings.difficulty;
+            document.getElementById('autoSaveToggle').checked = gameSettings.autoSave;
+            document.getElementById('bestScoreValue').textContent = bestScore;
+        }
+
+        // Update paddle position continuously
+        function updateBreakoutPaddle() {
+            if (!breakoutGameRunning) {
+                drawBreakoutGame();
+            }
+            requestAnimationFrame(updateBreakoutPaddle);
+        }
+
+        // Create explosion particles
+        function createExplosion(x, y, color = '#ff6600', particleCount = 8) {
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    size: Math.random() * 4 + 2,
+                    life: 30 + Math.random() * 20,
+                    maxLife: 50,
+                    color: color
+                });
+            }
+        }
+
+        // Create power-up
+        function createPowerUp(x, y) {
+            const availableTypes = powerUpTypes.filter(() => Math.random() < 0.7); // Not all power-ups drop
+            if (availableTypes.length === 0) return;
+            
+            const powerUpType = availableTypes[Math.floor(Math.random() * availableTypes.length)];
+            
+            powerUps.push({
+                x: x,
+                y: y,
+                type: powerUpType.type,
+                vx: (Math.random() - 0.5) * 2,
+                vy: Math.random() * 2 + 1,
+                life: 600, // 10 seconds
+                size: 12
+            });
+        }
+
+        // Update power-ups
+        function updatePowerUps() {
+            powerUps.forEach((powerUp, index) => {
+                // Update position
+                powerUp.x += powerUp.vx;
+                powerUp.y += powerUp.vy;
+                powerUp.vy += 0.1; // Gravity
+                powerUp.life--;
+                
+                // Bounce off walls
+                if (powerUp.x < powerUp.size || powerUp.x > canvas.width - powerUp.size) {
+                    powerUp.vx = -powerUp.vx;
+                }
+                
+                // Remove if expired or fell off screen
+                if (powerUp.life <= 0 || powerUp.y > canvas.height) {
+                    powerUps.splice(index, 1);
+                    return;
+                }
+                
+                // Check collision with paddle
+                const currentPaddleWidth = activePowerUps.bigPaddle > 0 ? paddle.width * 1.5 : paddle.width;
+                const paddleLeft = paddle.x - (currentPaddleWidth - paddle.width) / 2;
+                
+                if (powerUp.x + powerUp.size > paddleLeft &&
+                    powerUp.x - powerUp.size < paddleLeft + currentPaddleWidth &&
+                    powerUp.y + powerUp.size > paddle.y &&
+                    powerUp.y - powerUp.size < paddle.y + paddle.height) {
+                    
+                    // Activate power-up
+                    activatePowerUp(powerUp.type);
+                    createExplosion(powerUp.x, powerUp.y, '#00ff00', 12);
+                    powerUps.splice(index, 1);
+                }
+            });
+            
+            // Update active power-ups
+            Object.keys(activePowerUps).forEach(key => {
+                if (activePowerUps[key] > 0) {
+                    activePowerUps[key]--;
+                }
+            });
+        }
+
+        // Activate power-up
+        function activatePowerUp(type) {
+            activePowerUps[type] = 600; // 10 seconds
+            
+            // Update achievements
+            achievements.powerMaster.current++;
+            
+            // Sound effect
+            if (gameAudio.powerup) gameAudio.powerup();
+            
+            // Special activation effects
+            if (type === 'multiBall' && balls.length === 1) {
+                // Create 2 additional balls
+                const mainBall = balls[0];
+                balls.push({
+                    x: mainBall.x,
+                    y: mainBall.y,
+                    vx: mainBall.vx * 0.8 + 2,
+                    vy: mainBall.vy * 0.8,
+                    radius: mainBall.radius
+                });
+                balls.push({
+                    x: mainBall.x,
+                    y: mainBall.y,
+                    vx: mainBall.vx * 0.8 - 2,
+                    vy: mainBall.vy * 0.8,
+                    radius: mainBall.radius
+                });
+            }
+            
+            // Check achievements after power-up activation
+            checkAchievements();
+        }
+
+        // Update particles
+        function updateParticles() {
+            particles.forEach((particle, index) => {
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.life--;
+                particle.vx *= 0.98; // Friction
+                particle.vy *= 0.98;
+                particle.vy += 0.1; // Gravity
+                
+                if (particle.life <= 0) {
+                    particles.splice(index, 1);
+                }
+            });
+        }
+
+        // Fireworks animation
+        function createFireworks() {
+            const container = document.getElementById('fireworksContainer');
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff'];
+            
+            for (let i = 0; i < 25; i++) {
+                setTimeout(() => {
+                    const firework = document.createElement('div');
+                    firework.className = 'firework';
+                    firework.style.left = Math.random() * 100 + '%';
+                    firework.style.top = Math.random() * 100 + '%';
+                    firework.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    container.appendChild(firework);
+                    
+                    // Remove firework after animation
+                    setTimeout(() => {
+                        if (firework.parentNode) {
+                            firework.parentNode.removeChild(firework);
+                        }
+                    }, 2000);
+                }, i * 150);
+            }
+        }
+    </script>
+    
+    <!-- Easter Egg - Feature Summary -->
+    <div style="display: none;" id="features">
+        🎮 בריקאאוט מתקדם - רשימת השיפורים:
+        ✅ מערכת כוחות מלאה (5 סוגים)
+        ✅ לבנים מיוחדים (מתכת, פיצוץ, כוח)
+        ✅ מערכת קול דינמית
+        ✅ שמירת שיאים אוטומטית
+        ✅ בקרת מגע למובייל
+        ✅ מערכת הישגים (5 הישגים)
+        ✅ הגדרות אישיות
+        ✅ 3 רמות קושי
+        ✅ אפקטי חלקיקים
+        ✅ אנימציות מתקדמות
+        ✅ מקשי עזרה
+        ✅ תמיכה מלאה בעברית
+        
+        Developer: Enhanced by Claude 3.5 Sonnet
+    </div>
+</body>
+</html>

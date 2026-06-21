@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🥷 נינג'ה פרוטס</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #2c3e50 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            padding: 20px;
+            cursor: none;
+        }
+
+        .game-container {
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+            text-align: center;
+            max-width: 650px;
+            width: 100%;
+            border: 2px solid rgba(255, 215, 0, 0.5);
+        }
+
+        h1 {
+            color: #ffd700;
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+            text-shadow: 0 0 10px #ffd700;
+            animation: ninjaGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes ninjaGlow {
+            from { text-shadow: 0 0 10px #ffd700; }
+            to { text-shadow: 0 0 20px #ffd700, 0 0 30px #ffed4a; }
+        }
+
+        /* Player Setup Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .modal h2 {
+            color: #ffd700;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 10px #ffd700;
+        }
+
+        .player-input {
+            margin-bottom: 1rem;
+        }
+
+        .player-input label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #ffe066;
+        }
+
+        .player-input input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 10px;
+            font-size: 1rem;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+        }
+
+        .player-input input:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        /* Game Info */
+        .game-info {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 10px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .score-info {
+            font-weight: bold;
+            color: #ffd700;
+            font-size: 1.1rem;
+        }
+
+        .player-name {
+            font-weight: bold;
+            color: #ff6b47;
+            font-size: 1.1rem;
+        }
+
+        .combo-info {
+            font-weight: bold;
+            color: #ff4757;
+            font-size: 1.1rem;
+        }
+
+        /* Canvas Container */
+        .canvas-container {
+            position: relative;
+            display: inline-block;
+            cursor: none;
+        }
+
+        /* Game Screen Overlay */
+        .game-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(44, 62, 80, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 15px;
+            z-index: 10;
+        }
+
+        .game-overlay h2 {
+            color: #ffd700;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px #ffd700;
+        }
+
+        .game-overlay p {
+            color: #ffe066;
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .start-btn, .game-btn {
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            color: #000;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 25px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+            text-transform: uppercase;
+            margin: 10px;
+        }
+
+        .start-btn:hover, .game-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.6);
+        }
+
+        /* Ninja Canvas */
+        .ninja-canvas {
+            border: 3px solid #ffd700;
+            border-radius: 15px;
+            background: #1a1a1a;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            margin: 1rem auto;
+            display: block;
+            cursor: none;
+        }
+
+        /* Custom Cursor - Sword */
+        .sword-cursor {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Controls Info */
+        .controls {
+            background: rgba(255, 215, 0, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            color: #ffe066;
+        }
+
+        /* Fireworks Animation */
+        .fireworks {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .firework {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            animation: fireworkExplosion 2s ease-out forwards;
+        }
+
+        @keyframes fireworkExplosion {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(20);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(40);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .ninja-canvas {
+                width: 100%;
+                max-width: 350px;
+                height: auto;
+            }
+            
+            .game-info {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+
+        /* Back button styles */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 170, 255, 0.9);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .back-btn:hover {
+            background: rgba(0, 170, 255, 1);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 170, 255, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <a href="../../gallery.html" class="back-btn">← חזרה לבית</a>
+    
+    <!-- Custom Cursor -->
+    <div class="sword-cursor" id="swordCursor">⚔️</div>
+
+    <!-- Player Setup Modal -->
+    <div class="modal" id="playerSetupModal">
+        <div class="modal-content">
+            <h2>🥷 הכניסו את השם שלכם</h2>
+            <div class="player-input">
+                <label for="playerName">שם הנינג'ה:</label>
+                <input type="text" id="playerName" placeholder="הכניסו שם..." maxlength="15">
+            </div>
+            <button class="game-btn" onclick="startGameWithName()">⚔️ התחל לחתוך!</button>
+        </div>
+    </div>
+
+    <!-- Fireworks Container -->
+    <div class="fireworks" id="fireworksContainer"></div>
+    
+    <div class="game-container">
+        <h1>🥷 נינג'ה פרוטס</h1>
+        
+        <div class="game-info">
+            <span class="player-name" id="playerNameDisplay">נינג'ה</span>
+            <span class="score-info">ניקוד: <span id="ninjaScore">0</span></span>
+            <span class="combo-info">קומבו: <span id="ninjaCombo">0</span></span>
+        </div>
+        
+        <div class="canvas-container">
+            <!-- Game Overlay (Start Screen) -->
+            <div class="game-overlay" id="gameOverlay">
+                <h2>🥷 נינג'ה פרוטס</h2>
+                <p id="overlayMessage">מוכנים לחתוך פירות?<br>הזיזו את העכבר כדי לחתוך עם החרב!</p>
+                <button class="start-btn" onclick="startNinjaFromOverlay()">⚔️ התחל לחתוך</button>
+            </div>
+            
+            <canvas class="ninja-canvas" id="ninjaCanvas" width="500" height="400"></canvas>
+        </div>
+        
+        <div class="controls">
+            🎮 עכבר - תנועת החרב והחיתוך<br>
+            🍎 פירות: תפוח אדום, תפוז, בננה, אבטיח - חתכו הכל!<br>
+            💣 פצצות שחורות: אל תיגעו - פיצוץ מיידי!<br>
+            ⚡ קומבו: חיתוך פירות ברצף נותן נקודות כפולות!<br>
+            ❤️ 3 חיים: אל תתנו לפירות ליפול למטה!
+        </div>
+        
+        <button class="game-btn" onclick="resetNinjaGame()">משחק חדש</button>
+    </div>
+
+    <script>
+        // Game variables
+        let canvas, ctx;
+        let gameRunning = false;
+        let score = 0;
+        let combo = 0;
+        let lives = 3;
+        let fruits = [];
+        let bombs = [];
+        let slashes = [];
+        let particles = [];
+        let gameLoop;
+        let playerName = 'נינג\'ה';
+        let frameCount = 0;
+        let mouseX = 0;
+        let mouseY = 0;
+        let lastMouseX = 0;
+        let lastMouseY = 0;
+
+        // Fruit types
+        const fruitTypes = [
+            { emoji: '🍎', color: '#ff4757', points: 10 },
+            { emoji: '🍊', color: '#ff8c00', points: 15 },
+            { emoji: '🍌', color: '#ffd700', points: 12 },
+            { emoji: '🍉', color: '#2ed573', points: 20 },
+            { emoji: '🍇', color: '#a55eea', points: 18 },
+            { emoji: '🥝', color: '#26de81', points: 25 }
+        ];
+
+        // Initialize game when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            canvas = document.getElementById('ninjaCanvas');
+            ctx = canvas.getContext('2d');
+            
+            // Show setup modal
+            document.getElementById('playerSetupModal').style.display = 'flex';
+            
+            // Initialize cursor
+            updateSwordCursor();
+            
+            // Mouse controls
+            canvas.addEventListener('mousemove', function(e) {
+                const rect = canvas.getBoundingClientRect();
+                lastMouseX = mouseX;
+                lastMouseY = mouseY;
+                mouseX = e.clientX - rect.left;
+                mouseY = e.clientY - rect.top;
+            });
+
+            // Touch support
+            canvas.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+                const rect = canvas.getBoundingClientRect();
+                const touch = e.touches[0];
+                lastMouseX = mouseX;
+                lastMouseY = mouseY;
+                mouseX = touch.clientX - rect.left;
+                mouseY = touch.clientY - rect.top;
+            });
+
+            canvas.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                const rect = canvas.getBoundingClientRect();
+                const touch = e.touches[0];
+                mouseX = touch.clientX - rect.left;
+                mouseY = touch.clientY - rect.top;
+                lastMouseX = mouseX;
+                lastMouseY = mouseY;
+            });
+        });
+
+        function startGameWithName() {
+            const name = document.getElementById('playerName').value.trim();
+            
+            if (name === '') {
+                alert('אנא הכניסו שם!');
+                return;
+            }
+            
+            playerName = name;
+            document.getElementById('playerNameDisplay').textContent = 'נינג\'ה ' + playerName;
+            
+            // Hide modal
+            document.getElementById('playerSetupModal').style.display = 'none';
+            
+            // Initialize game
+            initGame();
+            drawGame();
+            
+            // Show game overlay
+            document.getElementById('gameOverlay').style.display = 'flex';
+            document.getElementById('overlayMessage').innerHTML = 'נינג\'ה ' + playerName + ', מוכנים לחתוך פירות?<br>הזיזו את העכבר כדי לחתוך עם החרב!';
+        }
+
+        function startNinjaFromOverlay() {
+            document.getElementById('gameOverlay').style.display = 'none';
+            startGame();
+        }
+
+        function initGame() {
+            score = 0;
+            combo = 0;
+            lives = 3;
+            fruits = [];
+            bombs = [];
+            slashes = [];
+            particles = [];
+            frameCount = 0;
+            
+            updateDisplay();
+        }
+
+        function startGame() {
+            if (gameRunning) return;
+            
+            gameRunning = true;
+            gameLoop = setInterval(updateGame, 16); // ~60 FPS
+        }
+
+        function stopGame() {
+            gameRunning = false;
+            clearInterval(gameLoop);
+        }
+
+        function resetNinjaGame() {
+            stopGame();
+            initGame();
+            drawGame();
+            
+            document.getElementById('gameOverlay').style.display = 'flex';
+            document.getElementById('overlayMessage').innerHTML = 'נינג\'ה ' + playerName + ', מוכנים לחתוך פירות?<br>הזיזו את העכבר כדי לחתוך עם החרב!';
+            
+            const startBtn = document.querySelector('.start-btn');
+            startBtn.style.display = 'block';
+            startBtn.textContent = '⚔️ התחל לחתוך';
+            startBtn.onclick = startNinjaFromOverlay;
+            
+            document.getElementById('fireworksContainer').innerHTML = '';
+        }
+
+        function updateGame() {
+            if (!gameRunning) return;
+            
+            frameCount++;
+            
+            // Generate fruits
+            if (frameCount % 60 === 0) {
+                if (Math.random() > 0.2) {
+                    spawnFruit();
+                } else {
+                    spawnBomb();
+                }
+            }
+            
+            // Update fruits
+            for (let i = fruits.length - 1; i >= 0; i--) {
+                const fruit = fruits[i];
+                fruit.x += fruit.vx;
+                fruit.y += fruit.vy;
+                fruit.vy += 0.3; // gravity
+                fruit.rotation += fruit.rotationSpeed;
+                
+                // Remove fruits that fall off screen
+                if (fruit.y > canvas.height + 50) {
+                    fruits.splice(i, 1);
+                    lives--;
+                    combo = 0;
+                    updateDisplay();
+                    
+                    if (lives <= 0) {
+                        gameOver();
+                        return;
+                    }
+                }
+                
+                // Check if fruit is sliced
+                if (isSliced(fruit)) {
+                    sliceFruit(fruit, i);
+                }
+            }
+            
+            // Update bombs
+            for (let i = bombs.length - 1; i >= 0; i--) {
+                const bomb = bombs[i];
+                bomb.x += bomb.vx;
+                bomb.y += bomb.vy;
+                bomb.vy += 0.3; // gravity
+                bomb.rotation += bomb.rotationSpeed;
+                
+                // Remove bombs that fall off screen
+                if (bomb.y > canvas.height + 50) {
+                    bombs.splice(i, 1);
+                }
+                
+                // Check if bomb is hit
+                if (isSliced(bomb)) {
+                    explodeBomb();
+                    return;
+                }
+            }
+            
+            // Update slashes
+            for (let i = slashes.length - 1; i >= 0; i--) {
+                const slash = slashes[i];
+                slash.opacity -= 0.05;
+                slash.width -= 0.5;
+                
+                if (slash.opacity <= 0) {
+                    slashes.splice(i, 1);
+                }
+            }
+            
+            // Update particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const particle = particles[i];
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.vy += 0.1;
+                particle.opacity -= 0.02;
+                particle.size -= 0.1;
+                
+                if (particle.opacity <= 0 || particle.size <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+            
+            drawGame();
+        }
+
+        function drawGame() {
+            // Clear canvas
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw fruits
+            fruits.forEach(function(fruit) {
+                drawFruit(fruit);
+            });
+            
+            // Draw bombs
+            bombs.forEach(function(bomb) {
+                drawBomb(bomb);
+            });
+            
+            // Draw slashes
+            slashes.forEach(function(slash) {
+                drawSlash(slash);
+            });
+            
+            // Draw particles
+            particles.forEach(function(particle) {
+                drawParticle(particle);
+            });
+        }
+
+        function drawFruit(fruit) {
+            ctx.save();
+            ctx.translate(fruit.x, fruit.y);
+            ctx.rotate(fruit.rotation);
+            
+            ctx.shadowColor = fruit.type.color;
+            ctx.shadowBlur = 10;
+            
+            ctx.font = fruit.size + 'px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(fruit.type.emoji, 0, fruit.size/3);
+            
+            ctx.restore();
+        }
+
+        function drawBomb(bomb) {
+            ctx.save();
+            ctx.translate(bomb.x, bomb.y);
+            ctx.rotate(bomb.rotation);
+            
+            ctx.shadowColor = '#ff0000';
+            ctx.shadowBlur = 15;
+            
+            ctx.font = bomb.size + 'px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('💣', 0, bomb.size/3);
+            
+            ctx.restore();
+        }
+
+        function drawSlash(slash) {
+            ctx.save();
+            ctx.strokeStyle = 'rgba(255, 215, 0, ' + slash.opacity + ')';
+            ctx.lineWidth = slash.width;
+            ctx.lineCap = 'round';
+            ctx.shadowColor = '#ffd700';
+            ctx.shadowBlur = 10;
+            
+            ctx.beginPath();
+            ctx.moveTo(slash.startX, slash.startY);
+            ctx.lineTo(slash.endX, slash.endY);
+            ctx.stroke();
+            
+            ctx.restore();
+        }
+
+        function drawParticle(particle) {
+            ctx.save();
+            ctx.fillStyle = 'rgba(' + particle.r + ', ' + particle.g + ', ' + particle.b + ', ' + particle.opacity + ')';
+            ctx.shadowColor = particle.color;
+            ctx.shadowBlur = 5;
+            
+            ctx.beginPath();
+            ctx.arc(particle.x, particle.y, particle.size, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            ctx.restore();
+        }
+
+        function spawnFruit() {
+            const type = fruitTypes[Math.floor(Math.random() * fruitTypes.length)];
+            fruits.push({
+                x: Math.random() * (canvas.width - 100) + 50,
+                y: canvas.height + 30,
+                vx: (Math.random() - 0.5) * 4,
+                vy: -8 - Math.random() * 4,
+                size: 40 + Math.random() * 20,
+                rotation: 0,
+                rotationSpeed: (Math.random() - 0.5) * 0.2,
+                type: type,
+                sliced: false
+            });
+        }
+
+        function spawnBomb() {
+            bombs.push({
+                x: Math.random() * (canvas.width - 100) + 50,
+                y: canvas.height + 30,
+                vx: (Math.random() - 0.5) * 4,
+                vy: -8 - Math.random() * 4,
+                size: 35 + Math.random() * 15,
+                rotation: 0,
+                rotationSpeed: (Math.random() - 0.5) * 0.3,
+                sliced: false
+            });
+        }
+
+        function isSliced(object) {
+            const distance = Math.sqrt((mouseX - object.x) * (mouseX - object.x) + (mouseY - object.y) * (mouseY - object.y));
+            const mouseMovement = Math.sqrt((mouseX - lastMouseX) * (mouseX - lastMouseX) + (mouseY - lastMouseY) * (mouseY - lastMouseY));
+            return distance < object.size / 2 + 10 && mouseMovement > 5;
+        }
+
+        function sliceFruit(fruit, index) {
+            if (fruit.sliced) return;
+            
+            fruit.sliced = true;
+            fruits.splice(index, 1);
+            
+            // Add score with combo multiplier
+            const points = fruit.type.points * (1 + combo * 0.1);
+            score += Math.round(points);
+            combo++;
+            
+            updateDisplay();
+            
+            // Create slice effect
+            createSlash();
+            
+            // Create fruit particles
+            createFruitParticles(fruit);
+        }
+
+        function explodeBomb() {
+            gameOver();
+            
+            // Create explosion effect
+            for (let i = 0; i < 20; i++) {
+                particles.push({
+                    x: mouseX,
+                    y: mouseY,
+                    vx: (Math.random() - 0.5) * 10,
+                    vy: (Math.random() - 0.5) * 10,
+                    size: 8 + Math.random() * 8,
+                    opacity: 1,
+                    color: '#ff4757',
+                    r: 255,
+                    g: 71,
+                    b: 87
+                });
+            }
+        }
+
+        function createSlash() {
+            slashes.push({
+                startX: lastMouseX,
+                startY: lastMouseY,
+                endX: mouseX,
+                endY: mouseY,
+                width: 8,
+                opacity: 1
+            });
+        }
+
+        function createFruitParticles(fruit) {
+            const color = fruit.type.color;
+            const rgb = hexToRgb(color);
+            
+            for (let i = 0; i < 12; i++) {
+                particles.push({
+                    x: fruit.x,
+                    y: fruit.y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    size: 5 + Math.random() * 5,
+                    opacity: 1,
+                    color: color,
+                    r: rgb.r,
+                    g: rgb.g,
+                    b: rgb.b
+                });
+            }
+        }
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : {r: 255, g: 255, b: 255};
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            clearInterval(gameLoop);
+            
+            const overlay = document.getElementById('gameOverlay');
+            overlay.style.display = 'flex';
+            
+            if (score > 0) {
+                document.getElementById('overlayMessage').innerHTML = 'המשחק נגמר!<br>ניקוד סופי: ' + score + ' נקודות<br>קומבו מקסימלי: ' + combo;
+                createFireworks();
+            } else {
+                document.getElementById('overlayMessage').innerHTML = 'המשחק נגמר!<br>נסו שוב!';
+            }
+            
+            const startBtn = document.querySelector('.start-btn');
+            startBtn.textContent = '⚔️ שחק שוב';
+            startBtn.onclick = function() {
+                initGame();
+                overlay.style.display = 'none';
+                startGame();
+            };
+        }
+
+        function updateDisplay() {
+            document.getElementById('ninjaScore').textContent = score;
+            document.getElementById('ninjaCombo').textContent = combo;
+        }
+
+        function updateSwordCursor() {
+            document.addEventListener('mousemove', function(e) {
+                const cursor = document.getElementById('swordCursor');
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+            });
+            requestAnimationFrame(updateSwordCursor);
+        }
+
+        function createFireworks() {
+            const container = document.getElementById('fireworksContainer');
+            const colors = ['#ffd700', '#ff8c00', '#ff4757', '#2ed573', '#a55eea', '#26de81'];
+            
+            for (let i = 0; i < 20; i++) {
+                setTimeout(function() {
+                    const firework = document.createElement('div');
+                    firework.className = 'firework';
+                    firework.style.left = Math.random() * 100 + '%';
+                    firework.style.top = Math.random() * 100 + '%';
+                    firework.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    container.appendChild(firework);
+                    
+                    setTimeout(function() {
+                        if (firework.parentNode) {
+                            firework.parentNode.removeChild(firework);
+                        }
+                    }, 2000);
+                }, i * 100);
+            }
+        }
+    </script>
+</body>
+</html>

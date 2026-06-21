@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👹 משחק ההפיכה למפלצת</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
+            text-align: center;
+            max-width: 650px;
+            width: 100%;
+            border: 2px solid rgba(255, 0, 0, 0.5);
+        }
+
+        h1 {
+            color: #ff4444;
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+            text-shadow: 0 0 10px #ff4444;
+            animation: pulse 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { text-shadow: 0 0 10px #ff4444; }
+            to { text-shadow: 0 0 20px #ff4444, 0 0 30px #ff0000; }
+        }
+
+        /* Instructions */
+        .instructions {
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.1), rgba(139, 0, 0, 0.1));
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 2px solid rgba(255, 0, 0, 0.3);
+        }
+
+        .instructions h3 {
+            color: #ff6666;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            text-shadow: 0 0 5px #ff6666;
+        }
+
+        .instruction-steps {
+            text-align: right;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+        }
+
+        .step-number {
+            background: #ff4444;
+            color: #000;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-left: 10px;
+            flex-shrink: 0;
+            box-shadow: 0 0 10px #ff4444;
+        }
+
+        .step-text {
+            color: #ffcccc;
+            font-weight: 500;
+        }
+
+        /* Player Setup Modal */
+        .modal {
+            display: flex;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            border: 2px solid rgba(255, 0, 0, 0.3);
+        }
+
+        .modal h2 {
+            color: #ff6666;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 10px #ff6666;
+        }
+
+        .player-input {
+            margin-bottom: 1rem;
+        }
+
+        .player-input label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #ffcccc;
+        }
+
+        .player-input input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid rgba(255, 0, 0, 0.3);
+            border-radius: 10px;
+            font-size: 1rem;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+        }
+
+        .player-input input:focus {
+            outline: none;
+            border-color: #ff4444;
+            box-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
+        }
+
+        /* Game Info */
+        .game-info {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: rgba(255, 0, 0, 0.1);
+            border-radius: 10px;
+            border: 2px solid rgba(255, 0, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .score-info {
+            font-weight: bold;
+            color: #ff6666;
+            font-size: 1.1rem;
+        }
+
+        .player-name {
+            font-weight: bold;
+            color: #ffaa00;
+            font-size: 1.1rem;
+        }
+
+        .transformation-info {
+            font-weight: bold;
+            color: #ff4444;
+            font-size: 1.1rem;
+        }
+
+        /* Canvas Container */
+        .canvas-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        /* Game Screen Overlay */
+        .game-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(26, 26, 46, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 15px;
+            z-index: 10;
+        }
+
+        .game-overlay h2 {
+            color: #ff4444;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px #ff4444;
+        }
+
+        .game-overlay p {
+            color: #ffcccc;
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+            color: #fff;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 25px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.4);
+            text-transform: uppercase;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(255, 68, 68, 0.6);
+        }
+
+        /* In-game UI */
+        .in-game-ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 15px;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: bold;
+            z-index: 5;
+        }
+
+        .ui-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .pause-btn {
+            background: rgba(255, 68, 68, 0.3);
+            color: #fff;
+            border: 1px solid rgba(255, 68, 68, 0.5);
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .pause-btn:hover {
+            background: rgba(255, 68, 68, 0.5);
+        }
+
+        /* Monster Canvas */
+        .monster-canvas {
+            border: 3px solid #ff4444;
+            border-radius: 15px;
+            background: #000;
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.5);
+            margin: 1rem auto;
+            display: block;
+        }
+
+        /* Game Status */
+        .game-status {
+            margin: 1rem 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            min-height: 30px;
+        }
+
+        .winner {
+            color: #ff6666;
+        }
+
+        .error {
+            color: #ff4444;
+        }
+
+        .info {
+            color: #ffaa00;
+        }
+
+        /* Winner Display */
+        .winner-display {
+            margin: 1rem 0;
+            font-size: 1.5rem;
+            font-weight: bold;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .celebration-message {
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+            color: #fff;
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 3px solid #ff0000;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+            animation: celebrationPulse 2s ease-in-out infinite alternate;
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        @keyframes celebrationPulse {
+            from {
+                box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+                transform: scale(1);
+            }
+            to {
+                box-shadow: 0 0 40px rgba(255, 0, 0, 0.8);
+                transform: scale(1.05);
+            }
+        }
+
+        /* Fireworks Animation */
+        .fireworks {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .firework {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            animation: fireworkExplosion 2s ease-out forwards;
+        }
+
+        @keyframes fireworkExplosion {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(20);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(40);
+                opacity: 0;
+            }
+        }
+
+        /* Controls Info */
+        .controls {
+            background: rgba(255, 68, 68, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            color: #ffcccc;
+        }
+
+        /* Buttons */
+        .game-btn {
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+            box-shadow: 0 0 15px rgba(255, 68, 68, 0.3);
+        }
+
+        .game-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 68, 68, 0.5);
+        }
+
+        /* Back to Home */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 170, 255, 0.9);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .back-btn:hover {
+            background: rgba(0, 170, 255, 1);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 170, 255, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .monster-canvas {
+                width: 100%;
+                max-width: 350px;
+                height: auto;
+            }
+            
+            .game-info {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Player Setup Modal -->
+    <div class="modal" id="playerSetupModal">
+        <div class="modal-content">
+            <h2>👹 הכניסו את השם שלכם</h2>
+            <div class="player-input">
+                <label for="playerName">שם האדם (לפני ההפיכה):</label>
+                <input type="text" id="playerName" placeholder="הכניסו שם..." maxlength="15">
+            </div>
+            <button class="game-btn" onclick="startGameWithName()">🧪 התחל הפיכה!</button>
+        </div>
+    </div>
+
+    <!-- Fireworks Container -->
+    <div class="fireworks" id="fireworksContainer"></div>
+
+    <a href="../../gallery.html" class="back-btn">← חזרה לבית</a>
+    
+    <div class="game-container">
+        <h1>👹 משחק ההפיכה למפלצת</h1>
+        
+        <!-- Game Instructions -->
+        <div class="instructions">
+            <h3>📖 איך הופכים למפלצת?</h3>
+            <div class="instruction-steps">
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <span class="step-text">תזוזו עם החצים או WASD כדי לאסוף כדורי קסם 🔮</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <span class="step-text">כל כדור קסם מתקדם אתכם בשלב ההפיכה</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <span class="step-text">שלב 1: עיניים אדומות + מהירות 👁️</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <span class="step-text">שלב 2: צורה מפלצתית + כוח תקיפה 💪</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">5</span>
+                    <span class="step-text">שלב 3: מפלצת ענקית עם כוחות על! 👹</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">6</span>
+                    <span class="step-text">המטרה: הפיכה מלאה למפלצת הכי חזקה! 🏆</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-info">
+            <span class="player-name" id="playerNameDisplay">אדם</span>
+            <span class="score-info">כדורי קסם: <span id="monsterScore">0</span></span>
+            <span class="transformation-info">שלב: <span id="transformationLevel">אדם רגיל</span></span>
+        </div>
+        
+        <div class="canvas-container">
+            <!-- In-game UI -->
+            <div class="in-game-ui" id="inGameUI" style="display: none;">
+                <div class="ui-item">
+                    <span>👤 <span id="inGamePlayer">אדם</span></span>
+                </div>
+                <div class="ui-item">
+                    <span>🔮 <span id="inGameScore">0</span></span>
+                </div>
+                <div class="ui-item">
+                    <span>🧬 <span id="inGameLevel">אדם רגיל</span></span>
+                </div>
+                <div class="ui-item">
+                    <button class="pause-btn" onclick="toggleMonsterGame()" id="inGamePauseBtn">⏸️ הפסק</button>
+                </div>
+            </div>
+            
+            <!-- Game Overlay (Start Screen) -->
+            <div class="game-overlay" id="gameOverlay">
+                <h2>👹 משחק ההפיכה למפלצת</h2>
+                <p id="overlayMessage">מוכנים להפוך למפלצת?<br>אספו כדורי קסם ותרגישו את ההפיכה!</p>
+                <button class="start-btn" onclick="startMonsterFromOverlay()">🧪 התחל הפיכה</button>
+            </div>
+            
+            <canvas class="monster-canvas" id="monsterCanvas" width="500" height="400"></canvas>
+        </div>
+        
+        <div class="game-status" id="monsterStatus" style="display: none;">לחצו "התחל" כדי לשחק</div>
+        <div class="winner-display" id="monsterWinner"></div>
+        
+        <div class="controls">
+            🎮 חצים או WASD - תנועה | אספו כדורי קסם כחולים<br>
+            👤 התחלה: אדם רגיל קטן וחלש<br>
+            👁️ שלב 1: עיניים אדומות + מהירות מוגברת<br>
+            💪 שלב 2: צורה מפלצתית + כוח תקיפה<br>
+            👹 שלב 3: מפלצת ענקית עם כוחות על!
+        </div>
+        
+        <button class="game-btn" onclick="resetMonsterGame()">משחק חדש</button>
+    </div>
+
+    <script>
+        // Monster Transformation Game
+        const canvas = document.getElementById('monsterCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let monsterGameRunning = false;
+        let monsterScore = 0;
+        let transformationLevel = 0;
+        let player = { x: 250, y: 200, size: 20, vx: 0, vy: 0, speed: 3 };
+        let magicOrbs = [];
+        let monsterGameLoop;
+        let playerName = 'אדם';
+        let bestScore = 0;
+        let frameCount = 0;
+
+        // Transformation levels
+        const transformationNames = ['אדם רגיל', 'עיניים אדומות', 'מפלצת קטנה', 'מפלצת ענקית'];
+        const transformationThresholds = [0, 3, 7, 15];
+
+        // Show setup modal on page load
+        window.onload = function() {
+            document.getElementById('playerSetupModal').style.display = 'flex';
+        };
+
+        function startGameWithName() {
+            const name = document.getElementById('playerName').value.trim();
+            
+            if (name === '') {
+                alert('אנא הכניסו שם!');
+                return;
+            }
+            
+            playerName = name;
+            document.getElementById('playerNameDisplay').textContent = playerName;
+            document.getElementById('inGamePlayer').textContent = playerName;
+            
+            // Hide modal
+            document.getElementById('playerSetupModal').style.display = 'none';
+            
+            // Initialize game
+            initMonsterGame();
+            drawMonsterGame();
+            
+            // Show game overlay
+            document.getElementById('gameOverlay').style.display = 'flex';
+            document.getElementById('overlayMessage').innerHTML = `${playerName}, מוכנים להפוך למפלצת?<br>אספו כדורי קסם ותרגישו את ההפיכה!`;
+        }
+
+        function startMonsterFromOverlay() {
+            // Hide overlay and show in-game UI
+            document.getElementById('gameOverlay').style.display = 'none';
+            document.getElementById('inGameUI').style.display = 'flex';
+            
+            // Start the game
+            startMonsterGame();
+        }
+
+        function showGameOverlay(message, showStartButton = true) {
+            document.getElementById('gameOverlay').style.display = 'flex';
+            document.getElementById('overlayMessage').innerHTML = message;
+            
+            const startBtn = document.querySelector('.start-btn');
+            if (showStartButton) {
+                startBtn.style.display = 'block';
+                startBtn.textContent = '🧪 הפוך שוב';
+                startBtn.onclick = startMonsterFromOverlay;
+            } else {
+                startBtn.style.display = 'none';
+            }
+        }
+
+        function initMonsterGame() {
+            monsterScore = 0;
+            transformationLevel = 0;
+            player = { x: 250, y: 200, size: 20, vx: 0, vy: 0, speed: 3 };
+            magicOrbs = [];
+            frameCount = 0;
+            
+            updateMonsterDisplay();
+        }
+
+        function drawMonsterGame() {
+            // Clear canvas with dark mysterious background
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#1a1a2e');
+            gradient.addColorStop(0.5, '#16213e');
+            gradient.addColorStop(1, '#0f3460');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw mysterious fog effect
+            ctx.fillStyle = 'rgba(100, 0, 150, 0.1)';
+            for (let i = 0; i < 20; i++) {
+                const x = (i * 73 + frameCount * 0.5) % canvas.width;
+                const y = (i * 47 + frameCount * 0.3) % canvas.height;
+                ctx.beginPath();
+                ctx.arc(x, y, 30 + Math.sin(frameCount * 0.01 + i) * 10, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+            
+            // Draw magic orbs
+            magicOrbs.forEach(orb => {
+                ctx.save();
+                ctx.translate(orb.x, orb.y);
+                
+                // Orb glow
+                ctx.shadowColor = '#4444ff';
+                ctx.shadowBlur = 15;
+                
+                // Orb body
+                const orbGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, orb.radius);
+                orbGradient.addColorStop(0, '#8888ff');
+                orbGradient.addColorStop(0.7, '#4444ff');
+                orbGradient.addColorStop(1, '#0000aa');
+                
+                ctx.fillStyle = orbGradient;
+                ctx.beginPath();
+                ctx.arc(0, 0, orb.radius, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Orb sparkle
+                ctx.fillStyle = '#ffffff';
+                ctx.shadowBlur = 5;
+                ctx.beginPath();
+                ctx.arc(-orb.radius/3, -orb.radius/3, 2, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                ctx.restore();
+            });
+            
+            // Draw player based on transformation level
+            drawPlayer();
+        }
+
+        function drawPlayer() {
+            ctx.save();
+            ctx.translate(player.x, player.y);
+            
+            if (transformationLevel === 0) {
+                // Human - simple figure
+                ctx.fillStyle = '#ffdbac';
+                ctx.shadowColor = '#fff';
+                ctx.shadowBlur = 5;
+                
+                // Head
+                ctx.beginPath();
+                ctx.arc(0, -player.size/2, player.size/3, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Body
+                ctx.fillStyle = '#4169e1';
+                ctx.fillRect(-player.size/4, -player.size/4, player.size/2, player.size/2);
+                
+                // Eyes
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(-3, -player.size/2, 1, 0, 2 * Math.PI);
+                ctx.arc(3, -player.size/2, 1, 0, 2 * Math.PI);
+                ctx.fill();
+                
+            } else if (transformationLevel === 1) {
+                // Red eyes transformation
+                ctx.fillStyle = '#ffdbac';
+                ctx.shadowColor = '#ff0000';
+                ctx.shadowBlur = 10;
+                
+                // Head (slightly larger)
+                ctx.beginPath();
+                ctx.arc(0, -player.size/2, player.size/2.5, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Body
+                ctx.fillStyle = '#4169e1';
+                ctx.fillRect(-player.size/4, -player.size/4, player.size/2, player.size/2);
+                
+                // Red glowing eyes
+                ctx.fillStyle = '#ff0000';
+                ctx.shadowColor = '#ff0000';
+                ctx.shadowBlur = 15;
+                ctx.beginPath();
+                ctx.arc(-4, -player.size/2, 3, 0, 2 * Math.PI);
+                ctx.arc(4, -player.size/2, 3, 0, 2 * Math.PI);
+                ctx.fill();
+                
+            } else if (transformationLevel === 2) {
+                // Monster form
+                ctx.fillStyle = '#228B22';
+                ctx.shadowColor = '#00ff00';
+                ctx.shadowBlur = 15;
+                
+                // Monster head (larger, irregular)
+                ctx.beginPath();
+                for (let i = 0; i < 8; i++) {
+                    const angle = (i / 8) * Math.PI * 2;
+                    const radius = player.size/2 + Math.sin(angle * 3 + frameCount * 0.1) * 3;
+                    const x = Math.cos(angle) * radius;
+                    const y = Math.sin(angle) * radius - player.size/3;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.closePath();
+                ctx.fill();
+                
+                // Monster body
+                ctx.fillStyle = '#006400';
+                ctx.fillRect(-player.size/3, -player.size/4, player.size*0.66, player.size*0.75);
+                
+                // Glowing red eyes
+                ctx.fillStyle = '#ff0000';
+                ctx.shadowColor = '#ff0000';
+                ctx.shadowBlur = 20;
+                ctx.beginPath();
+                ctx.arc(-6, -player.size/2, 4, 0, 2 * Math.PI);
+                ctx.arc(6, -player.size/2, 4, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Claws
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(-player.size/2, 0);
+                ctx.lineTo(-player.size/2 - 8, -5);
+                ctx.moveTo(-player.size/2, 5);
+                ctx.lineTo(-player.size/2 - 8, 10);
+                ctx.moveTo(player.size/2, 0);
+                ctx.lineTo(player.size/2 + 8, -5);
+                ctx.moveTo(player.size/2, 5);
+                ctx.lineTo(player.size/2 + 8, 10);
+                ctx.stroke();
+                
+            } else if (transformationLevel >= 3) {
+                // Giant monster
+                const size = player.size * 1.5;
+                ctx.fillStyle = '#8B0000';
+                ctx.shadowColor = '#ff0000';
+                ctx.shadowBlur = 25;
+                
+                // Giant monster head
+                ctx.beginPath();
+                for (let i = 0; i < 12; i++) {
+                    const angle = (i / 12) * Math.PI * 2;
+                    const radius = size/2 + Math.sin(angle * 4 + frameCount * 0.15) * 5;
+                    const x = Math.cos(angle) * radius;
+                    const y = Math.sin(angle) * radius - size/3;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.closePath();
+                ctx.fill();
+                
+                // Giant monster body
+                ctx.fillStyle = '#4B0000';
+                ctx.fillRect(-size/2, -size/4, size, size);
+                
+                // Burning red eyes
+                ctx.fillStyle = '#ff0000';
+                ctx.shadowColor = '#ff0000';
+                ctx.shadowBlur = 30;
+                ctx.beginPath();
+                ctx.arc(-8, -size/2, 6, 0, 2 * Math.PI);
+                ctx.arc(8, -size/2, 6, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Fire effect around eyes
+                ctx.fillStyle = '#ff4444';
+                for (let i = 0; i < 6; i++) {
+                    const angle = (i / 6) * Math.PI * 2 + frameCount * 0.2;
+                    const x = Math.cos(angle) * 15;
+                    const y = Math.sin(angle) * 10 - size/2;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 2, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+                
+                // Large claws
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 3;
+                ctx.shadowBlur = 10;
+                ctx.beginPath();
+                ctx.moveTo(-size/2, 0);
+                ctx.lineTo(-size/2 - 15, -10);
+                ctx.moveTo(-size/2, 8);
+                ctx.lineTo(-size/2 - 15, 18);
+                ctx.moveTo(-size/2, -8);
+                ctx.lineTo(-size/2 - 15, -18);
+                ctx.moveTo(size/2, 0);
+                ctx.lineTo(size/2 + 15, -10);
+                ctx.moveTo(size/2, 8);
+                ctx.lineTo(size/2 + 15, 18);
+                ctx.moveTo(size/2, -8);
+                ctx.lineTo(size/2 + 15, -18);
+                ctx.stroke();
+            }
+            
+            ctx.restore();
+        }
+
+        function updateMonsterGame() {
+            if (!monsterGameRunning) return;
+            
+            frameCount++;
+            
+            // Update player position
+            player.x += player.vx;
+            player.y += player.vy;
+            
+            // Keep player in bounds
+            player.x = Math.max(player.size, Math.min(canvas.width - player.size, player.x));
+            player.y = Math.max(player.size, Math.min(canvas.height - player.size, player.y));
+            
+            // Generate magic orbs
+            if (frameCount % 120 === 0) {
+                magicOrbs.push({
+                    x: Math.random() * (canvas.width - 60) + 30,
+                    y: Math.random() * (canvas.height - 60) + 30,
+                    radius: 12,
+                    pulsePhase: Math.random() * Math.PI * 2
+                });
+            }
+            
+            // Update magic orbs
+            magicOrbs.forEach((orb, index) => {
+                orb.pulsePhase += 0.1;
+                orb.radius = 12 + Math.sin(orb.pulsePhase) * 2;
+                
+                // Check collision with player
+                const dx = player.x - orb.x;
+                const dy = player.y - orb.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < player.size + orb.radius) {
+                    magicOrbs.splice(index, 1);
+                    monsterScore++;
+                    
+                    // Check for transformation
+                    const newLevel = getTransformationLevel(monsterScore);
+                    if (newLevel > transformationLevel) {
+                        transformationLevel = newLevel;
+                        
+                        // Update player properties based on transformation
+                        if (transformationLevel === 1) {
+                            player.speed = 4; // Faster movement
+                        } else if (transformationLevel === 2) {
+                            player.speed = 5;
+                            player.size = 25; // Bigger
+                        } else if (transformationLevel >= 3) {
+                            player.speed = 6;
+                            player.size = 30; // Even bigger
+                            
+                            // Check for ultimate transformation (win condition)
+                            if (monsterScore >= 25) {
+                                monsterGameWin();
+                                return;
+                            }
+                        }
+                        
+                        // Show transformation message
+                        showTransformationMessage(transformationLevel);
+                    }
+                    
+                    updateMonsterDisplay();
+                }
+            });
+            
+            drawMonsterGame();
+        }
+
+        function getTransformationLevel(score) {
+            for (let i = transformationThresholds.length - 1; i >= 0; i--) {
+                if (score >= transformationThresholds[i]) {
+                    return i;
+                }
+            }
+            return 0;
+        }
+
+        function showTransformationMessage(level) {
+            const messages = [
+                '',
+                '👁️ עיניים אדומות! מהירות מוגברת!',
+                '💪 הפיכה למפלצת! כוח חדש!',
+                '👹 מפלצת ענקית! כוחות על!'
+            ];
+            
+            if (messages[level]) {
+                // Briefly pause game and show message
+                monsterGameRunning = false;
+                showGameOverlay(messages[level], false);
+                
+                setTimeout(() => {
+                    document.getElementById('gameOverlay').style.display = 'none';
+                    monsterGameRunning = true;
+                }, 2000);
+            }
+        }
+
+        function startMonsterGame() {
+            if (monsterGameRunning) return;
+            
+            monsterGameRunning = true;
+            document.getElementById('inGamePauseBtn').textContent = '⏸️ הפסק';
+            
+            monsterGameLoop = setInterval(updateMonsterGame, 16); // ~60 FPS
+        }
+
+        function stopMonsterGame() {
+            monsterGameRunning = false;
+            clearInterval(monsterGameLoop);
+            document.getElementById('inGamePauseBtn').textContent = '▶️ המשך';
+        }
+
+        function toggleMonsterGame() {
+            if (monsterGameRunning) {
+                stopMonsterGame();
+            } else {
+                startMonsterGame();
+            }
+        }
+
+        function monsterGameWin() {
+            monsterGameRunning = false;
+            clearInterval(monsterGameLoop);
+            
+            // Hide in-game UI
+            document.getElementById('inGameUI').style.display = 'none';
+            
+            // Check for new best score
+            if (monsterScore > bestScore) {
+                bestScore = monsterScore;
+                
+                // Show celebration overlay
+                showGameOverlay(`🎊 ${playerName} הפך למפלצת אולטימטיבית! 🎊<br>🏆 ${monsterScore} כדורי קסם! הפיכה מושלמת! 🏆`, true);
+                createFireworks();
+            } else {
+                showGameOverlay(`🎉 הפיכה מושלמת! 🎉<br>אספת ${monsterScore} כדורי קסם<br>שיא: ${bestScore}`, true);
+            }
+        }
+
+        function resetMonsterGame() {
+            monsterGameRunning = false;
+            clearInterval(monsterGameLoop);
+            
+            // Hide in-game UI
+            document.getElementById('inGameUI').style.display = 'none';
+            
+            initMonsterGame();
+            drawMonsterGame();
+            
+            // Show start overlay
+            document.getElementById('gameOverlay').style.display = 'flex';
+            document.getElementById('overlayMessage').innerHTML = `${playerName}, מוכנים להפוך למפלצת?<br>אספו כדורי קסם ותרגישו את ההפיכה!`;
+            
+            const startBtn = document.querySelector('.start-btn');
+            startBtn.style.display = 'block';
+            startBtn.textContent = '🧪 התחל הפיכה';
+            startBtn.onclick = startMonsterFromOverlay;
+            
+            // Clear winner display and fireworks
+            document.getElementById('monsterWinner').textContent = '';
+            document.getElementById('monsterWinner').className = 'winner-display';
+            document.getElementById('fireworksContainer').innerHTML = '';
+        }
+
+        function updateMonsterDisplay() {
+            document.getElementById('monsterScore').textContent = monsterScore;
+            document.getElementById('transformationLevel').textContent = transformationNames[transformationLevel];
+            document.getElementById('inGameScore').textContent = monsterScore;
+            document.getElementById('inGameLevel').textContent = transformationNames[transformationLevel];
+        }
+
+        // Controls
+        const keys = {};
+        
+        document.addEventListener('keydown', (e) => {
+            keys[e.key.toLowerCase()] = true;
+            
+            if (monsterGameRunning) {
+                player.vx = 0;
+                player.vy = 0;
+                
+                if (keys['arrowleft'] || keys['a']) player.vx = -player.speed;
+                if (keys['arrowright'] || keys['d']) player.vx = player.speed;
+                if (keys['arrowup'] || keys['w']) player.vy = -player.speed;
+                if (keys['arrowdown'] || keys['s']) player.vy = player.speed;
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            keys[e.key.toLowerCase()] = false;
+            
+            if (monsterGameRunning) {
+                player.vx = 0;
+                player.vy = 0;
+                
+                if (keys['arrowleft'] || keys['a']) player.vx = -player.speed;
+                if (keys['arrowright'] || keys['d']) player.vx = player.speed;
+                if (keys['arrowup'] || keys['w']) player.vy = -player.speed;
+                if (keys['arrowdown'] || keys['s']) player.vy = player.speed;
+            }
+        });
+
+        // Fireworks animation
+        function createFireworks() {
+            const container = document.getElementById('fireworksContainer');
+            const colors = ['#ff0000', '#ff4444', '#ff6666', '#ff8888', '#ffaaaa', '#cc0000', '#880000'];
+            
+            for (let i = 0; i < 25; i++) {
+                setTimeout(() => {
+                    const firework = document.createElement('div');
+                    firework.className = 'firework';
+                    firework.style.left = Math.random() * 100 + '%';
+                    firework.style.top = Math.random() * 100 + '%';
+                    firework.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    container.appendChild(firework);
+                    
+                    // Remove firework after animation
+                    setTimeout(() => {
+                        if (firework.parentNode) {
+                            firework.parentNode.removeChild(firework);
+                        }
+                    }, 2000);
+                }, i * 150);
+            }
+        }
+    </script>
+</body>
+</html>

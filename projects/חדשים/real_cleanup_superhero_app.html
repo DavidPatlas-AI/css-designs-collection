@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>פחית גיבורי-העל - ניקיון אמיתי! 🦸‍♂️</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+      background: linear-gradient(135deg, #4CAF50, #8BC34A, #CDDC39);
+      color: white;
+      overflow-x: hidden;
+      min-height: 100vh;
+      user-select: none;
+    }
+
+    .app-header {
+      background: rgba(0,0,0,0.3);
+      padding: 15px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .app-title {
+      font-size: 1.8em;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .app-subtitle {
+      font-size: 1em;
+      opacity: 0.9;
+    }
+
+    .container {
+      padding: 20px;
+      max-width: 500px;
+      margin: 0 auto;
+      padding-bottom: 100px;
+    }
+
+    .screen {
+      display: none;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(15px);
+      border-radius: 20px;
+      padding: 25px;
+      margin: 20px 0;
+      border: 1px solid rgba(255,255,255,0.2);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+
+    .camera-container {
+      background: rgba(0,0,0,0.7);
+      border-radius: 15px;
+      padding: 15px;
+      margin: 20px 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .camera-view {
+      width: 100%;
+      height: 300px;
+      border-radius: 10px;
+      background: #000;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .camera-feed {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .camera-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.5);
+      color: white;
+      font-size: 1.2em;
+      border-radius: 10px;
+    }
+
+    .capture-controls {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin: 15px 0;
+    }
+
+    .capture-btn {
+      background: linear-gradient(45deg, #ff4757, #ff6b7a);
+      border: none;
+      border-radius: 50%;
+      width: 70px;
+      height: 70px;
+      color: white;
+      font-size: 1.8em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(255,71,87,0.3);
+    }
+
+    .capture-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 20px rgba(255,71,87,0.4);
+    }
+
+    .btn {
+      background: linear-gradient(45deg, #2196F3, #64B5F6);
+      border: none;
+      padding: 15px 25px;
+      border-radius: 25px;
+      color: white;
+      font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin: 10px 5px;
+      box-shadow: 0 4px 15px rgba(33,150,243,0.3);
+      width: 100%;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(33,150,243,0.4);
+    }
+
+    .btn.success {
+      background: linear-gradient(45deg, #4CAF50, #81C784);
+    }
+
+    .btn.warning {
+      background: linear-gradient(45deg, #FF9800, #FFB74D);
+    }
+
+    .mission-grid {
+      display: grid;
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .mission-card {
+      background: rgba(255,255,255,0.1);
+      border-radius: 15px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+      position: relative;
+    }
+
+    .mission-card:hover {
+      background: rgba(255,255,255,0.2);
+      transform: translateY(-3px);
+    }
+
+    .mission-card.active {
+      border-color: #FFD700;
+      background: rgba(255,215,0,0.2);
+      box-shadow: 0 0 20px rgba(255,215,0,0.3);
+    }
+
+    .mission-card.completed {
+      background: rgba(76,175,80,0.3);
+      border-color: #4CAF50;
+    }
+
+    .mission-status {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 1.5em;
+    }
+
+    .mission-icon {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .mission-title {
+      font-size: 1.2em;
+      font-weight: bold;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .mission-description {
+      font-size: 0.9em;
+      opacity: 0.8;
+      line-height: 1.4;
+      text-align: center;
+    }
+
+    .mission-timer {
+      background: rgba(255,255,255,0.2);
+      border-radius: 10px;
+      padding: 10px;
+      margin: 10px 0;
+      text-align: center;
+      font-size: 1.1em;
+      font-weight: bold;
+    }
+
+    .progress-bar {
+      background: rgba(255,255,255,0.2);
+      border-radius: 10px;
+      height: 20px;
+      margin: 15px 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      background: linear-gradient(45deg, #FFD700, #FFC107);
+      height: 100%;
+      border-radius: 10px;
+      transition: width 0.5s ease;
+      position: relative;
+    }
+
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      animation: progressShine 2s ease-in-out infinite;
+    }
+
+    @keyframes progressShine {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .stat-card {
+      background: rgba(255,255,255,0.1);
+      border-radius: 15px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2.5em;
+      font-weight: bold;
+      color: #FFD700;
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      font-size: 0.9em;
+      opacity: 0.8;
+    }
+
+    .photo-gallery {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .photo-item {
+      aspect-ratio: 1;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .photo-item:hover {
+      transform: scale(1.05);
+    }
+
+    .photo-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .photo-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,0.8));
+      color: white;
+      padding: 10px;
+      font-size: 0.8em;
+    }
+
+    .location-tracker {
+      background: rgba(255,255,255,0.1);
+      border-radius: 15px;
+      padding: 15px;
+      margin: 15px 0;
+      text-align: center;
+    }
+
+    .location-info {
+      font-size: 1.1em;
+      margin: 5px 0;
+    }
+
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(76,175,80,0.95);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 10px;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      z-index: 1000;
+      max-width: 300px;
+    }
+
+    .notification.show {
+      transform: translateX(0);
+    }
+
+    .notification.error {
+      background: rgba(244,67,54,0.95);
+    }
+
+    .navigation {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0,0,0,0.3);
+      backdrop-filter: blur(15px);
+      display: flex;
+      justify-content: space-around;
+      padding: 15px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      padding: 10px;
+      border-radius: 10px;
+      text-align: center;
+      min-width: 60px;
+    }
+
+    .nav-btn.active {
+      background: rgba(255,255,255,0.2);
+      color: #FFD700;
+    }
+
+    .hero-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5em;
+      margin: 0 auto 15px;
+      border: 3px solid #FFD700;
+      animation: heroGlow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes heroGlow {
+      from { box-shadow: 0 0 20px rgba(255,215,0,0.5); }
+      to { box-shadow: 0 0 30px rgba(255,215,0,0.8); }
+    }
+
+    .achievement-badge {
+      background: linear-gradient(45deg, #FFD700, #FFC107);
+      color: #333;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 0.8em;
+      font-weight: bold;
+      margin: 5px;
+      display: inline-block;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 10px;
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .photo-gallery {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    /* Back button styles */
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(0, 170, 255, 0.9);
+      color: white;
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .back-btn:hover {
+      background: rgba(0, 170, 255, 1);
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 5px 15px rgba(0, 170, 255, 0.4);
+    }
+  </style>
+</head>
+<body>
+     <a href="../../gallery.html" class="back-btn">← חזרה לבית</a>
+
+  <div class="app-header">
+    <div class="app-title">🦸‍♂️ פחית גיבורי-העל 🌍</div>
+    <div class="app-subtitle">ניקיון אמיתי לעולם אמיתי!</div>
+  </div>
+
+  <div class="container">
+    <!-- מסך ראשי -->
+    <div class="screen active" id="homeScreen">
+      <div class="card">
+        <div class="hero-avatar" id="heroAvatar">🥫</div>
+        <h2 style="text-align: center; margin-bottom: 15px;">ברוכים הבאים, גיבורי-העל!</h2>
+        <p style="text-align: center; margin-bottom: 20px; opacity: 0.9;">
+          זמן להפוך לגיבורי סביבה אמיתיים! צאו החוצה ונקו את העולם.
+        </p>
+        
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="totalCleanups">0</div>
+            <div class="stat-label">ניקיונות הושלמו</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="totalPoints">0</div>
+            <div class="stat-label">נקודות סביבה</div>
+          </div>
+        </div>
+
+        <div class="progress-bar">
+          <div class="progress-fill" id="heroProgress" style="width: 0%"></div>
+        </div>
+        <div style="text-align: center; margin-top: 10px; opacity: 0.8;">
+          התקדמות להצלת העולם
+        </div>
+      </div>
+    </div>
+
+    <!-- מסך משימות -->
+    <div class="screen" id="missionsScreen">
+      <div class="card">
+        <h2>🎯 משימות ניקיון אמיתיות</h2>
+        <p style="margin: 15px 0; opacity: 0.9;">
+          בחרו משימה, צאו החוצה, ותצלמו את הניקיון שלכם!
+        </p>
+
+        <div class="mission-grid" id="missionsList">
+          <!-- משימות יתווספו כאן -->
+        </div>
+      </div>
+    </div>
+
+    <!-- מסך מצלמה -->
+    <div class="screen" id="cameraScreen">
+      <div class="card">
+        <h2 id="missionTitle">📷 תעדו את הניקיון שלכם</h2>
+        <p id="missionInstructions" style="margin: 15px 0; opacity: 0.9;">
+          צלמו תמונות "לפני" ו"אחרי" של הניקיון שלכם
+        </p>
+
+        <div class="mission-timer" id="missionTimer" style="display: none;">
+          ⏱️ זמן משימה: <span id="timeLeft">10:00</span>
+        </div>
+
+        <div class="location-tracker" id="locationTracker">
+          <div class="location-info">📍 מיקום: <span id="currentLocation">מחפש מיקום...</span></div>
+        </div>
+
+        <div class="camera-container">
+          <div class="camera-view">
+            <video class="camera-feed" id="videoElement" autoplay style="display: none;"></video>
+            <canvas id="photoCanvas" style="display: none;"></canvas>
+            <div class="camera-overlay" id="cameraOverlay">
+              <div style="text-align: center;">
+                <div style="font-size: 2em; margin-bottom: 10px;">📱</div>
+                <div>לחצו להפעלת המצלמה</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="capture-controls">
+            <button class="capture-btn" id="startCameraBtn" onclick="startCamera()">📷</button>
+            <button class="capture-btn" id="captureBtn" onclick="capturePhoto()" style="display: none;">📸</button>
+            <button class="capture-btn" id="stopCameraBtn" onclick="stopCamera()" style="display: none;">⏹️</button>
+          </div>
+        </div>
+
+        <div style="margin: 20px 0;">
+          <button class="btn" id="beforePhotoBtn" onclick="takeBeforePhoto()" disabled>
+            📸 צלמו "לפני" הניקיון
+          </button>
+          <button class="btn" id="afterPhotoBtn" onclick="takeAfterPhoto()" disabled style="display: none;">
+            📸 צלמו "אחרי" הניקיון
+          </button>
+          <button class="btn success" id="completeMissionBtn" onclick="completeMission()" disabled style="display: none;">
+            ✅ השלימו משימה
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- מסך גלריה -->
+    <div class="screen" id="galleryScreen">
+      <div class="card">
+        <h2>📸 גלריית הניקיונות שלכם</h2>
+        <p style="margin: 15px 0; opacity: 0.9;">
+          כל התמונות מהמשימות שהשלמתם
+        </p>
+
+        <div class="photo-gallery" id="photoGallery">
+          <!-- תמונות יתווספו כאן -->
+        </div>
+
+        <div style="text-align: center; margin: 20px 0;">
+          <button class="btn" onclick="shareGallery()">📤 שתפו את הגלריה</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- מסך פרופיל -->
+    <div class="screen" id="profileScreen">
+      <div class="card">
+        <div class="hero-avatar" id="profileAvatar">🥫</div>
+        <h2 style="text-align: center;">הפרופיל שלכם</h2>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="profileMissions">0</div>
+            <div class="stat-label">משימות</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="profileLevel">1</div>
+            <div class="stat-label">רמה</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="profilePhotos">0</div>
+            <div class="stat-label">תמונות</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="profileDays">0</div>
+            <div class="stat-label">ימי פעילות</div>
+          </div>
+        </div>
+
+        <h3>🏅 ההישגים שלכם</h3>
+        <div id="achievementsList">
+          <!-- הישגים יתווספו כאן -->
+        </div>
+
+        <div style="margin: 20px 0;">
+          <button class="btn warning" onclick="resetAllData()">🔄 איפוס נתונים</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ניווט -->
+  <div class="navigation">
+    <button class="nav-btn active" onclick="showScreen('homeScreen', this)">
+      🏠<br><small>בית</small>
+    </button>
+    <button class="nav-btn" onclick="showScreen('missionsScreen', this)">
+      🎯<br><small>משימות</small>
+    </button>
+    <button class="nav-btn" onclick="showScreen('cameraScreen', this)">
+      📷<br><small>מצלמה</small>
+    </button>
+    <button class="nav-btn" onclick="showScreen('galleryScreen', this)">
+      📸<br><small>גלריה</small>
+    </button>
+    <button class="nav-btn" onclick="showScreen('profileScreen', this)">
+      👤<br><small>פרופיל</small>
+    </button>
+  </div>
+
+  <!-- התראה -->
+  <div class="notification" id="notification"></div>
+
+  <script>
+    // משתנים גלובליים
+    let gameData = {
+      totalCleanups: 0,
+      totalPoints: 0,
+      completedMissions: [],
+      photos: [],
+      currentMission: null,
+      beforePhoto: null,
+      afterPhoto: null,
+      startTime: null
+    };
+
+    let videoStream = null;
+    let currentLocation = null;
+    let missionTimer = null;
+
+    // נתוני משימות אמיתיות
+    const realMissions = [
+      {
+        id: 'park-cleanup',
+        icon: '🏞️',
+        title: 'ניקוי פארק שכונתי',
+        description: 'אספו זבל בפארק הקרוב ותצלמו לפני ואחרי',
+        points: 100,
+        timeLimit: 20, // דקות
+        type: 'outdoor'
+      },
+      {
+        id: 'beach-cleanup',
+        icon: '🏖️',
+        title: 'ניקוי חוף הים',
+        description: 'נקו פסולת מהחוף ותעדו את השינוי',
+        points: 150,
+        timeLimit: 30,
+        type: 'outdoor'
+      },
+      {
+        id: 'street-cleanup',
+        icon: '🛣️',
+        title: 'ניקוי רחוב',
+        description: 'נקו מדרכה או רחוב בשכונה שלכם',
+        points: 80,
+        timeLimit: 15,
+        type: 'outdoor'
+      },
+      {
+        id: 'garden-cleanup',
+        icon: '🌱',
+        title: 'ניקוי גינה',
+        description: 'נקו גינה ציבורית או פרטית',
+        points: 120,
+        timeLimit: 25,
+        type: 'outdoor'
+      },
+      {
+        id: 'recycle-mission',
+        icon: '♻️',
+        title: 'מיחזור ביתי',
+        description: 'מיינו ומחזרו פסולת בבית',
+        points: 60,
+        timeLimit: 10,
+        type: 'indoor'
+      },
+      {
+        id: 'room-cleanup',
+        icon: '🏠',
+        title: 'ניקוי חדר',
+        description: 'נקו וארגנו חדר בבית',
+        points: 40,
+        timeLimit: 15,
+        type: 'indoor'
+      },
+      {
+        id: 'air-quality-trees',
+        icon: '🌳',
+        title: 'שתילה לאוויר נקי',
+        description: 'שתלו עץ או צמחים לשיפור איכות האוויר',
+        points: 200,
+        timeLimit: 45,
+        type: 'air-quality'
+      },
+      {
+        id: 'car-free-day',
+        icon: '🚶‍♂️',
+        title: 'יום ללא מכונית',
+        description: 'הליכה/אופניים במקום מכונית - תעדו את המסלול',
+        points: 100,
+        timeLimit: 60,
+        type: 'air-quality'
+      },
+      {
+        id: 'smoke-report',
+        icon: '🚭',
+        title: 'דיווח על זיהום אוויר',
+        description: 'תעדו מקורות זיהום אוויר בסביבה (עשן, פליטות)',
+        points: 80,
+        timeLimit: 20,
+        type: 'air-quality'
+      },
+      {
+        id: 'indoor-plants',
+        icon: '🪴',
+        title: 'צמחי בית לאוויר נקי',
+        description: 'הוסיפו צמחים בבית לשיפור איכות האוויר הפנימי',
+        points: 70,
+        timeLimit: 30,
+        type: 'air-quality'
+      },
+      {
+        id: 'energy-saving',
+        icon: '💡',
+        title: 'חיסכון באנרגיה',
+        description: 'כבו מכשירים חשמליים מיותרים - תעדו לפני ואחרי',
+        points: 60,
+        timeLimit: 15,
+        type: 'air-quality'
+      },
+      {
+        id: 'public-transport',
+        icon: '🚌',
+        title: 'תחבורה ציבורית',
+        description: 'השתמשו בתחבורה ציבורית וצלמו את הנסיעה',
+        points: 90,
+        timeLimit: 60,
+        type: 'air-quality'
+      },
+      {
+        id: 'air-monitor',
+        icon: '🌬️',
+        title: 'מעקב איכות אוויר',
+        description: 'בדקו איכות אוויר באזורכם ותעדו את הממצאים',
+        points: 110,
+        timeLimit: 25,
+        type: 'air-quality'
+      },
+      {
+        id: 'anti-pollution-action',
+        icon: '😷',
+        title: 'פעולה נגד זיהום',
+        description: 'ארגנו פעולה קהילתית למניעת זיהום אוויר',
+        points: 250,
+        timeLimit: 90,
+        type: 'air-quality'
+      }
+    ];
+
+    // פונקציות UI
+    function showScreen(screenId, button) {
+      // הסתר כל המסכים
+      document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
+      });
+      
+      // הצג מסך נבחר
+      document.getElementById(screenId).classList.add('active');
+      
+      // עדכן ניווט
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      if (button) button.classList.add('active');
+      
+      // עדכן תוכן
+      if (screenId === 'homeScreen') {
+        updateHomeScreen();
+      } else if (screenId === 'missionsScreen') {
+        updateMissionsScreen();
+      } else if (screenId === 'galleryScreen') {
+        updateGallery();
+      } else if (screenId === 'profileScreen') {
+        updateProfile();
+      }
+    }
+
+    function updateHomeScreen() {
+      document.getElementById('totalCleanups').textContent = gameData.totalCleanups;
+      document.getElementById('totalPoints').textContent = gameData.totalPoints;
+      
+      const progress = Math.min((gameData.totalPoints / 1000) * 100, 100);
+      document.getElementById('heroProgress').style.width = progress + '%';
+    }
+
+    function updateMissionsScreen() {
+      const missionsList = document.getElementById('missionsList');
+      missionsList.innerHTML = '';
+      
+      // קבוצות משימות
+      const missionGroups = {
+        'outdoor': { title: '🌍 ניקיון חוץ', missions: [] },
+        'indoor': { title: '🏠 ניקיון בית', missions: [] },
+        'air-quality': { title: '🌬️ איכות אוויר', missions: [] }
+      };
+      
+      // חלק משימות לקבוצות
+      realMissions.forEach(mission => {
+        missionGroups[mission.type].missions.push(mission);
+      });
+      
+      // הצג כל קבוצה
+      Object.keys(missionGroups).forEach(groupKey => {
+        const group = missionGroups[groupKey];
+        if (group.missions.length === 0) return;
+        
+        // כותרת קבוצה
+        const groupTitle = document.createElement('div');
+        groupTitle.style.cssText = `
+          font-size: 1.3em;
+          font-weight: bold;
+          margin: 25px 0 15px 0;
+          padding: 10px;
+          background: rgba(255,255,255,0.1);
+          border-radius: 10px;
+          text-align: center;
+        `;
+        groupTitle.textContent = group.title;
+        missionsList.appendChild(groupTitle);
+        
+        // משימות הקבוצה
+        group.missions.forEach(mission => {
+          const isCompleted = gameData.completedMissions.includes(mission.id);
+          
+          const missionCard = document.createElement('div');
+          missionCard.className = `mission-card ${isCompleted ? 'completed' : ''}`;
+          
+          if (!isCompleted) {
+            missionCard.onclick = () => selectMission(mission);
+          }
+          
+          // צבע רקע לפי סוג
+          let bgColor = 'rgba(255,255,255,0.1)';
+          if (mission.type === 'air-quality') {
+            bgColor = 'rgba(173,216,230,0.2)'; // כחול בהיר
+          } else if (mission.type === 'outdoor') {
+            bgColor = 'rgba(144,238,144,0.2)'; // ירוק בהיר
+          } else if (mission.type === 'indoor') {
+            bgColor = 'rgba(255,228,181,0.2)'; // כתום בהיר
+          }
+          
+          if (!isCompleted) {
+            missionCard.style.background = bgColor;
+          }
+          
+          missionCard.innerHTML = `
+            <div class="mission-status">${isCompleted ? '✅' : '🎯'}</div>
+            <div class="mission-icon">${mission.icon}</div>
+            <div class="mission-title">${mission.title}</div>
+            <div class="mission-description">${mission.description}</div>
+            <div style="margin-top: 10px; font-size: 0.8em; opacity: 0.7;">
+              ${isCompleted ? 'הושלם!' : `${mission.points} נקודות | ${mission.timeLimit} דקות`}
+            </div>
+          `;
+          
+          missionsList.appendChild(missionCard);
+        });
+      });
+    }
+
+    function selectMission(mission) {
+      gameData.currentMission = mission;
+      gameData.beforePhoto = null;
+      gameData.afterPhoto = null;
+      
+      // עדכן מסך מצלמה
+      document.getElementById('missionTitle').textContent = `📷 ${mission.title}`;
+      document.getElementById('missionInstructions').textContent = mission.description;
+      
+      // אפס כפתורים
+      document.getElementById('beforePhotoBtn').disabled = false;
+      document.getElementById('afterPhotoBtn').style.display = 'none';
+      document.getElementById('completeMissionBtn').style.display = 'none';
+      
+      showScreen('cameraScreen', document.querySelectorAll('.nav-btn')[2]);
+      showNotification(`משימה נבחרה: ${mission.title}! 🎯`);
+      
+      // התחל טיימר
+      startMissionTimer(mission.timeLimit);
+      
+      // קבל מיקום
+      getCurrentLocation();
+    }
+
+    function startMissionTimer(minutes) {
+      gameData.startTime = Date.now();
+      let timeLeft = minutes * 60; // המרה לשניות
+      
+      const timerElement = document.getElementById('missionTimer');
+      const timeLeftElement = document.getElementById('timeLeft');
+      timerElement.style.display = 'block';
+      
+      missionTimer = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - gameData.startTime) / 1000);
+        const remaining = Math.max(0, timeLeft - elapsed);
+        
+        const mins = Math.floor(remaining / 60);
+        const secs = remaining % 60;
+        timeLeftElement.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+        
+        if (remaining <= 0) {
+          clearInterval(missionTimer);
+          showNotification('⏰ הזמן נגמר! אבל אתם עדיין יכולים להמשיך', 'error');
+        }
+      }, 1000);
+    }
+
+    function getCurrentLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            currentLocation = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+            document.getElementById('currentLocation').textContent = 
+              `${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`;
+          },
+          (error) => {
+            document.getElementById('currentLocation').textContent = 'לא ניתן לקבל מיקום';
+          }
+        );
+      }
+    }
+
+    // פונקציות מצלמה
+    async function startCamera() {
+      try {
+        videoStream = await navigator.mediaDevices.getUserMedia({ 
+          video: { 
+            facingMode: 'environment' // מצלמה אחורית
+          } 
+        });
+        
+        const videoElement = document.getElementById('videoElement');
+        videoElement.srcObject = videoStream;
+        videoElement.style.display = 'block';
+        
+        document.getElementById('cameraOverlay').style.display = 'none';
+        document.getElementById('startCameraBtn').style.display = 'none';
+        document.getElementById('captureBtn').style.display = 'inline-block';
+        document.getElementById('stopCameraBtn').style.display = 'inline-block';
+        
+        document.getElementById('beforePhotoBtn').disabled = false;
+        
+        showNotification('📷 מצלמה פעילה! מוכנים לצלם');
+      } catch (error) {
+        showNotification('❌ לא ניתן להפעיל מצלמה: ' + error.message, 'error');
+      }
+    }
+
+    function stopCamera() {
+      if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+        videoStream = null;
+      }
+      
+      document.getElementById('videoElement').style.display = 'none';
+      document.getElementById('cameraOverlay').style.display = 'flex';
+      document.getElementById('startCameraBtn').style.display = 'inline-block';
+      document.getElementById('captureBtn').style.display = 'none';
+      document.getElementById('stopCameraBtn').style.display = 'none';
+      
+      showNotification('📱 מצלמה כובתה');
+    }
+
+    function capturePhoto() {
+      const video = document.getElementById('videoElement');
+      const canvas = document.getElementById('photoCanvas');
+      const ctx = canvas.getContext('2d');
+      
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0);
+      
+      return canvas.toDataURL('image/jpeg', 0.8);
+    }
+
+    function takeBeforePhoto() {
+      if (!videoStream) {
+        showNotification('❌ הפעילו את המצלמה תחילה!', 'error');
+        return;
+      }
+      
+      gameData.beforePhoto = capturePhoto();
+      showNotification('📸 תמונת "לפני" נצולמה!');
+      
+      // הצג כפתור "אחרי"
+      document.getElementById('beforePhotoBtn').disabled = true;
+      document.getElementById('afterPhotoBtn').style.display = 'block';
+      document.getElementById('afterPhotoBtn').disabled = false;
+    }
+
+    function takeAfterPhoto() {
+      if (!videoStream) {
+        showNotification('❌ הפעילו את המצלמה תחילה!', 'error');
+        return;
+      }
+      
+      gameData.afterPhoto = capturePhoto();
+      showNotification('📸 תמונת "אחרי" נצולמה!');
+      
+      // הצג כפתור השלמה
+      document.getElementById('afterPhotoBtn').disabled = true;
+      document.getElementById('completeMissionBtn').style.display = 'block';
+      document.getElementById('completeMissionBtn').disabled = false;
+    }
+
+    function completeMission() {
+      if (!gameData.currentMission || !gameData.beforePhoto || !gameData.afterPhoto) {
+        showNotification('❌ חסרות תמונות למשימה!', 'error');
+        return;
+      }
+      
+      // שמור את המשימה
+      const missionData = {
+        mission: gameData.currentMission,
+        beforePhoto: gameData.beforePhoto,
+        afterPhoto: gameData.afterPhoto,
+        timestamp: new Date().toISOString(),
+        location: currentLocation,
+        duration: Date.now() - gameData.startTime
+      };
+      
+      gameData.photos.push(missionData);
+      gameData.completedMissions.push(gameData.currentMission.id);
+      gameData.totalCleanups++;
+      gameData.totalPoints += gameData.currentMission.points;
+      
+      // נקה טיימר
+      if (missionTimer) {
+        clearInterval(missionTimer);
+        missionTimer = null;
+      }
+      
+      // כבה מצלמה
+      stopCamera();
+      
+      // שמור בזיכרון מקומי
+      saveGameData();
+      
+      showNotification(`🎉 מעולה! קיבלתם ${gameData.currentMission.points} נקודות!`);
+      
+      // חזור למסך הבית
+      setTimeout(() => {
+        showScreen('homeScreen', document.querySelectorAll('.nav-btn')[0]);
+      }, 2000);
+      
+      gameData.currentMission = null;
+    }
+
+    function updateGallery() {
+      const gallery = document.getElementById('photoGallery');
+      gallery.innerHTML = '';
+      
+      if (gameData.photos.length === 0) {
+        gallery.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; opacity: 0.5;">עדיין אין תמונות - צאו לנקות! 🌍</div>';
+        return;
+      }
+      
+      gameData.photos.forEach((photoData, index) => {
+        // תמונת "לפני"
+        const beforeItem = document.createElement('div');
+        beforeItem.className = 'photo-item';
+        beforeItem.onclick = () => showPhotoModal(photoData.beforePhoto, 'לפני - ' + photoData.mission.title);
+        beforeItem.innerHTML = `
+          <img src="${photoData.beforePhoto}" alt="לפני">
+          <div class="photo-overlay">
+            לפני - ${photoData.mission.title}
+          </div>
+        `;
+        gallery.appendChild(beforeItem);
+        
+        // תמונת "אחרי"
+        const afterItem = document.createElement('div');
+        afterItem.className = 'photo-item';
+        afterItem.onclick = () => showPhotoModal(photoData.afterPhoto, 'אחרי - ' + photoData.mission.title);
+        afterItem.innerHTML = `
+          <img src="${photoData.afterPhoto}" alt="אחרי">
+          <div class="photo-overlay">
+            אחרי - ${photoData.mission.title}
+          </div>
+        `;
+        gallery.appendChild(afterItem);
+      });
+    }
+
+    function showPhotoModal(photoSrc, title) {
+      // יצירת מודאל פשוט להצגת תמונה
+      const modal = document.createElement('div');
+      modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+        flex-direction: column;
+        padding: 20px;
+      `;
+      
+      modal.innerHTML = `
+        <h3 style="color: white; margin-bottom: 20px;">${title}</h3>
+        <img src="${photoSrc}" style="max-width: 90%; max-height: 70%; border-radius: 10px;">
+        <button onclick="this.parentElement.remove()" style="
+          margin-top: 20px;
+          background: #ff4757;
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 20px;
+          font-size: 1em;
+          cursor: pointer;
+        ">סגור</button>
+      `;
+      
+      document.body.appendChild(modal);
+    }
+
+    function updateProfile() {
+      document.getElementById('profileMissions').textContent = gameData.totalCleanups;
+      document.getElementById('profileLevel').textContent = Math.floor(gameData.totalPoints / 200) + 1;
+      document.getElementById('profilePhotos').textContent = gameData.photos.length * 2;
+      
+      // חישוב ימי פעילות
+      const uniqueDays = new Set(
+        gameData.photos.map(photo => 
+          new Date(photo.timestamp).toDateString()
+        )
+      );
+      document.getElementById('profileDays').textContent = uniqueDays.size;
+      
+      // עדכן הישגים
+      updateAchievements();
+    }
+
+    function updateAchievements() {
+      const achievementsList = document.getElementById('achievementsList');
+      achievementsList.innerHTML = '';
+      
+      const achievements = [];
+      
+      // הישגים בסיסיים
+      if (gameData.totalCleanups >= 1) {
+        achievements.push({ icon: '🌟', name: 'התחלה ירוקה', desc: 'משימה ראשונה' });
+      }
+      if (gameData.photos.length >= 5) {
+        achievements.push({ icon: '📸', name: 'צלם מקצועי', desc: '5 זוגות תמונות' });
+      }
+      if (gameData.totalPoints >= 500) {
+        achievements.push({ icon: '💎', name: 'צבר נקודות', desc: '500 נקודות' });
+      }
+      
+      // הישגים לאיכות אוויר
+      const airQualityMissions = gameData.completedMissions.filter(id => 
+        realMissions.find(m => m.id === id && m.type === 'air-quality')
+      );
+      
+      if (airQualityMissions.length >= 1) {
+        achievements.push({ icon: '🌬️', name: 'מגן האוויר', desc: 'משימת איכות אוויר ראשונה' });
+      }
+      if (airQualityMissions.length >= 3) {
+        achievements.push({ icon: '💨', name: 'שומר האטמוספירה', desc: '3 משימות איכות אוויר' });
+      }
+      if (airQualityMissions.length >= 5) {
+        achievements.push({ icon: '🌪️', name: 'מלך האוויר הנקי', desc: '5 משימות איכות אוויר' });
+      }
+      
+      // הישגים נוספים
+      const outdoorMissions = gameData.completedMissions.filter(id => 
+        realMissions.find(m => m.id === id && m.type === 'outdoor')
+      );
+      if (outdoorMissions.length >= 3) {
+        achievements.push({ icon: '🌍', name: 'מנקה העולם', desc: '3 ניקיונות חוץ' });
+      }
+      
+      if (achievements.length === 0) {
+        achievementsList.innerHTML = '<div style="text-align: center; opacity: 0.5; padding: 20px;">עדיין אין הישגים - השלימו משימות!</div>';
+      } else {
+        achievements.forEach(achievement => {
+          const badge = document.createElement('div');
+          badge.className = 'achievement-badge';
+          badge.innerHTML = `${achievement.icon} ${achievement.name}<br><small style="opacity: 0.7;">${achievement.desc}</small>`;
+          achievementsList.appendChild(badge);
+        });
+      }
+    }
+
+    function shareGallery() {
+      if (gameData.photos.length === 0) {
+        showNotification('❌ אין תמונות לשיתוף!', 'error');
+        return;
+      }
+      
+      const text = `🦸‍♂️ הצלתי את העולם עם פחית גיבורי-העל!\n🌍 ${gameData.totalCleanups} ניקיונות הושלמו\n🏆 ${gameData.totalPoints} נקודות סביבה\n📸 ${gameData.photos.length * 2} תמונות תועדו\n\n#פחית_גיבורי_העל #ניקיון_אמיתי #הצלת_הסביבה`;
+      
+      if (navigator.share) {
+        navigator.share({
+          title: 'פחית גיבורי-העל - הניקיונות שלי',
+          text: text
+        });
+      } else {
+        navigator.clipboard.writeText(text).then(() => {
+          showNotification('📋 הטקסט הועתק ללוח!');
+        });
+      }
+    }
+
+    function resetAllData() {
+      if (confirm('❌ האם אתם בטוחים שרוצים למחוק את כל הנתונים והתמונות?')) {
+        gameData = {
+          totalCleanups: 0,
+          totalPoints: 0,
+          completedMissions: [],
+          photos: [],
+          currentMission: null,
+          beforePhoto: null,
+          afterPhoto: null,
+          startTime: null
+        };
+        
+        localStorage.removeItem('heroCleanupData');
+        showNotification('🔄 כל הנתונים נמחקו!');
+        updateHomeScreen();
+        updateProfile();
+      }
+    }
+
+    function saveGameData() {
+      try {
+        localStorage.setItem('heroCleanupData', JSON.stringify(gameData));
+      } catch (error) {
+        console.error('שגיאה בשמירת נתונים:', error);
+      }
+    }
+
+    function loadGameData() {
+      try {
+        const saved = localStorage.getItem('heroCleanupData');
+        if (saved) {
+          const loadedData = JSON.parse(saved);
+          gameData = { ...gameData, ...loadedData };
+        }
+      } catch (error) {
+        console.error('שגיאה בטעינת נתונים:', error);
+      }
+    }
+
+    function showNotification(message, type = 'success') {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.className = `notification ${type}`;
+      notification.classList.add('show');
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 4000);
+    }
+
+    // אתחול האפליקציה
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('🦸‍♂️ אפליקציית ניקיון אמיתי מוכנה!');
+      
+      loadGameData();
+      updateHomeScreen();
+      updateMissionsScreen();
+      
+      // בדיקה אם יש תמיכה במצלמה
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        showNotification('⚠️ המכשיר לא תומך במצלמה', 'error');
+      }
+      
+      setTimeout(() => {
+        showNotification('🌍 ברוכים הבאים! זמן להציל את העולם בצורה אמיתית!');
+      }, 1000);
+    });
+
+    // שמירה אוטומטית
+    setInterval(saveGameData, 30000); // שמור כל 30 שניות
+  </script>
+</body>
+</html>

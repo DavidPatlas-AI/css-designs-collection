@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 אסטרואידים</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #000011, #1a1a2e, #16213e);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+            max-width: 650px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #00ff00;
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        /* Instructions */
+        .instructions {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(0, 100, 255, 0.1));
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .instructions h3 {
+            color: #00ffff;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            text-shadow: 0 0 5px #00ffff;
+        }
+
+        .instruction-steps {
+            text-align: right;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+        }
+
+        .step-number {
+            background: #00ffff;
+            color: #000;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-left: 10px;
+            flex-shrink: 0;
+            box-shadow: 0 0 10px #00ffff;
+        }
+
+        .step-text {
+            color: #e0e0e0;
+            font-weight: 500;
+        }
+
+        /* Player Setup Modal */
+        .modal {
+            display: flex;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,255,255,0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .modal h2 {
+            color: #00ffff;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 10px #00ffff;
+        }
+
+        .player-input {
+            margin-bottom: 1rem;
+        }
+
+        .player-input label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #e0e0e0;
+        }
+
+        .player-input input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+            font-size: 1rem;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .player-input input:focus {
+            outline: none;
+            border-color: #00ffff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        /* Game Info */
+        .game-info {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: rgba(0, 255, 0, 0.1);
+            border-radius: 10px;
+            border: 2px solid rgba(0, 255, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .score-info {
+            font-weight: bold;
+            color: #00ff00;
+            font-size: 1.1rem;
+        }
+
+        .player-name {
+            font-weight: bold;
+            color: #ffff00;
+            font-size: 1.1rem;
+        }
+
+        .lives-info {
+            font-weight: bold;
+            color: #ff6666;
+            font-size: 1.1rem;
+        }
+
+        /* Asteroids Canvas */
+        .asteroids-canvas {
+            border: 3px solid #00ff00;
+            border-radius: 15px;
+            background: #000011;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            margin: 1rem auto;
+            display: block;
+        }
+
+        /* Game Status */
+        .game-status {
+            margin: 1rem 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            min-height: 30px;
+        }
+
+        .winner {
+            color: #00ff00;
+        }
+
+        .error {
+            color: #ff6666;
+        }
+
+        .info {
+            color: #00ffff;
+        }
+
+        /* Winner Display */
+        .winner-display {
+            margin: 1rem 0;
+            font-size: 1.5rem;
+            font-weight: bold;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .celebration-message {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #333;
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 3px solid #ffd700;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+            animation: celebrationPulse 2s ease-in-out infinite alternate;
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        @keyframes celebrationPulse {
+            from {
+                box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+                transform: scale(1);
+            }
+            to {
+                box-shadow: 0 15px 40px rgba(255, 215, 0, 0.6);
+                transform: scale(1.05);
+            }
+        }
+
+        /* Fireworks Animation */
+        .fireworks {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .firework {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            animation: fireworkExplosion 2s ease-out forwards;
+        }
+
+        @keyframes fireworkExplosion {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(20);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(40);
+                opacity: 0;
+            }
+        }
+
+        /* Controls Info */
+        .controls {
+            background: rgba(0, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            color: #e0e0e0;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        /* Buttons */
+        .game-btn {
+            background: linear-gradient(135deg, #00ff00, #00cc00);
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+        }
+
+        .game-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 255, 0, 0.5);
+        }
+
+        /* Back button styles */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 170, 255, 0.9);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .back-btn:hover {
+            background: rgba(0, 170, 255, 1);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 170, 255, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .asteroids-canvas {
+                width: 100%;
+                max-width: 350px;
+                height: auto;
+            }
+            
+            .game-info {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Player Setup Modal -->
+    <div class="modal" id="playerSetupModal">
+        <div class="modal-content">
+            <h2>🚀 הכניסו את השם שלכם</h2>
+            <div class="player-input">
+                <label for="playerName">שם הטייס:</label>
+                <input type="text" id="playerName" placeholder="הכניסו שם..." maxlength="15">
+            </div>
+            <button class="game-btn" onclick="startGameWithName()">🚀 התחל משימה!</button>
+        </div>
+    </div>
+
+    <!-- Fireworks Container -->
+    <div class="fireworks" id="fireworksContainer"></div>
+
+    <a href="../../gallery.html" class="back-btn">← חזרה לבית</a>
+    
+    <div class="game-container">
+        <h1>🚀 אסטרואידים</h1>
+        
+        <!-- Game Instructions -->
+        <div class="instructions">
+            <h3>📖 איך משחקים?</h3>
+            <div class="instruction-steps">
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <span class="step-text">חץ למעלה (↑) - דחף מנועים קדימה</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <span class="step-text">חצים ימין ושמאל (←→) - סיבוב החללית</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <span class="step-text">רווח - ירי לייזר על האסטרואידים</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <span class="step-text">אסטרואידים גדולים מתפצלים לקטנים יותר</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">5</span>
+                    <span class="step-text">אל תיגעו באסטרואידים! יש לכם 3 חיים 💖</span>
+                </div>
+                <div class="step">
+                    <span class="step-number">6</span>
+                    <span class="step-text">המטרה: להרוס את כל האסטרואידים! 🏆</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-info">
+            <span class="player-name" id="playerNameDisplay">טייס</span>
+            <span class="score-info">ניקוד: <span id="asteroidsScore">0</span></span>
+            <span class="lives-info">חיים: <span id="asteroidsLives">3</span></span>
+        </div>
+        
+        <canvas class="asteroids-canvas" id="asteroidsCanvas" width="500" height="400"></canvas>
+        
+        <div class="game-status" id="asteroidsStatus">לחצו "התחל" כדי לשחק</div>
+        <div class="winner-display" id="asteroidsWinner"></div>
+        
+        <div class="controls">
+            🎮 ↑ דחף מנועים | ←→ סיבוב | רווח ירי<br>
+            🚀 לחצו על חץ כלשהו כדי להתחיל לטוס!<br>
+            🚀 החללית: משולש ירוק זוהר עם מנועים<br>
+            🪨 אסטרואידים: סלעים חומים שמתפצלים כשנורים בהם<br>
+            💥 כל אסטרואיד = 10 נקודות! אסטרואידים קטנים = 20 נקודות!
+        </div>
+        
+        <button class="game-btn" id="asteroidsBtn" onclick="toggleAsteroidsGame()">התחל</button>
+        <button class="game-btn" onclick="resetAsteroidsGame()">משחק חדש</button>
+    </div>
+
+    <script>
+        // Asteroids Game with Player Names and Visual Effects
+        const canvas = document.getElementById('asteroidsCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let asteroidsGameRunning = false;
+        let asteroidsScore = 0;
+        let asteroidsLives = 3;
+        let ship = { x: 250, y: 200, angle: 0, vx: 0, vy: 0 };
+        let asteroids = [];
+        let bullets = [];
+        let asteroidsGameLoop;
+        let playerName = 'טייס';
+        let bestScore = 0;
+        let asteroidsKeys = {};
+
+        // Show setup modal on page load
+        window.onload = function() {
+            document.getElementById('playerSetupModal').style.display = 'flex';
+        };
+
+        function startGameWithName() {
+            const name = document.getElementById('playerName').value.trim();
+            
+            if (name === '') {
+                alert('אנא הכניסו שם!');
+                return;
+            }
+            
+            playerName = name;
+            document.getElementById('playerNameDisplay').textContent = `טייס ${playerName}`;
+            
+            // Hide modal
+            document.getElementById('playerSetupModal').style.display = 'none';
+            
+            // Initialize game
+            initAsteroidsGame();
+            drawAsteroidsGame();
+            updateAsteroidsControls();
+        }
+
+        function initAsteroidsGame() {
+            asteroidsScore = 0;
+            asteroidsLives = 3;
+            ship = { x: 250, y: 200, angle: 0, vx: 0, vy: 0 };
+            asteroids = [];
+            bullets = [];
+            
+            // Create initial asteroids
+            for (let i = 0; i < 5; i++) {
+                asteroids.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 4,
+                    vy: (Math.random() - 0.5) * 4,
+                    size: 30 + Math.random() * 20,
+                    type: 'large'
+                });
+            }
+            
+            updateAsteroidsDisplay();
+        }
+
+        function drawAsteroidsGame() {
+            // Clear canvas with space background
+            ctx.fillStyle = '#000011';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw stars
+            ctx.fillStyle = 'white';
+            for (let i = 0; i < 80; i++) {
+                const x = (i * 37) % canvas.width;
+                const y = (i * 43) % canvas.height;
+                const size = Math.random() > 0.8 ? 2 : 1;
+                ctx.fillRect(x, y, size, size);
+            }
+            
+            // Draw ship
+            ctx.save();
+            ctx.translate(ship.x, ship.y);
+            ctx.rotate(ship.angle);
+            ctx.strokeStyle = '#00ff00';
+            ctx.fillStyle = '#00ff00';
+            ctx.lineWidth = 2;
+            ctx.shadowColor = '#00ff00';
+            ctx.shadowBlur = 15;
+            
+            // Ship body (triangle)
+            ctx.beginPath();
+            ctx.moveTo(20, 0);
+            ctx.lineTo(-15, -10);
+            ctx.lineTo(-10, 0);
+            ctx.lineTo(-15, 10);
+            ctx.closePath();
+            ctx.stroke();
+            ctx.fill();
+            
+            // Engine flames when accelerating
+            if (asteroidsKeys['ArrowUp']) {
+                ctx.fillStyle = '#ff6600';
+                ctx.shadowColor = '#ff6600';
+                ctx.shadowBlur = 10;
+                ctx.beginPath();
+                ctx.moveTo(-15, -5);
+                ctx.lineTo(-25, 0);
+                ctx.lineTo(-15, 5);
+                ctx.closePath();
+                ctx.fill();
+            }
+            
+            ctx.restore();
+            
+            // Draw asteroids
+            ctx.shadowBlur = 8;
+            asteroids.forEach(asteroid => {
+                ctx.fillStyle = '#8B4513';
+                ctx.shadowColor = '#654321';
+                
+                ctx.save();
+                ctx.translate(asteroid.x, asteroid.y);
+                
+                // Irregular asteroid shape
+                ctx.beginPath();
+                for (let i = 0; i < 8; i++) {
+                    const angle = (i / 8) * Math.PI * 2;
+                    const radius = asteroid.size + Math.sin(angle * 3) * (asteroid.size * 0.3);
+                    const x = Math.cos(angle) * radius;
+                    const y = Math.sin(angle) * radius;
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+                
+                // Asteroid texture dots
+                ctx.fillStyle = '#654321';
+                for (let i = 0; i < 6; i++) {
+                    const angle = (i / 6) * Math.PI * 2 + Math.random();
+                    const radius = asteroid.size * (0.3 + Math.random() * 0.4);
+                    const x = Math.cos(angle) * radius;
+                    const y = Math.sin(angle) * radius;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 2 + Math.random() * 2, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+                
+                ctx.restore();
+            });
+            
+            // Draw bullets
+            ctx.fillStyle = '#ffff00';
+            ctx.shadowColor = '#ffff00';
+            ctx.shadowBlur = 10;
+            bullets.forEach(bullet => {
+                ctx.beginPath();
+                ctx.arc(bullet.x, bullet.y, 3, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Bullet trail
+                ctx.strokeStyle = '#ffff00';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(bullet.x, bullet.y);
+                ctx.lineTo(bullet.x - bullet.vx * 3, bullet.y - bullet.vy * 3);
+                ctx.stroke();
+            });
+            
+            ctx.shadowBlur = 0;
+        }
+
+        function updateAsteroidsGame() {
+            if (!asteroidsGameRunning) return;
+            
+            // Update ship physics
+            ship.x += ship.vx;
+            ship.y += ship.vy;
+            ship.vx *= 0.99; // friction
+            ship.vy *= 0.99;
+            
+            // Wrap ship around screen
+            if (ship.x < 0) ship.x = canvas.width;
+            if (ship.x > canvas.width) ship.x = 0;
+            if (ship.y < 0) ship.y = canvas.height;
+            if (ship.y > canvas.height) ship.y = 0;
+            
+            // Update bullets
+            bullets.forEach((bullet, bulletIndex) => {
+                bullet.x += bullet.vx;
+                bullet.y += bullet.vy;
+                bullet.life--;
+                
+                // Wrap bullets around screen
+                if (bullet.x < 0) bullet.x = canvas.width;
+                if (bullet.x > canvas.width) bullet.x = 0;
+                if (bullet.y < 0) bullet.y = canvas.height;
+                if (bullet.y > canvas.height) bullet.y = 0;
+                
+                if (bullet.life <= 0) {
+                    bullets.splice(bulletIndex, 1);
+                    return;
+                }
+                
+                // Check bullet-asteroid collision
+                asteroids.forEach((asteroid, asteroidIndex) => {
+                    const dx = bullet.x - asteroid.x;
+                    const dy = bullet.y - asteroid.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < asteroid.size) {
+                        bullets.splice(bulletIndex, 1);
+                        
+                        // Award points
+                        if (asteroid.type === 'large') {
+                            asteroidsScore += 10;
+                        } else {
+                            asteroidsScore += 20;
+                        }
+                        updateAsteroidsDisplay();
+                        
+                        // Create smaller asteroids
+                        if (asteroid.size > 15) {
+                            for (let i = 0; i < 2; i++) {
+                                asteroids.push({
+                                    x: asteroid.x,
+                                    y: asteroid.y,
+                                    vx: (Math.random() - 0.5) * 6,
+                                    vy: (Math.random() - 0.5) * 6,
+                                    size: asteroid.size / 2,
+                                    type: 'small'
+                                });
+                            }
+                        }
+                        
+                        asteroids.splice(asteroidIndex, 1);
+                    }
+                });
+            });
+            
+            // Update asteroids
+            asteroids.forEach(asteroid => {
+                asteroid.x += asteroid.vx;
+                asteroid.y += asteroid.vy;
+                
+                // Wrap around screen
+                if (asteroid.x < 0) asteroid.x = canvas.width;
+                if (asteroid.x > canvas.width) asteroid.x = 0;
+                if (asteroid.y < 0) asteroid.y = canvas.height;
+                if (asteroid.y > canvas.height) asteroid.y = 0;
+                
+                // Check ship collision
+                const dx = ship.x - asteroid.x;
+                const dy = ship.y - asteroid.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < asteroid.size + 10) {
+                    asteroidsLives--;
+                    updateAsteroidsDisplay();
+                    
+                    if (asteroidsLives <= 0) {
+                        asteroidsGameOver();
+                        return;
+                    } else {
+                        // Reset ship position
+                        ship.x = canvas.width / 2;
+                        ship.y = canvas.height / 2;
+                        ship.vx = 0;
+                        ship.vy = 0;
+                    }
+                }
+            });
+            
+            // Check win condition
+            if (asteroids.length === 0) {
+                // Add more asteroids for next level
+                for (let i = 0; i < 7; i++) {
+                    asteroids.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        vx: (Math.random() - 0.5) * 5,
+                        vy: (Math.random() - 0.5) * 5,
+                        size: 25 + Math.random() * 15,
+                        type: 'large'
+                    });
+                }
+                
+                // Bonus points for clearing level
+                asteroidsScore += 100;
+                updateAsteroidsDisplay();
+            }
+            
+            drawAsteroidsGame();
+        }
+
+        function startAsteroidsGame() {
+            if (asteroidsGameRunning) return;
+            
+            asteroidsGameRunning = true;
+            document.getElementById('asteroidsStatus').textContent = `${playerName}, הרסו את האסטרואידים! 🚀`;
+            document.getElementById('asteroidsStatus').className = 'game-status info';
+            document.getElementById('asteroidsBtn').textContent = 'עצור';
+            
+            asteroidsGameLoop = setInterval(updateAsteroidsGame, 16); // ~60 FPS
+        }
+
+        function stopAsteroidsGame() {
+            asteroidsGameRunning = false;
+            clearInterval(asteroidsGameLoop);
+            document.getElementById('asteroidsStatus').textContent = 'המשחק הופסק';
+            document.getElementById('asteroidsStatus').className = 'game-status';
+            document.getElementById('asteroidsBtn').textContent = 'המשך';
+        }
+
+        function toggleAsteroidsGame() {
+            if (asteroidsGameRunning) {
+                stopAsteroidsGame();
+            } else {
+                // Don't start automatically, wait for arrow keys
+                document.getElementById('asteroidsStatus').textContent = `${playerName}, לחצו על החצים כדי להתחיל לטוס! 🚀`;
+                document.getElementById('asteroidsStatus').className = 'game-status info';
+                document.getElementById('asteroidsBtn').textContent = 'עצור';
+            }
+        }
+
+        function asteroidsGameOver() {
+            asteroidsGameRunning = false;
+            clearInterval(asteroidsGameLoop);
+            
+            // Check for new best score
+            if (asteroidsScore > bestScore) {
+                bestScore = asteroidsScore;
+                
+                // Show celebration for new record
+                const winnerDisplay = document.getElementById('asteroidsWinner');
+                winnerDisplay.innerHTML = `🎊 שיא חדש ${playerName}! 🎊<br>🏆 ${asteroidsScore} נקודות! 🏆`;
+                winnerDisplay.className = 'winner-display celebration-message';
+                createFireworks();
+                
+                document.getElementById('asteroidsStatus').textContent = `שיא חדש! המשחק נגמר`;
+                document.getElementById('asteroidsStatus').className = 'game-status winner';
+            } else {
+                document.getElementById('asteroidsStatus').textContent = `המשחק נגמר! הניקוד: ${asteroidsScore} (שיא: ${bestScore})`;
+                document.getElementById('asteroidsStatus').className = 'game-status error';
+            }
+            
+            document.getElementById('asteroidsBtn').textContent = 'התחל';
+        }
+
+        function resetAsteroidsGame() {
+            asteroidsGameRunning = false;
+            clearInterval(asteroidsGameLoop);
+            
+            initAsteroidsGame();
+            drawAsteroidsGame();
+            
+            document.getElementById('asteroidsStatus').textContent = `${playerName}, לחצו "התחל" או חצים כדי לטוס`;
+            document.getElementById('asteroidsStatus').className = 'game-status';
+            document.getElementById('asteroidsBtn').textContent = 'התחל';
+            
+            // Clear winner display and fireworks
+            document.getElementById('asteroidsWinner').textContent = '';
+            document.getElementById('asteroidsWinner').className = 'winner-display';
+            document.getElementById('fireworksContainer').innerHTML = '';
+        }
+
+        function updateAsteroidsDisplay() {
+            document.getElementById('asteroidsScore').textContent = asteroidsScore;
+            document.getElementById('asteroidsLives').textContent = asteroidsLives;
+        }
+
+        // Controls
+        document.addEventListener('keydown', (e) => {
+            asteroidsKeys[e.code] = true;
+            
+            // Start game when arrow keys are pressed
+            if ((e.code === 'ArrowLeft' || e.code === 'ArrowRight' || e.code === 'ArrowUp') && !asteroidsGameRunning) {
+                startAsteroidsGame();
+            }
+            
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (asteroidsGameRunning) {
+                    // Shoot bullet
+                    bullets.push({
+                        x: ship.x + Math.cos(ship.angle) * 20,
+                        y: ship.y + Math.sin(ship.angle) * 20,
+                        vx: Math.cos(ship.angle) * 10,
+                        vy: Math.sin(ship.angle) * 10,
+                        life: 120
+                    });
+                }
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            asteroidsKeys[e.code] = false;
+        });
+
+        // Asteroids movement update
+        function updateAsteroidsControls() {
+            if (asteroidsGameRunning && ship) {
+                if (asteroidsKeys['ArrowLeft']) {
+                    ship.angle -= 0.15;
+                }
+                if (asteroidsKeys['ArrowRight']) {
+                    ship.angle += 0.15;
+                }
+                if (asteroidsKeys['ArrowUp']) {
+                    ship.vx += Math.cos(ship.angle) * 0.3;
+                    ship.vy += Math.sin(ship.angle) * 0.3;
+                }
+            }
+            requestAnimationFrame(updateAsteroidsControls);
+        }
+
+        // Fireworks animation
+        function createFireworks() {
+            const container = document.getElementById('fireworksContainer');
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff'];
+            
+            for (let i = 0; i < 25; i++) {
+                setTimeout(() => {
+                    const firework = document.createElement('div');
+                    firework.className = 'firework';
+                    firework.style.left = Math.random() * 100 + '%';
+                    firework.style.top = Math.random() * 100 + '%';
+                    firework.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    container.appendChild(firework);
+                    
+                    // Remove firework after animation
+                    setTimeout(() => {
+                        if (firework.parentNode) {
+                            firework.parentNode.removeChild(firework);
+                        }
+                    }, 2000);
+                }, i * 150);
+            }
+        }
+    </script>
+</body>
+</html>
