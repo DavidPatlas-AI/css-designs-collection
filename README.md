@@ -1,3 +1,3 @@
-# 77 CSS effects: animations, cards, gradients | אוסף עיצובי CSS
-
-MIT © 2026 [David Patlas](https://github.com/DavidPatlas-AI)
+# אוסף עיצובי CSS — 77 CSS Effects
+77 אפקטי CSS: אנימציות, כרטיסים, גרדיאנטים.
+**הרצה:** פתח `gallery.html`.
